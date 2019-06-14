@@ -1,0 +1,9 @@
+<resources>
+  <string name="app_name">SmartLyrics</string>
+  <string name="navigation_drawer_open">Open navigation drawer</string>
+  <string name="navigation_drawer_close">Close navigation drawer</string>
+  <string name="action_settings">Settings</string>
+  <string name="searchHint">Search...</string>
+  <string name="headerDesc">Header background image for decoration, defined for each song</string>
+  <string name="coverDesc">Song\'s album cover</string>
+</resources>

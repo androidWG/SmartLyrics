@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="horizontal"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:minWidth="25px"
+		android:minHeight="25px">
+    <ImageView
+        android:id="@+id/cover"
+        android:minHeight="60dp"
+        android:minWidth="60dp"
+        android:paddingLeft="5dp"
+        android:paddingBottom="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="10dp"
+        android:maxHeight="70dp"
+        android:maxWidth="70dp"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content" />
+	<LinearLayout
+			android:orientation="vertical"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:id="@+id/linearLayout2"
+			android:layout_marginTop="10dp" android:layout_marginStart="10dp">
+		<TextView
+				android:text="Large Text"
+				android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:id="@+id/title"/>
+		<TextView
+				android:text="Medium Text"
+				android:textAppearance="@style/TextAppearance.AppCompat.Small"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:id="@+id/artist"/>
+	</LinearLayout>
+</LinearLayout>

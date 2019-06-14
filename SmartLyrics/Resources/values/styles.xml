@@ -1,0 +1,17 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+      <item name="colorPrimary">@color/colorPrimary</item>
+      <item name="colorAccent">@color/colorAccent</item>
+      <item name="android:windowBackground">@color/colorBackground</item>
+      <item name="android:navigationBarColor">@color/colorBackground</item>
+      <item name="android:statusBarColor">@color/colorStatusBar</item>
+      <item name="android:colorButtonNormal">@color/colorButtonBackground</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+      <item name="windowActionBar">false</item>
+      <item name="windowNoTitle">true</item>
+    </style>
+
+</resources>
