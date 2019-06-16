@@ -13,7 +13,6 @@ using Android.Content;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
-using Android.Graphics.Drawables;
 using FFImageLoading;
 using FFImageLoading.Transformations;
 using Newtonsoft.Json.Linq;
@@ -31,7 +30,7 @@ namespace SmartLyrics
         string[] songExtraInfo;
         int coverRadius = 10;
         int headerBlur = 20;
-        int searchBlur = 50;
+        int searchBlur = 25;
 
         protected override async void OnCreate(Bundle savedInstanceState)
         {
@@ -71,7 +70,7 @@ namespace SmartLyrics
                     songArtist.Text = Intent.GetStringExtra("Artist") ?? "Data not availible";
                     ImageService.Instance.LoadUrl(Intent.GetStringExtra("Cover")).Transform(new RoundedTransformation(coverRadius)).Into(coverView);
                     ImageService.Instance.LoadUrl(Intent.GetStringExtra("Header")).Transform(new BlurredTransformation(headerBlur)).Into(headerView);
-                    ImageService.Instance.LoadUrl(Intent.GetStringExtra("Header")).Transform(new BlurredTransformation(searchBlur)).Into(searchView);
+                    ImageService.Instance.LoadUrl(Intent.GetStringExtra("Header")).Transform(new CropTransformation(3, 0, 0)).Transform(new BlurredTransformation(searchBlur)).Transform(new BlurredTransformation(searchBlur)).Into(searchView);
                 }
             }
             else if (Intent.GetStringExtra("FromFile") == "true")

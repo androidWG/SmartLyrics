@@ -97,6 +97,7 @@ namespace SmartLyrics
         {
             public string title { get; set; }
             public string artist { get; set; }
+            public string album { get; set; }
             public string featuredArtist { get; set; }
             public string cover { get; set; }
             public string header { get; set; }

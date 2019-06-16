@@ -6,4 +6,7 @@
   <string name="searchHint">Search...</string>
   <string name="headerDesc">Header background image for decoration, defined for each song</string>
   <string name="coverDesc">Song\'s album cover</string>
+  <string name="searchBtnTitle">Search</string>
+  <string name="needStoragePermission">We need your permission to store and read saved lyrics from your device</string>
+  <string name="permissionDenied">Permission denied</string>
 </resources>
