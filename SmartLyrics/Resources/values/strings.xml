@@ -1,12 +1,58 @@
 <resources>
-  <string name="app_name">SmartLyrics</string>
-  <string name="navigation_drawer_open">Open navigation drawer</string>
-  <string name="navigation_drawer_close">Close navigation drawer</string>
-  <string name="action_settings">Settings</string>
-  <string name="searchHint">Search...</string>
-  <string name="headerDesc">Header background image for decoration, defined for each song</string>
-  <string name="coverDesc">Song\'s album cover</string>
-  <string name="searchBtnTitle">Search</string>
-  <string name="needStoragePermission">We need your permission to store and read saved lyrics from your device</string>
-  <string name="permissionDenied">Permission denied</string>
+    <string name="app_name" translatable="false">SmartLyrics</string>
+    <string name="channelName">Lyrics Available</string>
+    <string name="channelDescription">Shows a notification when SmartLyrics finds lyrics for a song playing.</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="searchHint">Search...</string>
+    <string name="needStoragePermission">We need your permission to store and read saved lyrics from your device</string>
+    <string name="permissionDenied">Permission denied</string>
+    <string name="descHeader">Header background image for this song</string>
+    <string name="descCover">Songs album cover, tap to save lyrics to device</string>
+    <string name="savedSuccessfully">Lyrics saved successfully</string>
+    <string name="nowPlaying">NOW PLAYING</string>
+    <string name="drawerSearch">Search</string>
+    <string name="drawerSaved">Saved Lyrics</string>
+    <string name="drawerSettings">Settings</string>
+    <string name="drawerAbout">About</string>
+    <string name="descDecorationBG">Decoration background image</string>
+    <string name="mainWelcome">Start playing any song on your favorite app to see its lyrics displayed here, or use the
+        search bar on the top of the screen to search lyrics.
+    </string>
+    <string name="mainWelcomeHeader">WELCOME TO SMARTLYRICS</string>
+    <string name="mainGotoSaved">GO TO SAVED LYRICS</string>
+    <string name="descSeacrhBtn">Show search bar</string>
+    <string name="descDrawerBtn">Open drawer</string>
+    <string name="filterHint">Filter coming soon</string>
+    <string name="drawerSpotify">Connect to Spotify</string>
+    <string name="mainSpotifyHeader">WE ARE ALMOST THERE</string>
+    <string name="mainSpotify">Press the big green button below to start downloading lyrics to all your songs.</string>
+    <string name="downloadLyrics">DOWNLOAD LYRICS</string>
+    <string name="mainSpotifyStarted">There we go! SmartLyrics will download your lyrics on the background so you can go
+        do something else instead of sitting here watching paint dry. You can check the progress by looking at the
+        notification we just created or checking back here on this page of the app.
+    </string>
+    <string name="overallProgress">Overall Progress</string>
+    <string name="descSaved">Icon indicating this lyric is already saved</string>
+    <string name="alreadySaved">This song is already saved</string>
+    <string name="serviceLabel">Lyrics Download Background Service</string>
+    <string name="notificationTitle">Downloading Lyrics</string>
+    <string name="notificationDesc">SmartLyrics is downloading all lyrics for your Spotify library in the background</string>
+    <string name="notificationChannelName">Lyrics Download Progress</string>
+    <string name="notificationChannelDesc">"Shows the progress when you ask SmartLyrics to download lyrics for all your
+        songs.\n "
+    </string>
+    <string name="mainSpotifyFinished">Lyrics to all of your Spotify tracks have been downloaded to your device. You can
+        go to the Saved Lyrics page on the app drawer to browse all your downloaded songs or start playing from any
+        music app to see its lyrics.
+    </string>
+    <string name="mainSpotifyFinishedHeader">WE ARE DONE!</string>
+    <string name="prefDetect">Show detected song notification</string>
+    <string name="prefDetectSummary">Shows a notification when SmartLyrics detects a song playing with matching lyrics.
+        This does not stop the listener service.
+    </string>
+    <string name="prefHeader">Save header images</string>
+    <string name="prefHeaderSummary">Enabling this will allow SmartLyrics to save header images together with cover
+        images. Disabling it might save you a few megabytes of storage if you have a large library.
+    </string>
 </resources>

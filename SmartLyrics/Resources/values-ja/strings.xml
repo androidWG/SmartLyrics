@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="channelDescription">SmartLyricsが再生中の曲の歌詞を見つけたときに通知を表示します。</string>
+    <string name="channelName">歌詞あり</string>
+    <string name="navigation_drawer_close">ナビゲーション引き出しを閉じる</string>
+    <string name="navigation_drawer_open">ナビゲーション引き出しを開く</string>
+    <string name="needStoragePermission">私たちはあなたのデバイスから保存された歌詞を保存して読むためにあなたの許可が必要です</string>
+    <string name="nowPlaying">再生中</string>
+    <string name="permissionDenied">アクセス拒否</string>
+    <string name="searchHint">検索する</string>
+    <string name="savedSuccessfully">歌詞を保存しました</string>
+    <string name="drawerAbout">約</string>
+    <string name="drawerSaved">保存した歌詞</string>
+    <string name="drawerSearch">サーチ</string>
+    <string name="drawerSettings">設定</string>
+    <string name="descCover">曲のアルバムカバー、タップしてデバイスに歌詞を保存する</string>
+    <string name="descHeader">この曲のヘッダー背景画像</string>
+    <string name="descDecorationBG">装飾背景画像</string>
+    <string name="mainWelcome">お気に入りのアプリで曲を再生して歌詞をここに表示するか、画面上部の検索バーを使って歌詞を検索します。</string>
+    <string name="mainWelcomeHeader">SMARTLYRICSへようこそ</string>
+    <string name="mainGotoSaved">保存された歌詞に行く</string>
+    <string name="descSeacrhBtn">検索バーを表示</string>
+    <string name="descDrawerBtn">引き出しを開く</string>
+    <string name="filterHint">で絞り込む</string>
+    <string name="drawerSpotify">Spotifyに接続する</string>
+    <string name="mainSpotifyHeader">私たちは、ほぼ、そこにいる</string>
+    <string name="mainSpotify">下の大きな緑色のボタンを押すと、すべての曲に歌詞がダウンロードされます。</string>
+    <string name="downloadLyrics">歌詞をダウンロード</string>
+    <string name="mainSpotifyStarted">
+        そこに行きます！SmartLyricsはバックグラウンドであなたの歌詞をダウンロードするので、あなたは乾燥した塗料を見ながらここに座っている代わりに他のことをすることができます。あなたは私たちが今作成した通知を見るか、アプリのこのページでここに戻ってチェックすることによって進行状況をチェックすることができます。
+    </string>
+    <string name="overallProgress">全体的な進捗状況</string>
+    <string name="descSaved">この歌詞を示すアイコンは既に保存されています</string>
+    <string name="alreadySaved">この曲は既に保存されています</string>
+    <string name="serviceLabel">歌詞ダウンロードバックグラウンドサービス</string>
+    <string name="notificationTitle">歌詞をダウンロードする</string>
+    <string name="notificationDesc">SmartLyricsは、Spotifyライブラリの全ての歌詞をバックグラウンドでダウンロードしています。</string>
+    <string name="notificationChannelName">歌詞ダウンロードの進行状況</string>
+    <string name="notificationChannelDesc">SmartLyricsにすべての曲の歌詞をダウンロードするよう依頼したときの進行状況を表示します。</string>
+    <string name="mainSpotifyFinishedHeader">私たちは終わりました！</string>
+    <string name="mainSpotifyFinished">すべてのSpotifyトラックの歌詞があなたのデバイスにダウンロードされました。
+        あなたはダウンロードしたすべての曲を閲覧するためにアプリの引き出しの上に保存された歌詞のページに行き、その歌詞を見るためにどんな音楽アプリからでも演奏を始めることができます。
+    </string>
+    <string name="prefDetect">検出された曲の通知を表示</string>
+    <string name="prefDetectSummary">SmartLyricsが、一致する歌詞で再生されている曲を検出したときに通知を表示します。 これはリスナーサービスを停止しません。</string>
+    <string name="prefHeader">ヘッダー画像を保存する</string>
+    <string name="prefHeaderSummary">これを有効にすると、SmartLyricsはカバー画像と一緒にヘッダ画像を保存することができます。
+        大規模なライブラリがある場合は、これを無効にすると、数メガバイトのストレージを節約できます。
+    </string>
+</resources>

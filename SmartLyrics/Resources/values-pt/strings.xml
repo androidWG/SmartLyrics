@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="channelDescription">"Mostra uma notificação quando o SmartLyrics encontra a letra para uma música
+        tocando."
+    </string>
+    <string name="channelName">Letra Disponível</string>
+    <string name="navigation_drawer_close">Fechar o menu de navegação</string>
+    <string name="navigation_drawer_open">Abrir o menu de navegação</string>
+    <string name="needStoragePermission">"Precisamos da sua permissão para gravar e ler letras salvas no seu
+        dispositivo "
+    </string>
+    <string name="nowPlaying">TOCANDO AGORA</string>
+    <string name="permissionDenied">Permissão negada</string>
+    <string name="searchHint">Pesquisar...</string>
+    <string name="savedSuccessfully">Letra salva com sucesso</string>
+    <string name="drawerAbout">Sobre</string>
+    <string name="drawerSaved">Letras Salvas</string>
+    <string name="drawerSearch">Pesquisar</string>
+    <string name="drawerSettings">Configurações</string>
+    <string name="descCover">Capa do album da música, toque para salva essa letra no seu dispositivo</string>
+    <string name="descHeader">Imagem do cabeçalho de fundo para esta música</string>
+    <string name="descDecorationBG">Imagem de fundo de decoração</string>
+    <string name="mainWelcome">Comece a reproduzir qualquer música em seu aplicativo favorito para ver a letra exibida
+        aqui ou use a barra de pesquisa no topo da tela para pesquisar uma música.
+    </string>
+    <string name="mainWelcomeHeader">BEM-VINDO AO SMARTLYRICS</string>
+    <string name="mainGotoSaved">IR PARA LETRAS SALVAS</string>
+    <string name="descSeacrhBtn">Mostar barra de pesquisa</string>
+    <string name="descDrawerBtn">Abrir gaveta</string>
+    <string name="filterHint">Filtragem em breve</string>
+    <string name="drawerSpotify">Conectar ao Spotify</string>
+    <string name="mainSpotifyHeader">ESTAMOS QUASE LÁ</string>
+    <string name="mainSpotify">Pressione o botão verde e grande aqui embaixo para começar a baixar as letras de todas as
+        suas músicas.
+    </string>
+    <string name="downloadLyrics">BAIXAR LETRAS</string>
+    <string name="mainSpotifyStarted">E lá vamos nós! O SmartLyrics baixará suas letras no plano de fundo para que você
+        possa fazer outra coisa ao invés de ficar vendo a tinta secar aqui. Você pode verificar o progresso checando a
+        notificação que acabamos de criar ou conferindo aqui nessa página do aplicativo.
+    </string>
+    <string name="overallProgress">Progresso Total</string>
+    <string name="descSaved">Icone indicando que esta letra já esta salva</string>
+    <string name="alreadySaved">Essa música já esta salva</string>
+    <string name="serviceLabel">Serviço de Download de Letras</string>
+    <string name="notificationTitle">Baixando Letras</string>
+    <string name="notificationDesc">O SmartLyrics está baixando as letras de todas músicas na sua biblioteca do Spotify
+        no plano de fundo
+    </string>
+    <string name="notificationChannelName">Progresso do Download de Letras</string>
+    <string name="notificationChannelDesc">Mostra o progresso quando você pede para o SmartLyrics baixar a letra de
+        todas as suas músicas.
+    </string>
+    <string name="mainSpotifyFinishedHeader">TERMINAMOS!</string>
+    <string name="mainSpotifyFinished">As letras de todas suas músicas do Spotify foram salvas no seu dispositivo. Você
+        pode ir para a página Letras Salvas para navegar por todas suas músicas salvas ou só começe a tocar em qualquer
+        app de música para ver a sua letra.
+    </string>
+    <string name="prefDetect">Mostrar notificação para músicas detectadas</string>
+    <string name="prefDetectSummary">Mostra uma notificação quando o SmartLyrics detecta uma música tocando com uma
+        letra correspondente. Isso não desativa o serviço de acesso às notificações.
+    </string>
+    <string name="prefHeader">Salvar imagens do cabeçalho</string>
+    <string name="prefHeaderSummary">Ativar essa opção permite que o SmartLyrics salve imagens de fundo do cabeçalho
+        junto com a imagem da capa da música. Desativar isso pode salvar alguns megabytes de armazenamento se você tiver
+        uma biblioteca grande.
+    </string>
+</resources>

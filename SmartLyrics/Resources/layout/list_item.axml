@@ -1,40 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 		xmlns:android="http://schemas.android.com/apk/res/android"
-		android:orientation="horizontal"
+		xmlns:app="http://schemas.android.com/apk/res-auto" android:orientation="horizontal"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:minWidth="25px"
-		android:minHeight="25px">
+		android:layout_height="wrap_content"
+		android:padding="16dp">
 	<ImageView
 			android:id="@+id/cover"
-			android:minHeight="60dp"
-			android:minWidth="60dp"
-			android:maxHeight="70dp"
-			android:maxWidth="70dp"
 			android:scaleType="fitCenter"
 			android:adjustViewBounds="true"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content" android:layout_margin="8dp"/>
+			android:layout_height="70dp"
+			android:layout_width="70dp" android:contentDescription="@string/descCover"/>
 	<LinearLayout
 			android:orientation="vertical"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:id="@+id/linearLayout2"
-			android:layout_marginTop="8dp">
-        <TextView
-            android:text="Large Text"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/title"
-            android:textSize="20sp" />
-        <TextView
-            android:text="Medium Text"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/artist"
-            android:textSize="16sp" />
+			android:layout_marginStart="14dp">
+		<TextView
+				android:textAppearance="@style/textSearchTitle"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:id="@+id/songTitle"/>
+		<TextView
+				android:textAppearance="@style/textSearchArtist"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:id="@+id/songArtist" android:layout_marginTop="4dp"/>
 	</LinearLayout>
 </LinearLayout>

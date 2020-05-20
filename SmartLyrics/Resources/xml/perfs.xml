@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+            android:defaultValue="true"
+            android:title="@string/prefDetect" android:key="detect_song"
+            android:summary="@string/prefDetectSummary"
+    />
+    <SwitchPreference
+            android:defaultValue="true"
+            android:title="@string/prefHeader" android:key="save_header"
+            android:summary="@string/prefHeaderSummary"/>
+    <EditTextPreference
+            android:defaultValue="Default value"
+            android:selectAllOnFocus="true"
+            android:singleLine="false"
+            android:title="SmartLyrics" android:key="info" android:summary="Made by Samuel Rodrigues, 2019"/>
+</PreferenceScreen>

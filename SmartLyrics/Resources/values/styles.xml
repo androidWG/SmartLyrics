@@ -16,4 +16,154 @@
       <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="textHeader">
+        <item name="android:textSize">28sp</item>
+        <item name="android:fontFamily">@font/lato_black</item>
+        <item name="android:textColor">@color/veryWhite</item>
+    </style>
+
+    <style name="textNP">
+        <item name="android:textSize">24sp</item>
+        <item name="android:fontFamily">@font/open_sans_extrabold</item>
+        <item name="android:textColor">@color/veryWhite</item>
+    </style>
+
+    <style name="textTitle">
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">@font/open_sans_bold</item>
+        <item name="android:textColor">@color/veryWhite</item>
+    </style>
+
+    <style name="textArtist">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@font/open_sans_semibold</item>
+        <item name="android:textColor">@color/veryWhite</item>
+    </style>
+
+    <style name="textFeat">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">@font/open_sans</item>
+        <item name="android:textColor">@color/lightGray</item>
+    </style>
+
+    <style name="textAlbum">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@font/open_sans_semibold_italic</item>
+        <item name="android:textColor">@color/veryWhite</item>
+    </style>
+
+    <style name="textLyrics">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">@font/open_sans</item>
+        <item name="android:textColor">@color/lessWhite</item>
+    </style>
+
+    <style name="textWelcome">
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">@font/open_sans</item>
+        <item name="android:textColor">@color/lessWhite</item>
+    </style>
+
+    <style name="textWelcomeHeader">
+        <item name="android:textSize">22sp</item>
+        <item name="android:fontFamily">@font/mplus1p_black</item>
+        <item name="android:textColor">@color/lessWhite</item>
+    </style>
+
+    <style name="textSearchTitle">
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">@font/lato_bold</item>
+        <item name="android:textColor">@color/lessWhite</item>
+    </style>
+
+    <style name="textSearchArtist">
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">@font/open_sans</item>
+        <item name="android:textColor">@color/lessWhite</item>
+    </style>
+
+    <style name="textDrawer">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@font/open_sans</item>
+        <item name="android:textColor">@color/veryWhite</item>
+    </style>
+
+    <style name="textNGArtist">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">@font/open_sans</item>
+        <item name="android:textColor">@color/veryWhite</item>
+    </style>
+
+    <style name="textNGTitles">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@font/open_sans_semibold</item>
+        <item name="android:textColor">@color/veryWhite</item>
+    </style>
+
+    <style name="textSavedArtist">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@font/open_sans_semibold</item>
+        <item name="android:textColor">@color/veryWhite</item>
+    </style>
+
+    <style name="textSavedTitles">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">@font/open_sans</item>
+        <item name="android:textColor">@color/veryWhite</item>
+    </style>
+
+    <style name="imageButtonNoBackground" parent="@style/Widget.AppCompat.ImageButton">
+        <item name="android:background">#00ffffff</item>
+    </style>
+
+    <style name="buttonDefault" parent="@style/Widget.AppCompat.Button">
+        <item name="android:background">@drawable/bg_button</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:fontFamily">@font/open_sans_bold</item>
+        <item name="android:textColor">@color/lessWhite</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:paddingStart">9dp</item>
+        <item name="android:paddingEnd">9dp</item>
+    </style>
+
+    <style name="buttonGreen" parent="@style/Widget.AppCompat.Button">
+        <item name="android:background">@drawable/bg_button</item>
+        <item name="android:backgroundTint">#32c13e</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:fontFamily">@font/open_sans_bold</item>
+        <item name="android:textColor">@color/lessWhite</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:paddingStart">9dp</item>
+        <item name="android:paddingEnd">9dp</item>
+    </style>
+
+    <style name="buttonGroup" parent="@style/Widget.AppCompat.Button">
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/bg_group</item>
+        <item name="android:height">28dp</item>
+        <item name="android:width">28dp</item>
+        <item name="android:padding">4dp</item>
+    </style>
+
+    <style name="editText_searchBar" parent="@style/Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/bg_search</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:fontFamily">@font/lato</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="editText_filter" parent="@style/Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/bg_filter</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:fontFamily">@font/lato</item>
+        <item name="android:textSize">18sp</item>
+    </style>
 </resources>
