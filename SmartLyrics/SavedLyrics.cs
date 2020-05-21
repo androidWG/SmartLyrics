@@ -22,6 +22,8 @@ using Plugin.Permissions.Abstractions;
 using Plugin.Permissions;
 using Plugin.CurrentActivity;
 
+using Microsoft.AppCenter.Crashes;
+
 namespace SmartLyrics
 {
     [Activity(Label = "SavedLyrics", ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenSize | Android.Content.PM.ConfigChanges.Orientation, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
@@ -29,8 +31,8 @@ namespace SmartLyrics
     {
         List<Artist> artistClassList = new List<Artist>();
         bool nonGrouped = false;
-        string savedLyricsLocation = "SmartLyrics/Saved Lyrics/";
-        string savedSeparator = @"!@=-@!";
+        readonly string savedLyricsLocation = "SmartLyrics/Saved Lyrics/";
+        readonly string savedSeparator = @"!@=-@!";
 
         protected override async void OnCreate(Bundle savedInstanceState)
         {
@@ -121,7 +123,7 @@ namespace SmartLyrics
             var path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation);
             Log.WriteLine(LogPriority.Info, "SmartLyrics", $"SavedLyrics.cs: Path is \"{path}\"");
 
-            await GlobalMethods.CheckIfAppFolderExists();
+            await Globals.CheckAndCreateAppFolders();
             string[] filesList = Directory.GetFiles(path);
 
             if (filesList != null)
@@ -189,9 +191,11 @@ namespace SmartLyrics
                 }
                 else
                 {
-                    Artist artist = new Artist();
-                    artist.name = splitted[0];
-                    artist.songs = new List<string>();
+                    Artist artist = new Artist
+                    {
+                        name = splitted[0],
+                        songs = new List<string>()
+                    };
                     artist.songs.Add(splitted[1]);
                     artistClassList.Add(artist);
                     Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SavedLyrics.cs: Artist doesn't exist, creating artist...");
@@ -199,7 +203,7 @@ namespace SmartLyrics
             }
         }
 
-        //This method isn't on GlobalMethods because it would be too hard to
+        //this method isn't on Globals because it would be too hard to
         //show the snackbar without proper context (Activity references)
         public async Task CheckAndSetPermissions(string permission)
         {
@@ -249,6 +253,7 @@ namespace SmartLyrics
             catch (Exception ex)
             {
                 Log.WriteLine(LogPriority.Error, "SmartLyrics", "MainActivity.cs: Exception caught! " + ex.Message);
+                Crashes.TrackError(ex);
             }
         }
 
@@ -257,8 +262,8 @@ namespace SmartLyrics
             DrawerLayout drawer = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);
 
             e.MenuItem.SetCheckable(true);
-            var intent = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
-
+            _ = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
+            Intent intent;
             switch (e.MenuItem.ItemId)
             {
                 case (Resource.Id.nav_search):

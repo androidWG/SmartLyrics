@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net;
-using System.Threading.Tasks;
-using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
+﻿using Android.App;
 using Android.Views;
 using Android.Widget;
-using Android.Graphics;
+
 using FFImageLoading;
 using FFImageLoading.Transformations;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SmartLyrics
 {

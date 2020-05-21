@@ -1,15 +1,6 @@
 ﻿using Android.App;
-using Android.Content;
-using Android.Content.Res;
 using Android.Graphics;
-using Android.OS;
-using Android.Support.Design.Widget;
-using Android.Support.V4.Content;
 using Android.Util;
-using Android.Views;
-using Android.Widget;
-using Plugin.Permissions;
-using Plugin.Permissions.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,10 +10,14 @@ using Path = System.IO.Path;
 
 namespace SmartLyrics
 {
-    class GlobalMethods
+    class Globals
     {
         public static string savedLyricsLocation = "SmartLyrics/Saved Lyrics/";
         public static string savedImagesLocation = "SmartLyrics/Saved Lyrics/Image Cache/";
+        public static string databaseLocation = "/.lyricsdatabse";
+
+        private static string path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation);
+        private static string pathImg = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedImagesLocation);
 
         public static async Task<int> Distance(string s, string t)
         {
@@ -60,7 +55,7 @@ namespace SmartLyrics
             return d[n, m];
         }
 
-        public static bool isInForeground()
+        public static bool IsInForeground()
         {
             RunningAppProcessInfo myProcess = new RunningAppProcessInfo();
             GetMyMemoryState(myProcess);
@@ -96,31 +91,41 @@ namespace SmartLyrics
             return sumBrightness / count;
         }
 
-        public static async Task CheckIfAppFolderExists()
+        public static async Task CheckAndCreateAppFolders()
         {
-            var path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation);
-            var pathImg = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedImagesLocation);
-
             //TODO: add IOException handling
 
             if (Directory.Exists(path))
             {
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "GlobalMethods: /SmartLyrics/Saved Lyrics directory exists!");
+                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "Globals.cs: /SmartLyrics/Saved Lyrics directory exists!");
             }
             else
             {
                 Directory.CreateDirectory(path);
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "GlobalMethods: /SmartLyrics/Saved Lyrics directory doesn't exist, creating...");
+                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "Globals.cs: /SmartLyrics/Saved Lyrics directory doesn't exist, creating...");
             }
 
             if (Directory.Exists(pathImg))
             {
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "GlobalMethods: /SmartLyrics/Saved Lyrics/ImageCache directory exists!");
+                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "Globals.cs: /SmartLyrics/Saved Lyrics/ImageCache directory exists!");
             }
             else
             {
                 Directory.CreateDirectory(pathImg);
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "GlobalMethods: /SmartLyrics/Saved Lyrics/ImageCache directory doesn't exist, creating...");
+                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "Globals.cs: /SmartLyrics/Saved Lyrics/ImageCache directory doesn't exist, creating...");
+            }
+        }
+
+        public static async Task CheckAndCreateDatabaseFile()
+        {
+            if (File.Exists(Path.Combine(path, databaseLocation)))
+            {
+                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "Globals.cs: Databse file already exists!");
+            }
+            else
+            {
+                
+                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "Globals.cs: Databse file doesn't exist, creating...");
             }
         }
     }

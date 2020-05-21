@@ -1,29 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Android.App;
+﻿using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Runtime;
 using Android.Support.V4.App;
 using Android.Util;
-using Android.Views;
-using Android.Widget;
+
 using FFImageLoading;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
-using static SmartLyrics.GlobalMethods;
-using TaskStackBuilder = Android.Support.V4.App.TaskStackBuilder;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using static SmartLyrics.Globals;
 
 namespace SmartLyrics
 {
     [Service(Name = "com.SamuelR.SmartLyrics.DownloadService")]
     public class DownloadService : Service
     {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
         List<Song> savedTracks = new List<Song>();
         int maxDistance = 4;
         float current = 0;

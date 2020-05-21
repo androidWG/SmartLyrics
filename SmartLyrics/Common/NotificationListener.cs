@@ -12,7 +12,7 @@ using Android.Support.V4.App;
 using TaskStackBuilder = Android.Support.V4.App.TaskStackBuilder;
 
 using Newtonsoft.Json.Linq;
-using static SmartLyrics.GlobalMethods;
+using static SmartLyrics.Globals;
 using Android.Preferences;
 
 namespace SmartLyrics
@@ -119,7 +119,7 @@ namespace SmartLyrics
 
                     songFound = true;
 
-                    if (!isInForeground())
+                    if (!IsInForeground())
                     {
                         createNotification(artist, title);
                         MainActivity.checkOnStart = true;
@@ -157,7 +157,7 @@ namespace SmartLyrics
 
                         songFound = true;
 
-                        if (!isInForeground())
+                        if (!IsInForeground())
                         {
                             createNotification(artist, title);
                             MainActivity.checkOnStart = true;
