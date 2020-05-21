@@ -23,7 +23,7 @@
     <string name="descDrawerBtn">引き出しを開く</string>
     <string name="filterHint">で絞り込む</string>
     <string name="drawerSpotify">Spotifyに接続する</string>
-    <string name="mainSpotifyHeader">私たちは、ほぼ、そこにいる</string>
+    <string name="mainSpotifyHeader">ほとんどそこに</string>
     <string name="mainSpotify">下の大きな緑色のボタンを押すと、すべての曲に歌詞がダウンロードされます。</string>
     <string name="downloadLyrics">歌詞をダウンロード</string>
     <string name="mainSpotifyStarted">
@@ -47,4 +47,6 @@
     <string name="prefHeaderSummary">これを有効にすると、SmartLyricsはカバー画像と一緒にヘッダ画像を保存することができます。
         大規模なライブラリがある場合は、これを無効にすると、数メガバイトのストレージを節約できます。
     </string>
+    <string name="saveError">この曲の保存中にエラーが発生しました。 もう一度お試しください。</string>
+    <string name="readError">ファイルの読み取り中にエラーが発生しました。 もう一度お試しください。</string>
 </resources>

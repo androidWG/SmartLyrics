@@ -30,6 +30,7 @@ using Plugin.CurrentActivity;
 using Plugin.Permissions;
 using Plugin.Permissions.Abstractions;
 using SmartLyrics.Common;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -47,15 +48,27 @@ namespace SmartLyrics
         List<Song> resultsToView;
         public static Song songInfo = new Song();
         public static Song notificationSong = new Song();
+
         public static bool fromFile = false;
         public static bool fromNotification = false;
         public static bool checkOnStart = false;
+
         readonly int coverRadius = 16;
         readonly int headerBlur = 25;
         readonly int searchBlur = 25;
+
         readonly string savedSeparator = @"!@=-@!";
+
         string lastView;
         string lastSearch = "";
+
+        //! used to alert a method that called CheckAndSetPermissions that the user
+        //! made their decision
+        //----------------------------
+        //! index 1 is the status of the permission (true = arrived, false = didn't arrive)
+        //! index 2 is the result (true = granted, false = denied) 
+        bool[] permissionGranted =  new bool[2] { false, false};
+
         ISharedPreferences prefs;
 
         protected override async void OnCreate(Bundle savedInstanceState)
@@ -68,6 +81,7 @@ namespace SmartLyrics
             AppCenter.Start("b07a2f8e-5d02-4516-aadc-2cba2c27fcf8",
                    typeof(Analytics), typeof(Crashes));
 
+            //initialize UI variables
             NavigationView navigationView = FindViewById<NavigationView>(Resource.Id.nav_view);
             DrawerLayout drawer = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);
             navigationView.NavigationItemSelected += NavigationView_NavigationViewSelected;
@@ -84,6 +98,7 @@ namespace SmartLyrics
             SwipeRefreshLayout refreshLayout = FindViewById<SwipeRefreshLayout>(Resource.Id.swipeRefreshLayout);
             TextView npTxt = FindViewById<TextView>(Resource.Id.npTxt);
             ConstraintLayout welcomeScreen = FindViewById<ConstraintLayout>(Resource.Id.welcomeScreen);
+            //--UI-
 
             prefs = PreferenceManager.GetDefaultSharedPreferences(this);
 
@@ -96,11 +111,7 @@ namespace SmartLyrics
                 await LoadSong();
             }
 
-            coverView.Click += async delegate
-            {
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "OnCreate (MainActivity): Clicked on save button");
-                await CheckAndSetPermissions(Manifest.Permission.WriteExternalStorage);
-            };
+            coverView.Click += async delegate { await SaveButton_Action(); };
 
             refreshLayout.Refresh += async delegate
             {
@@ -119,7 +130,7 @@ namespace SmartLyrics
                 }
             };
 
-            searchBtn.Click += async delegate { await searchBtn_Click(); };
+            searchBtn.Click += async delegate { await SearchButton_Action(); };
 
             drawerBtn.Click += delegate
             {
@@ -132,7 +143,7 @@ namespace SmartLyrics
                 StartActivity(intent);
             };
 
-            searchTxt.EditorAction += async delegate { await searchBtn_Action(); };
+            searchTxt.EditorAction += async delegate { await SearchKeyboardButton_Action(); };
             searchResults.ItemClick += searchResults_ItemClick;
         }
 
@@ -163,7 +174,7 @@ namespace SmartLyrics
             }
         }
 
-        async Task searchBtn_Click()
+        private async Task SearchButton_Action()
         {
             TextView headerTxt = FindViewById<TextView>(Resource.Id.headerTxt);
             EditText searchTxt = FindViewById<EditText>(Resource.Id.searchTxt);
@@ -175,7 +186,7 @@ namespace SmartLyrics
 
             if (searchTxt.Visibility == ViewStates.Visible)
             {
-                await searchBtn_Click();
+                await SearchButton_Action();
             }
             else if (searchTxt.Visibility == ViewStates.Visible && lastSearch == searchTxt.Text)
             {
@@ -213,7 +224,7 @@ namespace SmartLyrics
             }
         }
 
-        async Task searchBtn_Action()
+        private async Task SearchKeyboardButton_Action()
         {
             ProgressBar searchLoadingWheel = FindViewById<ProgressBar>(Resource.Id.searchLoadingWheel);
             EditText searchTxt = FindViewById<EditText>(Resource.Id.searchTxt);
@@ -226,10 +237,58 @@ namespace SmartLyrics
                 lastSearch = searchTxt.Text;
                 searchLoadingWheel.Visibility = ViewStates.Visible;
                 searchResults.Visibility = ViewStates.Visible;
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "searchBtn_Click (MainActivity): Started 'await getAndShowSearchResults' task");
+                Log.WriteLine(LogPriority.Info, "SmartLyrics", "SearchButton_Action (MainActivity): Started 'await getAndShowSearchResults' task");
                 imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0);
                 await GetAndShowSearchResults();
                 searchLoadingWheel.Visibility = ViewStates.Gone;
+            }
+        }
+
+        private async Task SaveButton_Action()
+        {
+            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SaveSongLyrics (MainActivity): Clicked on save button");
+
+            //check for write permissions
+            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SaveSongLyrics (MainActivity): Checking write permission...");
+            var permission = Manifest.Permission.WriteExternalStorage;
+            int permissionStatus = await CheckAndSetPermissions(permission);
+
+            ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
+            Snackbar snackbar;
+
+            switch (permissionStatus)
+            {
+                case 0:
+                    await SaveSongLyrics();
+                    break;
+
+                case 1:
+                    while (!permissionGranted[0])
+                    {
+                        await Task.Delay(200);
+                        Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SaveButton_Action (MainActivity): Waiting permission status...");
+                    }
+
+                    //reset permission marker
+                    permissionGranted[0] = false;
+
+                    if (permissionGranted[1])
+                    {
+                        await SaveSongLyrics();
+                    }
+                    else
+                    {
+                        snackbar = Snackbar.Make(layout, Resource.String.permissionDenied, Snackbar.LengthLong);
+                        snackbar.Show();
+                    }
+                    break;
+
+                case 2:
+                    snackbar = Snackbar.Make(layout, Resource.String.saveError, Snackbar.LengthLong);
+                    snackbar.Show();
+
+                    Log.WriteLine(LogPriority.Error, "SmartLyrics", "SaveButton_Action (MainActivity): An error occured while getting permission!");
+                    break;
             }
         }
 
@@ -351,10 +410,11 @@ namespace SmartLyrics
         //if songInfo contains a song path
         private async Task LoadSong()
         {
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "loadSong (MainActivity): Started loadSong method");
+            Log.WriteLine(LogPriority.Info, "SmartLyrics", "LoadSong (MainActivity): Started LoadSong method");
 
             checkOnStart = false;
 
+            //initialize UI variables
             TextView songTitle = FindViewById<TextView>(Resource.Id.songTitle);
             TextView songArtist = FindViewById<TextView>(Resource.Id.songArtist);
             ImageButton coverView = FindViewById<ImageButton>(Resource.Id.coverView);
@@ -372,15 +432,56 @@ namespace SmartLyrics
             searchTxt.Visibility = ViewStates.Gone;
             headerTxt.Visibility = ViewStates.Visible;
             welcomeScreen.Visibility = ViewStates.Gone;
+            //--UI--
 
             if (File.Exists(Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation + songInfo.artist + savedSeparator + songInfo.title + ".txt")))
             {
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "loadSong (MainActivity): File for song doesn't exists, starting checkAndSetPermissions...");
-                await CheckAndSetPermissions(Manifest.Permission.ReadExternalStorage);
+                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "LoadSong (MainActivity): File for song doesn't exist, starting checkAndSetPermissions...");
+
+                var permission = Manifest.Permission.ReadExternalStorage;
+                int permissionStatus = await CheckAndSetPermissions(permission);
+
+                ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
+                Snackbar snackbar;
+
+                switch (permissionStatus)
+                {
+                    case 0:
+                        await ReadFromFile();
+                        break;
+                    case 1:
+                        while (!permissionGranted[0])
+                        {
+                            await Task.Delay(200);
+                            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SaveButton_Action (MainActivity): Waiting permission status...");
+                        }
+
+                        //reset permission marker
+                        permissionGranted[0] = false;
+
+                        if (permissionGranted[1])
+                        {
+                            await ReadFromFile();
+                        }
+                        else
+                        {
+                            snackbar = Snackbar.Make(layout, Resource.String.permissionDenied, Snackbar.LengthLong);
+                            snackbar.Show();
+                        }
+                        break;
+                    case 2:
+                    {
+                        snackbar = Snackbar.Make(layout, Resource.String.readError, Snackbar.LengthLong);
+                        snackbar.Show();
+
+                        Log.WriteLine(LogPriority.Error, "SmartLyrics", "LoadSong (MainActivity): An error occured while requesting permission!");
+                        break;
+                    }
+                }
             }
             else
             {
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "loadSong (MainActivity): File for song doesn't exist, getting data from Genius...");
+                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "LoadSong (MainActivity): File for song doesn't exist, getting data from Genius...");
 
                 songTitle.Text = songInfo.title;
                 songArtist.Text = songInfo.artist;
@@ -398,7 +499,7 @@ namespace SmartLyrics
                 catch (NullReferenceException ex)
                 {
                     Crashes.TrackError(ex);
-                    Log.WriteLine(LogPriority.Error, "SmartLyrics", "loadSong (MainActivity): NullReferenceException while getting lyrics");
+                    Log.WriteLine(LogPriority.Error, "SmartLyrics", "LoadSong (MainActivity): NullReferenceException while getting lyrics");
                 }
             }
         }
@@ -412,6 +513,8 @@ namespace SmartLyrics
             string results = await Genius.GetSongDetails(songInfo.APIPath, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
             JObject parsed = JObject.Parse(results);
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "GetAndShowSongDetails (MainActivity): Results parsed into JObject");
+
+            songInfo.id = (int)parsed["response"]["song"]["id"];
 
             songInfo.album = (string)parsed["response"]["song"]["album"]["name"];
             songAlbum.Text = songInfo.album;
@@ -464,7 +567,6 @@ namespace SmartLyrics
 
             lyricsLoadingWheel.Visibility = ViewStates.Gone;
 
-            //songLyrics.Text = songInfo.lyrics;
             songLyrics.TextFormatted = Html.FromHtml(songInfo.lyrics, FromHtmlOptions.ModeCompact);
 
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "GetAndShowLyrics (MainActivity): Showing lyrics");
@@ -504,7 +606,7 @@ namespace SmartLyrics
                 string loadedInfo = Regex.Replace(loadedLyrics, @"[\s\S]*.*(!!@@\/\\\/\\-----00-----\/\\\/\\@@!!).*[\s\S]", "");
                 loadedLyrics = Regex.Replace(loadedLyrics, @"(!!@@\/\\\/\\-----00-----\/\\\/\\@@!!)[\s\S]*.*", "");
 
-                songLyrics.Text = loadedLyrics;
+                songLyrics.TextFormatted = Html.FromHtml(loadedLyrics, FromHtmlOptions.ModeCompact);
 
                 songTitle.Text = GetLine(loadedInfo, 1);
                 songArtist.Text = GetLine(loadedInfo, 2);
@@ -543,64 +645,51 @@ namespace SmartLyrics
 
         private async Task SaveSongLyrics()
         {
-            var path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation);
-            var pathImg = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedImagesLocation);
+            string pathImg = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedImagesLocation);
 
             await CheckAndCreateAppFolders();
 
-            path = Path.Combine(path, songInfo.artist + savedSeparator + songInfo.title + ".txt");
-            var pathHeader = Path.Combine(pathImg, songInfo.artist + savedSeparator + songInfo.title + "-header.jpg");
-            var pathCover = Path.Combine(pathImg, songInfo.artist + savedSeparator + songInfo.title + "-cover.jpg");
+            string pathHeader = Path.Combine(pathImg, songInfo.id + "-header.jpg");
+            string pathCover = Path.Combine(pathImg, songInfo.id + "-cover.jpg");
 
-            if (!File.Exists(path))
+            //save header and cover images based on preferences
+            if (prefs.GetBoolean("save_header", true))
             {
-                using (StreamWriter sw = File.CreateText(path))
+                using (var fileStream = File.Create(pathHeader))
                 {
-                    Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SaveSongLyrics (MainActivity): File doesn't exist, creating" + path.ToString());
-                    await sw.WriteAsync(songInfo.lyrics);
-                    await sw.WriteLineAsync("\n");
-                    await sw.WriteLineAsync(@"!!@@/\/\-----00-----/\/\@@!!");
-                    await sw.WriteLineAsync(songInfo.title);
-                    await sw.WriteLineAsync(songInfo.artist);
-                    await sw.WriteLineAsync(songInfo.album);
-                    await sw.WriteLineAsync(songInfo.featuredArtist);
-                    await sw.WriteLineAsync(songInfo.header);
-                    await sw.WriteLineAsync(songInfo.cover);
-                    await sw.WriteLineAsync(songInfo.APIPath);
-                    await sw.WriteLineAsync(songInfo.path);
+                    Stream header = await ImageService.Instance.LoadUrl(songInfo.header).AsJPGStreamAsync();
+                    header.Seek(0, SeekOrigin.Begin);
+                    header.CopyTo(fileStream);
                 }
+            }
 
-                if (prefs.GetBoolean("save_header", true))
-                {
-                    using (var fileStream = File.Create(pathHeader))
-                    {
-                        Stream header = await ImageService.Instance.LoadUrl(songInfo.header).AsJPGStreamAsync();
-                        header.Seek(0, SeekOrigin.Begin);
-                        header.CopyTo(fileStream);
-                    }
-                }
+            using (var fileStream = File.Create(pathCover))
+            {
+                Stream cover = await ImageService.Instance.LoadUrl(songInfo.cover).AsJPGStreamAsync();
+                cover.Seek(0, SeekOrigin.Begin);
+                cover.CopyTo(fileStream);
+            }
 
-                using (var fileStream = File.Create(pathCover))
-                {
-                    Stream cover = await ImageService.Instance.LoadUrl(songInfo.cover).AsJPGStreamAsync();
-                    cover.Seek(0, SeekOrigin.Begin);
-                    cover.CopyTo(fileStream);
-                }
-
+            if (await DatabaseHandling.WriteToTable(songInfo))
+            {
+                //show Snackbar alerting user of success
                 ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
                 var snackbar = Snackbar.Make(layout, Resource.String.savedSuccessfully, Snackbar.LengthLong);
                 snackbar.Show();
+                Log.WriteLine(LogPriority.Info, "SmartLyrics", "SaveSongLyrics (MainActivity): File saved successfully! ");
             }
             else
             {
                 ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
                 var snackbar = Snackbar.Make(layout, Resource.String.alreadySaved, Snackbar.LengthLong);
                 snackbar.Show();
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "SaveSongLyrics (MainActivity): File already exists, let's do nothing!");
+                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "SaveSongLyrics (MainActivity): File already exists!");
             }
         }
 
-        private async Task CheckAndSetPermissions(string permission)
+        //returns 0 if successfully granted, 1 if the code calling this method
+        //needs to wait and 2 if an exception was cought
+        private async Task<int> CheckAndSetPermissions(string permission)
         {
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "checkAndSetPermissions (MainActivity): Started CheckAndSetPermissions method");
 
@@ -611,81 +700,52 @@ namespace SmartLyrics
                     if (ContextCompat.CheckSelfPermission(this, permission) == (int)Android.Content.PM.Permission.Granted)
                     {
                         Log.WriteLine(LogPriority.Info, "SmartLyrics", "checkAndSetPermissions (MainActivity): Permission for" + permission + " already granted");
-
-                        if (permission == Manifest.Permission.ReadExternalStorage)
-                        {
-                            await ReadFromFile();
-                        }
-                        else
-                        {
-                            await SaveSongLyrics();
-                        }
+                        return 0;
                     }
                     else
                     {
-                        if (await CrossPermissions.Current.ShouldShowRequestPermissionRationaleAsync(Permission.Storage))
-                        {
-                            Log.WriteLine(LogPriority.Info, "SmartLyrics", "checkAndSetPermissions (MainActivity): Rationale needed, trying to get permission...");
+                        Log.WriteLine(LogPriority.Info, "SmartLyrics", "checkAndSetPermissions (MainActivity): Rationale needed, trying to get permission...");
 
-                            ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
-                            string[] p = { permission };
-                            var snackbar = Snackbar.Make(layout, Resource.String.needStoragePermission, Snackbar.LengthIndefinite)
-                                .SetAction(Android.Resource.String.Ok, new Action<View>(delegate (View obj)
-                                {
-                                    ActivityCompat.RequestPermissions(this, p, 1);
-                                }));
-                            snackbar.Show();
-                        }
-                        else
-                        {
-                            Log.WriteLine(LogPriority.Info, "SmartLyrics", "checkAndSetPermissions (MainActivity): No need to ask user, trying to get permission...");
-
-                            string[] p = { permission };
-                            ActivityCompat.RequestPermissions(this, p, 1);
-                        }
+                        ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
+                        string[] p = { permission };
+                        var snackbar = Snackbar.Make(layout, Resource.String.needStoragePermission, Snackbar.LengthIndefinite)
+                            .SetAction(Android.Resource.String.Ok, new Action<View>(delegate (View obj)
+                            {
+                                ActivityCompat.RequestPermissions(this, p, 1);
+                            }));
+                        snackbar.Show();
+                        return 1;
                     }
                 }
                 else
                 {
-                    if (permission == Manifest.Permission.ReadExternalStorage)
-                    {
-                        await ReadFromFile();
-                    }
-                    else
-                    {
-                        await SaveSongLyrics();
-                    }
+                    return 0;
                 }
             }
             catch (Exception ex)
             {
                 Log.WriteLine(LogPriority.Error, "SmartLyrics", "CheckAndSetPermissions (MainActivity): Exception caught! " + ex.Message);
                 Crashes.TrackError(ex);
+
+                return 2;
             }
         }
 
         public override async void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
         {
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnRequestPermissionsResult (MainActivity): Permission: " + permissions[0] + " | Result: " + grantResults[0].ToString());
+            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "OnRequestPermissionsResult (MainActivity): Permission: " + permissions[0] + " | Result: " + grantResults[0].ToString());
 
-            if (permissions[0] == Manifest.Permission.WriteExternalStorage && grantResults[0] == Android.Content.PM.Permission.Granted)
+            if (grantResults[0] == Android.Content.PM.Permission.Granted)
             {
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnRequestPermissionsResult (MainActivity): Write permission granted!");
-                await SaveSongLyrics();
-            }
-            else if (permissions[0] == Manifest.Permission.ReadExternalStorage && grantResults[0] == Android.Content.PM.Permission.Granted)
-            {
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnRequestPermissionsResult (MainActivity): Read permission granted!");
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "OnRequestPermissionsResult (MainActivity): File " + Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation + songInfo.artist + savedSeparator + songInfo.title + ".txt").ToString() + " for song exists, loading...");
-                await ReadFromFile();
+                //set marker and then the result of the permission request
+                permissionGranted[0] = true;
+                permissionGranted[1] = true;
             }
             else if (grantResults[0] == Android.Content.PM.Permission.Denied || grantResults[1] == Android.Content.PM.Permission.Denied)
             {
-                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "OnRequestPermissionsResult (MainActivity): Permission denied");
-
-                ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
-                var snackbar = Snackbar.Make(layout, Resource.String.permissionDenied, Snackbar.LengthLong);
-                snackbar.Show();
+                //set marker and then the result of the permission request
+                permissionGranted[0] = true;
+                permissionGranted[1] = false;
             }
         }
 

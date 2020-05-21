@@ -25,7 +25,7 @@
     <string name="descDrawerBtn">Open drawer</string>
     <string name="filterHint">Filter coming soon</string>
     <string name="drawerSpotify">Connect to Spotify</string>
-    <string name="mainSpotifyHeader">WE ARE ALMOST THERE</string>
+    <string name="mainSpotifyHeader">ALMOST THERE</string>
     <string name="mainSpotify">Press the big green button below to start downloading lyrics to all your songs.</string>
     <string name="downloadLyrics">DOWNLOAD LYRICS</string>
     <string name="mainSpotifyStarted">There we go! SmartLyrics will download your lyrics on the background so you can go
@@ -55,4 +55,6 @@
     <string name="prefHeaderSummary">Enabling this will allow SmartLyrics to save header images together with cover
         images. Disabling it might save you a few megabytes of storage if you have a large library.
     </string>
+    <string name="saveError">An error occurred while saving this song. Please try again.</string>
+    <string name="readError">An error occurred while reading a file. Please try again.</string>
 </resources>

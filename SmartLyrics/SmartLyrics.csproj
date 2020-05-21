@@ -85,7 +85,7 @@
     <Compile Include="Common\DatabaseHandling.cs" />
     <Compile Include="Common\DownloadService.cs" />
     <Compile Include="Common\GeniusRequests.cs" />
-    <Compile Include="Common\GlobalMethods.cs" />
+    <Compile Include="Common\Globals.cs" />
     <Compile Include="Common\HTMLParsing.cs" />
     <Compile Include="Common\NotificationListener.cs" />
     <Compile Include="Common\SpotifyRequests.cs" />

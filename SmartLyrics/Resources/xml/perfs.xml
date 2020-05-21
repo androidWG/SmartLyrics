@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <SwitchPreference
+    <android.support.v7.preference.SwitchPreferenceCompat
             android:defaultValue="true"
             android:title="@string/prefDetect" android:key="detect_song"
-            android:summary="@string/prefDetectSummary"
-    />
-    <SwitchPreference
+            android:summary="@string/prefDetectSummary"/>
+    <android.support.v7.preference.SwitchPreferenceCompat
             android:defaultValue="true"
             android:title="@string/prefHeader" android:key="save_header"
             android:summary="@string/prefHeaderSummary"/>
@@ -15,4 +14,4 @@
             android:selectAllOnFocus="true"
             android:singleLine="false"
             android:title="SmartLyrics" android:key="info" android:summary="Made by Samuel Rodrigues, 2019"/>
-</PreferenceScreen>
+</android.support.v7.preference.PreferenceScreen>

@@ -64,4 +64,6 @@
         junto com a imagem da capa da música. Desativar isso pode salvar alguns megabytes de armazenamento se você tiver
         uma biblioteca grande.
     </string>
+    <string name="saveError">Ocorreu um erro ao salvar essa letra. Por favor tente novamente.</string>
+    <string name="readError">Ocorreu um erro ao ler um arquivo. Por favor tente novamente.</string>
 </resources>
