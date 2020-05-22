@@ -10,7 +10,7 @@ using System.Xml;
 
 using static SmartLyrics.Globals;
 
-namespace SmartLyrics.Common
+namespace SmartLyrics.Toolbox
 {
     class DatabaseHandling
     {
@@ -18,6 +18,7 @@ namespace SmartLyrics.Common
         private static string path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation + databaseLocation);
         private static string lyricsPath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation);
 
+        #region Toolbox
         //clear table and add correct columns
         internal static void InitializeTable()
         {
@@ -39,9 +40,9 @@ namespace SmartLyrics.Common
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "DatabaseHandling.cs: Finished initializing!");
         }
 
-        internal static Song DataRowToSong(DataRow dr)
+        internal static Common.Song DataRowToSong(DataRow dr)
         {
-            Song song = new Song
+            Common.Song song = new Common.Song
             {
                 id = (int)dr["id"],
                 title = (string)dr["title"],
@@ -93,7 +94,7 @@ namespace SmartLyrics.Common
             return _dt;
         }
 
-        internal static async Task WriteLyrics(Song songInfo)
+        internal static async Task WriteLyrics(Common.Song songInfo)
         {
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "DatabaseHandling.cs: Preparing to write lyrics to disk...");
             string _filepath = Path.Combine(lyricsPath, songInfo.id + lyricsExtension);
@@ -109,10 +110,11 @@ namespace SmartLyrics.Common
                 Log.WriteLine(LogPriority.Error, "SmartLyrics", "DatabaseHandling.cs: Error while writing lyrics to disk!");
             }
         }
+        #endregion
 
         //writes a song to the saved lyrics database
         //returns true if successful
-        public static async Task<bool> WriteInfoAndLyrics(Song songInfo)
+        public static async Task<bool> WriteInfoAndLyrics(Common.Song songInfo)
         {
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "DatabaseHandling.cs: Started WriteInfoAndLyrics method");
 
@@ -144,18 +146,18 @@ namespace SmartLyrics.Common
             }
         }
 
-        public static async Task<List<Song>> GetSongList()
+        public static async Task<List<Common.Song>> GetSongList()
         {
             if (File.Exists(path))
             {
                 InitializeTable();
                 db = await ReadFromDatabaseFile(path);
 
-                List<Song> _songs = new List<Song>();
+                List<Common.Song> _songs = new List<Common.Song>();
 
                 foreach (DataRow dr in db.Rows)
                 {
-                    Song _ = DataRowToSong(dr);
+                    Common.Song _ = DataRowToSong(dr);
                     _songs.Add(_);
                 }
 
@@ -167,13 +169,13 @@ namespace SmartLyrics.Common
             }
         }
 
-        public static async Task<Song> GetSongFromTable(int id)
+        public static async Task<Common.Song> GetSongFromTable(int id)
         {
             //Genius does not have a song with ID 0, if we recieve a request with
             //ID 0, immediately return null
             if (id == 0)
             {
-                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "DatabaseHandling.cs: Song ID is 0, returning null...");
+                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "DatabaseHandling.cs: Common.Song ID is 0, returning null...");
                 return null;
             }
             else
@@ -194,7 +196,7 @@ namespace SmartLyrics.Common
                 {
                     DataRow dr = _[0];
 
-                    Song song = new Song
+                    Common.Song song = new Common.Song
                     {
                         id = (int)dr["id"],
                         title = (string)dr["title"],

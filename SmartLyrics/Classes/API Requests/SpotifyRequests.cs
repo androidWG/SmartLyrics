@@ -3,14 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Net.Http;
 
-using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-
-namespace SmartLyrics
+namespace SmartLyrics.APIRequests
 {
     class Spotify
     {

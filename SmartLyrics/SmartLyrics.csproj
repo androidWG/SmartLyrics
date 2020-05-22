@@ -80,15 +80,17 @@
     <Reference Include="Mono.Android" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\Binders.cs" />
-    <Compile Include="Common\ClassResources.cs" />
-    <Compile Include="Common\DatabaseHandling.cs" />
-    <Compile Include="Common\DownloadService.cs" />
-    <Compile Include="Common\GeniusRequests.cs" />
-    <Compile Include="Common\Globals.cs" />
-    <Compile Include="Common\HTMLParsing.cs" />
-    <Compile Include="Common\NotificationListener.cs" />
-    <Compile Include="Common\SpotifyRequests.cs" />
+    <Compile Include="Classes\Services\Binders.cs" />
+    <Compile Include="Classes\Common\ClassResources.cs" />
+    <Compile Include="Classes\Toolbox\DatabaseHandling.cs" />
+    <Compile Include="Classes\Services\DownloadService.cs" />
+    <Compile Include="Classes\API Requests\GeniusRequests.cs" />
+    <Compile Include="Classes\Common\Globals.cs" />
+    <Compile Include="Classes\Toolbox\HTMLParsing.cs" />
+    <Compile Include="Classes\Services\NotificationListener.cs" />
+    <Compile Include="Classes\Toolbox\MiscTools.cs" />
+    <Compile Include="Classes\Toolbox\PermissionChecking.cs" />
+    <Compile Include="Classes\API Requests\SpotifyRequests.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,24 +1,21 @@
 ﻿using Android.App;
-using Android.Graphics;
 using Android.Util;
+
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
+
 using static Android.App.ActivityManager;
 using Path = System.IO.Path;
 
-namespace SmartLyrics
+namespace SmartLyrics.Toolbox
 {
-    class Globals
+    class MiscTools
     {
-        public static string savedLyricsLocation = "SmartLyrics/Saved Lyrics/";
-        public static string savedImagesLocation = "SmartLyrics/Saved Lyrics/Image Cache/";
-        public static string databaseLocation = "/.songdatabase";
-        public static string lyricsExtension = ".lyrics";
-
-        private static string path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation);
-        private static string pathImg = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedImagesLocation);
+        private static string path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, Globals.savedLyricsLocation);
+        private static string pathImg = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, Globals.savedImagesLocation);
 
         public static async Task<int> Distance(string s, string t)
         {

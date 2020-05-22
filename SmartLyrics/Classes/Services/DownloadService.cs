@@ -13,18 +13,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
-using static SmartLyrics.Globals;
+using static SmartLyrics.Toolbox.MiscTools;
 
-namespace SmartLyrics
+namespace SmartLyrics.Services
 {
     [Service(Name = "com.SamuelR.SmartLyrics.DownloadService")]
     public class DownloadService : Service
     {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-
-        List<Song> savedTracks = new List<Song>();
+        List<Common.Song> savedTracks = new List<Common.Song>();
         int maxDistance = 4;
         float current = 0;
         int completedTasks = 0;
@@ -125,7 +122,7 @@ namespace SmartLyrics
             while (nextURL != "")
             {
                 Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getSavedList (DownloadService): nextURL = " + nextURL);
-                string results = await Spotify.GetSavedSongs("Bearer " + accessToken, nextURL);
+                string results = await APIRequests.Spotify.GetSavedSongs("Bearer " + accessToken, nextURL);
                 JObject parsed = JObject.Parse(results);
                 Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getSavedList (DownloadService): Results parsed into JObject");
 
@@ -138,7 +135,7 @@ namespace SmartLyrics
 
                 foreach (JToken result in parsedList)
                 {
-                    Song song = new Song()
+                    Common.Song song = new Common.Song()
                     {
                         title = Regex.Replace((string)result["track"]["name"], @"\(feat\. .+", ""),
                         artist = (string)result["track"]["artists"][0]["name"]
@@ -153,11 +150,11 @@ namespace SmartLyrics
 
         private async Task getGeniusSearchResults()
         {
-            List<Song> geniusTemp = new List<Song>();
+            List<Common.Song> geniusTemp = new List<Common.Song>();
 
             float total = savedTracks.Count;
 
-            foreach (Song s in savedTracks)
+            foreach (Common.Song s in savedTracks)
             {
                 if (callsMade == 50)
                 {
@@ -196,15 +193,15 @@ namespace SmartLyrics
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getGeniusSearchResults (DownloadService): Changed savedTracks to Genius results");
         }
 
-        private async Task geniusSearch(Song s, List<Song> geniusTemp)
+        private async Task geniusSearch(Common.Song s, List<Common.Song> geniusTemp)
         {
             callsMade++;
 
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "geniusSearch (DownloadService): Starting geniusSearch");
-            string results = await Genius.GetSearchResults(s.artist + " - " + s.title, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
+            string results = await APIRequests.Genius.GetSearchResults(s.artist + " - " + s.title, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
             if (results == null)
             {
-                results = await Genius.GetSearchResults(s.artist + " - " + s.title, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
+                results = await APIRequests.Genius.GetSearchResults(s.artist + " - " + s.title, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
             }
             JObject parsed = JObject.Parse(results);
 
@@ -220,9 +217,9 @@ namespace SmartLyrics
 
                     if (!File.Exists(path))
                     {
-                        Log.WriteLine(LogPriority.Info, "SmartLyrics", "geniusSearch (DownloadService): Song found! Adding to geniusTemp");
+                        Log.WriteLine(LogPriority.Info, "SmartLyrics", "geniusSearch (DownloadService): Common.Song found! Adding to geniusTemp");
 
-                        Song song = new Song()
+                        Common.Song song = new Common.Song()
                         {
                             title = (string)result["result"]["title"],
                             artist = (string)result["result"]["primary_artist"]["name"],
@@ -238,7 +235,7 @@ namespace SmartLyrics
                     }
                     else
                     {
-                        Log.WriteLine(LogPriority.Info, "SmartLyrics", "geniusSearch (DownloadService): Song found but already downloaded");
+                        Log.WriteLine(LogPriority.Info, "SmartLyrics", "geniusSearch (DownloadService): Common.Song found but already downloaded");
                         break;
                     }
                 }
@@ -254,13 +251,13 @@ namespace SmartLyrics
             completedTasks = 0;
             current = 0;
 
-            List<Song> geniusTemp = new List<Song>();
+            List<Common.Song> geniusTemp = new List<Common.Song>();
 
             float total = savedTracks.Count;
 
             if (savedTracks.Count != 0)
             {
-                foreach (Song s in savedTracks)
+                foreach (Common.Song s in savedTracks)
                 {
                     if (callsMade == 10)
                     {
@@ -300,15 +297,15 @@ namespace SmartLyrics
             callsMade++;
 
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "getDetails (DownloadService): Starting getDetails operation");
-            string results = await Genius.GetSongDetails(APIPath, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
+            string results = await APIRequests.Genius.GetSongDetails(APIPath, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
             if (results == null)
             {
                 Log.WriteLine(LogPriority.Debug, "SmartLyrics", "getDetails (DownloadService): Returned null, calling API again...");
-                results = await Genius.GetSongDetails(APIPath, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
+                results = await APIRequests.Genius.GetSongDetails(APIPath, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
             }
             JObject parsed = JObject.Parse(results);
 
-            Song song = new Song()
+            Common.Song song = new Common.Song()
             {
                 title = (string)parsed["response"]["song"]["title"],
                 artist = (string)parsed["response"]["song"]["primary_artist"]["name"],
@@ -319,7 +316,7 @@ namespace SmartLyrics
                 path = (string)parsed["response"]["song"]["path"]
             };
 
-            Log.WriteLine(LogPriority.Debug, "SmartLyrics", "getDetails (DownloadService): Created new Song variable");
+            Log.WriteLine(LogPriority.Debug, "SmartLyrics", "getDetails (DownloadService): Created new Common.Song variable");
 
             if (parsed["response"]["song"]["featured_artists"].HasValues)
             {
@@ -363,7 +360,7 @@ namespace SmartLyrics
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "getDetails (DownloadService): Completed getDetails task for " + song.APIPath);
         }
 
-        private async Task saveSongLyrics(Song song)
+        private async Task saveSongLyrics(Common.Song song)
         {
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "saveSongLyrics (DownloadService): Started saveSongLyrics operation");
 

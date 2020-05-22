@@ -11,7 +11,9 @@ using Android.Util;
 using Android.Views;
 using Android.Webkit;
 using Android.Widget;
+
 using Plugin.CurrentActivity;
+
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -30,7 +32,7 @@ namespace SmartLyrics
         ConstraintLayout startedLayout;
         ConstraintLayout finishedLayout;
 
-        DownloadServiceConnection serviceConnection;
+        Services.DownloadServiceConnection serviceConnection;
 
         string path = System.IO.Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SmartLyrics/Saved Lyrics/Spotify/");
         string pathImg = System.IO.Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SmartLyrics/Saved Lyrics/Spotify/Image Cache/");
@@ -59,7 +61,7 @@ namespace SmartLyrics
 
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnCreate (SpotifyDownload): Loaded view");
 
-            serviceConnection = new DownloadServiceConnection(this);
+            serviceConnection = new Services.DownloadServiceConnection(this);
 
             if (serviceConnection.IsConnected)
             {
@@ -106,7 +108,7 @@ namespace SmartLyrics
                 timer.Elapsed += updateProgressBar;
                 Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "OnCreate (SpotifyDownload): Setted up timer");
 
-                var intent = new Intent(this, typeof(DownloadService));
+                var intent = new Intent(this, typeof(Services.DownloadService));
                 intent.PutExtra("AccessToken", accessToken);
                 Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "OnCreate (SpotifyDownload): Added extra to intent");
                 StartForegroundService(intent);

@@ -9,8 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SmartLyrics
+namespace SmartLyrics.Common
 {
+    #region Storage Classes or just classes idk what to call this
     public class Song
     {
         public string title { get; set; }
@@ -37,16 +38,18 @@ namespace SmartLyrics
         public int id { get; set; }
         public string lyrics { get; set; }
     }
+    #endregion
 
+    #region Adapters
     public class ExpandableListAdapter : BaseExpandableListAdapter
     {
         private Activity context;
         private List<string> listDataHeader;
-        private Dictionary<string, List<Song>> listDataChild;
+        private Dictionary<string, List<Common.Song>> listDataChild;
         private List<string> filteredHeader;
         private Dictionary<string, List<string>> filteredChild;
 
-        public ExpandableListAdapter(Activity context, List<string> listDataHeader, Dictionary<string, List<Song>> listChildData)
+        public ExpandableListAdapter(Activity context, List<string> listDataHeader, Dictionary<string, List<Common.Song>> listChildData)
         {
             this.listDataChild = listChildData;
             this.listDataHeader = listDataHeader;
@@ -116,11 +119,11 @@ namespace SmartLyrics
     public class SavedLyricsAdapter : BaseAdapter<Artist>
     {
         private Activity activity;
-        List<Tuple<string, Song>> allSongs;
+        List<Tuple<string, Common.Song>> allSongs;
 
         public override Artist this[int position] => throw new NotImplementedException();
 
-        public SavedLyricsAdapter(Activity activity, List<Tuple<string, Song>> allSongs)
+        public SavedLyricsAdapter(Activity activity, List<Tuple<string, Common.Song>> allSongs)
         {
             this.activity = activity;
             this.allSongs = allSongs;
@@ -147,14 +150,14 @@ namespace SmartLyrics
         }
     }
 
-    public class SearchResultAdapter : BaseAdapter<Song>
+    public class SearchResultAdapter : BaseAdapter<Common.Song>
     {
         private Activity activity;
-        private List<Song> songs;
+        private List<Common.Song> songs;
 
-        public override Song this[int position] => throw new NotImplementedException();
+        public override Common.Song this[int position] => throw new NotImplementedException();
 
-        public SearchResultAdapter(Activity activity, List<Song> songs)
+        public SearchResultAdapter(Activity activity, List<Common.Song> songs)
         {
             this.activity = activity;
             this.songs = songs;
@@ -183,4 +186,5 @@ namespace SmartLyrics
             return view;
         }
     }
+    #endregion
 }

@@ -1,11 +1,11 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using System.Net.Http;
-using Android.Widget;
-using System.Threading;
+﻿using Android.Widget;
 
-namespace SmartLyrics
+using System;
+using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
+
+namespace SmartLyrics.APIRequests
 {
     class Genius
     {
@@ -85,7 +85,6 @@ namespace SmartLyrics
                 }
             }
         }
-
 
         public class ViewHolder: Java.Lang.Object
         {

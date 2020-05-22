@@ -12,10 +12,10 @@ using Android.Support.V4.App;
 using TaskStackBuilder = Android.Support.V4.App.TaskStackBuilder;
 
 using Newtonsoft.Json.Linq;
-using static SmartLyrics.Globals;
+using static SmartLyrics.Toolbox.MiscTools;
 using Android.Preferences;
 
-namespace SmartLyrics
+namespace SmartLyrics.Services
 {
     [Service(Label = "SmartLyrics", Permission = "android.permission.BIND_NOTIFICATION_LISTENER_SERVICE")]
     [IntentFilter(new[] { "android.service.notification.NotificationListenerService" })]
@@ -96,7 +96,7 @@ namespace SmartLyrics
             previousSong = title + packageName;
 
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getAndCompareResults (NLService): Starting async GetSearchResults operation");
-            string results = await Genius.GetSearchResults(artist + " - " + title, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
+            string results = await APIRequests.Genius.GetSearchResults(artist + " - " + title, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
             JObject parsed = JObject.Parse(results);
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getAndCompareResults (NLService): Results parsed into JObject");
 
@@ -136,8 +136,8 @@ namespace SmartLyrics
 
             if (!songFound)
             {
-                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "getAndCompareResults (NLService): Song not found, trying to search again...");
-                results = await Genius.GetSearchResults(title, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
+                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "getAndCompareResults (NLService): Common.Song not found, trying to search again...");
+                results = await APIRequests.Genius.GetSearchResults(title, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
                 parsed = JObject.Parse(results);
                 Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getAndCompareResults (NLService): Results parsed into JObject");
 

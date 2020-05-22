@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Android.Util;
 using HtmlAgilityPack;
 
-namespace SmartLyrics.Common
+namespace SmartLyrics.Toolbox
 {
     class HTMLParsing
     {
@@ -17,7 +17,7 @@ namespace SmartLyrics.Common
             if (doc.Text.Contains("<div class=\"lyrics\">"))
             {
                 //TODO: handle NullReferenceException from error pages and such
-                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "LyricsParsing.cs: Song page uses old design");
+                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "LyricsParsing.cs: Common.Song page uses old design");
                 HtmlNode node = doc.DocumentNode.SelectSingleNode("//div[@class='lyrics']");
                 string output = await CleanHTML(node.InnerHtml);
                 return output;
