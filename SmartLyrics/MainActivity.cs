@@ -33,6 +33,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Channels;
+using System.Threading;
 using System.Threading.Tasks;
 
 using static SmartLyrics.Globals;
@@ -56,6 +58,22 @@ namespace SmartLyrics
 
         string lastView;
         string lastSearch = "";
+
+        //! this variable keeps track of multiple simultaneous searches
+        //! that happen while you're typing. this list contains no relevant content
+        //! the GetAndShowSearchResults method just uses it to compare the size of
+        //! the list when the method started and when results are ready to show up.
+        //? there's almost definitely a better way of keeping track of the newest
+        //? search then the size of a lize (int variable for example)
+        List<string> t = new List<string>();
+
+        //--UI--
+        TextView songLyrics;
+        TextView songTitle;
+        TextView songArtist;
+        TextView songAlbum;
+        TextView songFeat;
+        //--UI--
 
         //! used to alert a method that called CheckAndSetPermissions that the user
         //! made their decision
@@ -81,9 +99,14 @@ namespace SmartLyrics
             DrawerLayout drawer = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);
             navigationView.NavigationItemSelected += NavigationView_NavigationViewSelected;
 
+            songLyrics = FindViewById<TextView>(Resource.Id.songLyrics);
+            songTitle = FindViewById<TextView>(Resource.Id.songTitle);
+            songArtist = FindViewById<TextView>(Resource.Id.songArtist);
+            songAlbum = FindViewById<TextView>(Resource.Id.songAlbum);
+            songFeat = FindViewById<TextView>(Resource.Id.songFeat);
+
             ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
             EditText searchTxt = FindViewById<EditText>(Resource.Id.searchTxt);
-            TextView songLyrics = FindViewById<TextView>(Resource.Id.songLyrics);
             ImageButton searchBtn = FindViewById<ImageButton>(Resource.Id.searchBtn);
             ImageButton drawerBtn = FindViewById<ImageButton>(Resource.Id.drawerBtn);
             ImageButton coverView = FindViewById<ImageButton>(Resource.Id.coverView);
@@ -134,9 +157,28 @@ namespace SmartLyrics
                 StartActivity(intent);
             };
 
+            var tokenSource = new CancellationTokenSource();
+            var token = tokenSource.Token;
+            searchTxt.TextChanged += async delegate 
+            {
+                if (searchTxt.Text == "")
+                {
+                    t.Clear();
+                    Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnCreate (MainActivity): Cleared Task list");
+                }
+
+                t.Add("wow taskk");
+                await SearchKeyboardButton_Action(false, t.Count);
+            };
+
+            searchTxt.EditorAction += async delegate
+            {
+                //await SearchKeyboardButton_Action(true, t.Count + 1);
+                //t.Add("wow taskk");
+            };
+
             coverView.Click += async delegate { await SaveButton_Action(); };
             searchBtn.Click += async delegate { await SearchButton_Action(); };
-            searchTxt.EditorAction += async delegate { await SearchKeyboardButton_Action(); };
             searchResults.ItemClick += searchResults_ItemClick;
         }
 
@@ -217,22 +259,31 @@ namespace SmartLyrics
             }
         }
 
-        private async Task SearchKeyboardButton_Action()
+        private async Task SearchKeyboardButton_Action(bool hideKeyboard, int index)
         {
+            //initialize UI variables
             ProgressBar searchLoadingWheel = FindViewById<ProgressBar>(Resource.Id.searchLoadingWheel);
             EditText searchTxt = FindViewById<EditText>(Resource.Id.searchTxt);
             ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
-
-            InputMethodManager imm = (InputMethodManager)GetSystemService(InputMethodService);
+            //--UI--
 
             if (searchTxt.Text != "")
             {
+                if (hideKeyboard)
+                {
+                    InputMethodManager imm = (InputMethodManager)GetSystemService(InputMethodService);
+                    imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0);
+                }
+
                 lastSearch = searchTxt.Text;
                 searchLoadingWheel.Visibility = ViewStates.Visible;
                 searchResults.Visibility = ViewStates.Visible;
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "SearchButton_Action (MainActivity): Started 'await GetAndShowSearchResults' task");
-                imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0);
-                await GetAndShowSearchResults();
+
+                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SearchKeybaordButton_Action (MainActivity): Started search...");
+
+                //pass on index property to GetAndShowSearchResults to keep track of most recent query
+                await GetAndShowSearchResults(searchTxt.Text, index);
+
                 searchLoadingWheel.Visibility = ViewStates.Gone;
             }
         }
@@ -292,12 +343,6 @@ namespace SmartLyrics
             ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
             TextView npTxt = FindViewById<TextView>(Resource.Id.npTxt);
             EditText searchTxt = FindViewById<EditText>(Resource.Id.searchTxt);
-
-            TextView songLyrics = FindViewById<TextView>(Resource.Id.songLyrics);
-            TextView songTitle = FindViewById<TextView>(Resource.Id.songTitle);
-            TextView songArtist = FindViewById<TextView>(Resource.Id.songArtist);
-            TextView songAlbum = FindViewById<TextView>(Resource.Id.songAlbum);
-            TextView songFeat = FindViewById<TextView>(Resource.Id.songFeat);
             //--UI--
 
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "searchResults_ItemClick (MainActivity): Attempting to display song...");
@@ -357,15 +402,16 @@ namespace SmartLyrics
             drawer.CloseDrawers();
         }
 
-        private async Task GetAndShowSearchResults()
+        private async Task GetAndShowSearchResults(string query, int index)
         {
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "GetAndShowSearchResults (MainActivity): Started GetAndShowSearchResults method");
-
+            //initialize UI variables
             ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
-            EditText searchTxt = FindViewById<EditText>(Resource.Id.searchTxt);
+            //--UI--
+
+            Log.WriteLine(LogPriority.Info, "SmartLyrics", $"GetAndShowSearchResults (MainActivity): Started GetAndShowSearchResults method of index {index}, query {query}");
 
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "GetAndShowSearchResults (MainActivity): Starting GetSearchResults operation");
-            string results = await Genius.GetSearchResults(searchTxt.Text, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
+            string results = await Genius.GetSearchResults(query, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
             JObject parsed = JObject.Parse(results);
 
             IList<JToken> parsedList = parsed["response"]["hits"].Children().ToList();
@@ -389,10 +435,17 @@ namespace SmartLyrics
             }
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "GetAndShowSearchResults (MainActivity): Created results list for listVew");
 
-            var adapter = new SearchResultAdapter(this, resultsToView);
-            searchResults.Adapter = adapter;
+            if (index == t.Count)
+            {
+                var adapter = new SearchResultAdapter(this, resultsToView);
+                searchResults.Adapter = adapter;
 
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "GetAndShowSearchResults (MainActivity): Added results to activity view");
+                Log.WriteLine(LogPriority.Info, "SmartLyrics", $"GetAndShowSearchResults (MainActivity): Added results of {index}, query {query} to activity view at count {t.Count}");
+            }
+            else
+            {
+                Log.WriteLine(LogPriority.Warn, "SmartLyrics", $"GetAndShowSearchResults (MainActivity): Results of index {index}, query {query} is smaller than Task list of size {t.Count}");
+            }
         }
 
         private void ChangeNotificationToInfo()
@@ -416,8 +469,6 @@ namespace SmartLyrics
             checkOnStart = false;
 
             //initialize UI variables
-            TextView songTitle = FindViewById<TextView>(Resource.Id.songTitle);
-            TextView songArtist = FindViewById<TextView>(Resource.Id.songArtist);
             ImageButton coverView = FindViewById<ImageButton>(Resource.Id.coverView);
             ImageView headerView = FindViewById<ImageView>(Resource.Id.headerView);
             ImageView savedView = FindViewById<ImageView>(Resource.Id.savedView);
@@ -508,9 +559,6 @@ namespace SmartLyrics
 
         private async Task GetAndShowSongDetails()
         {
-            TextView songAlbum = FindViewById<TextView>(Resource.Id.songAlbum);
-            TextView songFeat = FindViewById<TextView>(Resource.Id.songFeat);
-
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "GetAndShowSongDetails (MainActivity): Starting GetSongDetails operation");
             string results = await Genius.GetSongDetails(songInfo.APIPath, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
             JObject parsed = JObject.Parse(results);
@@ -585,12 +633,6 @@ namespace SmartLyrics
             var path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation + songInfo.id + lyricsExtension);
 
             //initialize UI variables
-            TextView songLyrics = FindViewById<TextView>(Resource.Id.songLyrics);
-            TextView songTitle = FindViewById<TextView>(Resource.Id.songTitle);
-            TextView songArtist = FindViewById<TextView>(Resource.Id.songArtist);
-            TextView songAlbum = FindViewById<TextView>(Resource.Id.songAlbum);
-            TextView songFeat = FindViewById<TextView>(Resource.Id.songFeat);
-
             ImageButton coverView = FindViewById<ImageButton>(Resource.Id.coverView);
             ImageView savedView = FindViewById<ImageView>(Resource.Id.savedView);
             ImageView headerView = FindViewById<ImageView>(Resource.Id.headerView);

@@ -85,8 +85,9 @@ namespace SmartLyrics
                 Log.WriteLine(LogPriority.Info, "SmartLyrics", "SavedLyrics.cs: Clicked on item from grouped list");
                 var intent = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
 
-                MainActivity.songInfo.title = e.ClickedView.FindViewById<TextView>(Resource.Id.listChild).Text;
-                MainActivity.songInfo.artist = artistList.ElementAt(e.GroupPosition).name;
+                Song _ = artistSongs.ElementAt(e.GroupPosition).Value[e.ChildPosition];
+
+                MainActivity.songInfo = _;
                 MainActivity.fromFile = true;
 
                 StartActivityForResult(intent, 1);
