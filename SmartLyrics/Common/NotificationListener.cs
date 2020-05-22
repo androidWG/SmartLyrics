@@ -37,7 +37,7 @@ namespace SmartLyrics
 
             prefs = PreferenceManager.GetDefaultSharedPreferences(this);
 
-            await createNotificationChannel();
+            await CreateNotificationChannel();
         }
 
         public async override void OnListenerConnected()
@@ -71,13 +71,13 @@ namespace SmartLyrics
                     if (previousSong != title + sbn.PackageName)
                     {
                         Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnNotificationPosted (NLService): Previous song is different, getting search results...");
-                        await getAndCompareResults(extras, sbn.PackageName);
+                        await GetAndCompareResults(extras, sbn.PackageName);
                     }
                 }
             }
         }
 
-        private async Task getAndCompareResults(string extras, string packageName)
+        private async Task GetAndCompareResults(string extras, string packageName)
         {
             string title = Regex.Match(extras, @"(?<=android\.title=)(.*?)(?=, android\.)").ToString();
             if (title.Contains("Remix") || title.Contains("remix") || title.Contains("Mix"))
@@ -121,7 +121,7 @@ namespace SmartLyrics
 
                     if (!IsInForeground())
                     {
-                        createNotification(artist, title);
+                        CreateNotification(artist, title);
                         MainActivity.checkOnStart = true;
                         Log.WriteLine(LogPriority.Info, "SmartLyrics", "getAndCompareResults (NLService): Found song match, creating notification...");
                     }
@@ -159,7 +159,7 @@ namespace SmartLyrics
 
                         if (!IsInForeground())
                         {
-                            createNotification(artist, title);
+                            CreateNotification(artist, title);
                             MainActivity.checkOnStart = true;
                             Log.WriteLine(LogPriority.Info, "SmartLyrics", "getAndCompareResults (NLService): Found song match, creating notification...");
                         }
@@ -174,7 +174,7 @@ namespace SmartLyrics
             }
         }
 
-        private async Task createNotificationChannel()
+        private async Task CreateNotificationChannel()
         {
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
@@ -190,7 +190,7 @@ namespace SmartLyrics
             }
         }
 
-        private void createNotification(string artist, string title)
+        private void CreateNotification(string artist, string title)
         {
             MainActivity.fromNotification = true;
 

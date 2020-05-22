@@ -1,63 +1,126 @@
-﻿using System;
+﻿using Android.Util;
+
+using Microsoft.AppCenter.Crashes;
+
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
-using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Util;
-using Android.Views;
-using Android.Widget;
-using Microsoft.AppCenter.Crashes;
+
 using static SmartLyrics.Globals;
 
 namespace SmartLyrics.Common
 {
     class DatabaseHandling
     {
-        private static DataTable db = new DataTable("savedSongs");
+        private static DataTable db = new DataTable("db");
+        private static string path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation + databaseLocation);
+        private static string lyricsPath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation);
+
+        //clear table and add correct columns
+        internal static void InitializeTable()
+        {
+            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "DatabaseHandling.cs: Initializing DataTable...");
+
+            db.Clear();
+            db.Columns.Clear();
+
+            db.Columns.Add("id", typeof(int));
+            db.Columns.Add("title", typeof(string));
+            db.Columns.Add("artist", typeof(string));
+            db.Columns.Add("album", typeof(string));
+            db.Columns.Add("featuredArtist", typeof(string));
+            db.Columns.Add("cover", typeof(string));
+            db.Columns.Add("header", typeof(string));
+            db.Columns.Add("APIPath", typeof(string));
+            db.Columns.Add("path", typeof(string));
+
+            Log.WriteLine(LogPriority.Info, "SmartLyrics", "DatabaseHandling.cs: Finished initializing!");
+        }
+
+        internal static Song DataRowToSong(DataRow dr)
+        {
+            Song song = new Song
+            {
+                id = (int)dr["id"],
+                title = (string)dr["title"],
+                artist = (string)dr["artist"],
+                album = (string)dr["album"],
+                featuredArtist = (string)dr["featuredArtist"],
+                cover = (string)dr["cover"],
+                header = (string)dr["header"],
+                APIPath = (string)dr["APIPath"],
+                path = (string)dr["path"]
+            };
+
+            return song;
+        }
+
+        internal static async Task<DataTable> ReadFromDatabaseFile(string path)
+        {
+            Log.WriteLine(LogPriority.Info, "SmartLyrics", "DatabaseHandling.cs: Reading database from file...");
+            DataTable _dt = new DataTable("db"); //name needs to be the same as the "db" variable
+            
+            //TODO: better error handling
+            try
+            {
+                //initialize temp DataTable to import XML
+                _dt.Columns.Add("id", typeof(int));
+                _dt.Columns.Add("title", typeof(string));
+                _dt.Columns.Add("artist", typeof(string));
+                _dt.Columns.Add("album", typeof(string));
+                _dt.Columns.Add("featuredArtist", typeof(string));
+                _dt.Columns.Add("cover", typeof(string));
+                _dt.Columns.Add("header", typeof(string));
+                _dt.Columns.Add("APIPath", typeof(string));
+                _dt.Columns.Add("path", typeof(string));
+
+                if (File.Exists(path))
+                {
+                    using Stream s = new FileStream(path, FileMode.Open, FileAccess.Read);
+                    _dt.ReadXml(s);
+                }
+            }
+            catch (XmlException ex)
+            {
+                Crashes.TrackError(ex);
+                Log.WriteLine(LogPriority.Info, "SmartLyrics", "DatabaseHandling.cs: Exception cought! " + ex.ToString());
+
+                return null;
+            }
+
+            return _dt;
+        }
+
+        internal static async Task WriteLyrics(Song songInfo)
+        {
+            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "DatabaseHandling.cs: Preparing to write lyrics to disk...");
+            string _filepath = Path.Combine(lyricsPath, songInfo.id + lyricsExtension);
+
+            try 
+            {
+                File.WriteAllText(_filepath, songInfo.lyrics);
+                Log.WriteLine(LogPriority.Info, "SmartLyrics", "DatabaseHandling.cs: Wrote lyrics for {songInfo.title} to disk!");
+            }
+            catch (IOException ex)
+            {
+                Crashes.TrackError(ex);
+                Log.WriteLine(LogPriority.Error, "SmartLyrics", "DatabaseHandling.cs: Error while writing lyrics to disk!");
+            }
+        }
 
         //writes a song to the saved lyrics database
         //returns true if successful
-        public static async Task<bool> WriteToTable(Song songInfo)
+        public static async Task<bool> WriteInfoAndLyrics(Song songInfo)
         {
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "DatabaseHandling.cs: Started WriteToTable method");
+            Log.WriteLine(LogPriority.Info, "SmartLyrics", "DatabaseHandling.cs: Started WriteInfoAndLyrics method");
 
-            string path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation + databaseLocation);
+            InitializeTable();
+            db = await ReadFromDatabaseFile(path);
+
             if (await GetSongFromTable(songInfo.id) == null)
             {
-                db.Columns.Add("id", typeof(int));
-                db.Columns.Add("title", typeof(string));
-                db.Columns.Add("artist", typeof(string));
-                db.Columns.Add("album", typeof(string));
-                db.Columns.Add("featuredArtist", typeof(string));
-                db.Columns.Add("cover", typeof(string));
-                db.Columns.Add("header", typeof(string));
-                db.Columns.Add("APIPath", typeof(string));
-                db.Columns.Add("path", typeof(string));
-                db.Columns.Add("lyrics", typeof(string));
-
-                db.Clear();
-                if (File.Exists(path))
-                {
-                    //TODO: better error handling
-                    try
-                    {
-                        using Stream s = new FileStream(path, FileMode.Open, FileAccess.Read);
-                        db.ReadXml(s);
-                    }
-                    catch (XmlException ex)
-                    {
-                        Crashes.TrackError(ex);
-                        Log.WriteLine(LogPriority.Info, "SmartLyrics", "DatabaseHandling.cs: Exception cought! "+ ex.ToString());
-                    }
-                }
-
                 db.Rows.Add(
                     songInfo.id,
                     songInfo.title,
@@ -67,10 +130,11 @@ namespace SmartLyrics.Common
                     songInfo.cover,
                     songInfo.header,
                     songInfo.APIPath,
-                    songInfo.path,
-                    songInfo.lyrics);
+                    songInfo.path);
 
                 db.WriteXml(path);
+
+                await WriteLyrics(songInfo);
 
                 return true;
             }
@@ -80,43 +144,76 @@ namespace SmartLyrics.Common
             }
         }
 
-        public static async Task<Song> GetSongFromTable(int id)
+        public static async Task<List<Song>> GetSongList()
         {
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", $"DatabaseHandling.cs: Attempting to find song with ID {id} on table...");
-
-            DataRow[] _;
-            try
+            if (File.Exists(path))
             {
-               _ = db.Select("id = " + id);
-            }
-            catch (EvaluateException)
-            {
-                return null;
-            }
+                InitializeTable();
+                db = await ReadFromDatabaseFile(path);
 
-            if (_ != null && _.Length != 0)
-            {
-                DataRow dr = _[0];
+                List<Song> _songs = new List<Song>();
 
-                Song song = new Song
+                foreach (DataRow dr in db.Rows)
                 {
-                    id = (int)dr["id"],
-                    title = (string)dr["title"],
-                    artist = (string)dr["artist"],
-                    album = (string)dr["album"],
-                    featuredArtist = (string)dr["featuredArtist"],
-                    cover = (string)dr["cover"],
-                    header = (string)dr["header"],
-                    APIPath = (string)dr["APIPath"],
-                    path = (string)dr["path"],
-                    lyrics = (string)dr["lyrics"],
-                };
+                    Song _ = DataRowToSong(dr);
+                    _songs.Add(_);
+                }
 
-                return song;
+                return _songs;
             }
             else
             {
                 return null;
+            }
+        }
+
+        public static async Task<Song> GetSongFromTable(int id)
+        {
+            //Genius does not have a song with ID 0, if we recieve a request with
+            //ID 0, immediately return null
+            if (id == 0)
+            {
+                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "DatabaseHandling.cs: Song ID is 0, returning null...");
+                return null;
+            }
+            else
+            {
+                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", $"DatabaseHandling.cs: Attempting to find song with ID {id} on table...");
+
+                DataRow[] _;
+                try
+                {
+                    _ = db.Select("id = " + id);
+                }
+                catch (EvaluateException)
+                {
+                    return null;
+                }
+
+                if (_ != null && _.Length != 0)
+                {
+                    DataRow dr = _[0];
+
+                    Song song = new Song
+                    {
+                        id = (int)dr["id"],
+                        title = (string)dr["title"],
+                        artist = (string)dr["artist"],
+                        album = (string)dr["album"],
+                        featuredArtist = (string)dr["featuredArtist"],
+                        cover = (string)dr["cover"],
+                        header = (string)dr["header"],
+                        APIPath = (string)dr["APIPath"],
+                        path = (string)dr["path"]
+                    };
+
+                    return song;
+                }
+                else
+                {
+                    Log.WriteLine(LogPriority.Info, "SmartLyrics", "DatabaseHandling.cs: Did not find song, returning null...");
+                    return null;
+                }
             }
         }
     }

@@ -29,18 +29,24 @@ namespace SmartLyrics
     {
         public int id { get; set; }
         public string name { get; set; }
-        public List<string> songs { get; set; }
+        public List<Song> songs { get; set; }
+    }
+
+    public class Lyrics
+    {
+        public int id { get; set; }
+        public string lyrics { get; set; }
     }
 
     public class ExpandableListAdapter : BaseExpandableListAdapter
     {
         private Activity context;
         private List<string> listDataHeader;
-        private Dictionary<string, List<string>> listDataChild;
+        private Dictionary<string, List<Song>> listDataChild;
         private List<string> filteredHeader;
         private Dictionary<string, List<string>> filteredChild;
 
-        public ExpandableListAdapter(Activity context, List<string> listDataHeader, Dictionary<String, List<string>> listChildData)
+        public ExpandableListAdapter(Activity context, List<string> listDataHeader, Dictionary<string, List<Song>> listChildData)
         {
             this.listDataChild = listChildData;
             this.listDataHeader = listDataHeader;
@@ -49,7 +55,7 @@ namespace SmartLyrics
         //for child item view
         public override Java.Lang.Object GetChild(int groupPosition, int childPosition)
         {
-            return listDataChild[listDataHeader[groupPosition]][childPosition];
+            return listDataChild[listDataHeader[groupPosition]][childPosition].title;
         }
         public override long GetChildId(int groupPosition, int childPosition)
         {
@@ -110,11 +116,11 @@ namespace SmartLyrics
     public class SavedLyricsAdapter : BaseAdapter<Artist>
     {
         private Activity activity;
-        List<Tuple<string, string>> allSongs;
+        List<Tuple<string, Song>> allSongs;
 
         public override Artist this[int position] => throw new NotImplementedException();
 
-        public SavedLyricsAdapter(Activity activity, List<Tuple<string, string>> allSongs)
+        public SavedLyricsAdapter(Activity activity, List<Tuple<string, Song>> allSongs)
         {
             this.activity = activity;
             this.allSongs = allSongs;
@@ -135,12 +141,11 @@ namespace SmartLyrics
             var titleTxt = view.FindViewById<TextView>(Resource.Id.songTitle);
             var artistTxt = view.FindViewById<TextView>(Resource.Id.songArtist);
 
-            titleTxt.Text = allSongs.ElementAt(position).Item2;
+            titleTxt.Text = allSongs.ElementAt(position).Item2.title;
             artistTxt.Text = allSongs.ElementAt(position).Item1;
             return view;
         }
     }
-
 
     public class SearchResultAdapter : BaseAdapter<Song>
     {
