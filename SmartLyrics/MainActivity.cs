@@ -36,6 +36,7 @@ using System.Threading.Tasks;
 
 using static SmartLyrics.Globals;
 using SmartLyrics.Toolbox;
+using Android.Views.Animations;
 
 namespace SmartLyrics
 {
@@ -113,6 +114,11 @@ namespace SmartLyrics
             if (checkOnStart)
             {
                 npTxt.Visibility = ViewStates.Visible;
+
+                Animation anim = AnimationUtils.LoadAnimation(this, Resource.Animation.flash);
+                npTxt.StartAnimation(anim);
+                Log.WriteLine(LogPriority.Info, "SmartLyrics", "file_name_here.cs: Playing animation");
+
                 ChangeNotificationToInfo();
                 await LoadSong();
             }
@@ -525,7 +531,7 @@ namespace SmartLyrics
             ImageButton coverView = FindViewById<ImageButton>(Resource.Id.coverView);
             ImageView headerView = FindViewById<ImageView>(Resource.Id.headerView);
             ImageView savedView = FindViewById<ImageView>(Resource.Id.savedView);
-            ImageView shadowView = FindViewById<ImageView>(Resource.Id.shadowView);
+            
             ImageView searchView = FindViewById<ImageView>(Resource.Id.searchView);
 
             EditText searchTxt = FindViewById<EditText>(Resource.Id.searchTxt);
@@ -545,7 +551,6 @@ namespace SmartLyrics
                 Log.WriteLine(LogPriority.Info, "SmartLyrics", "LoadSong (MainActivity): File for song doesn't exist, getting data from APIRequests.Genius...");
 
                 savedView.Visibility = ViewStates.Gone;
-                shadowView.Visibility = ViewStates.Visible;
 
                 GetAndShowSongDetails();
                 try
@@ -619,7 +624,6 @@ namespace SmartLyrics
             var path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation + songInfo.id + lyricsExtension);
 
             #region UI Variables
-            ImageView shadowView = FindViewById<ImageView>(Resource.Id.shadowView);
             ImageView savedView = FindViewById<ImageView>(Resource.Id.savedView);
 
             ProgressBar lyricsLoadingWheel = FindViewById<ProgressBar>(Resource.Id.lyricsLoadingWheel);
@@ -635,7 +639,6 @@ namespace SmartLyrics
 
                 await UpdateSong(true, false, true);
 
-                shadowView.Visibility = ViewStates.Visible;
                 lyricsLoadingWheel.Visibility = ViewStates.Gone;
                 savedView.Visibility = ViewStates.Visible;
                 refreshLayout.Refreshing = false;

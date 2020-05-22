@@ -12,217 +12,227 @@
             android:layout_height="match_parent" android:id="@+id/constraintMain">
 
         <android.support.v4.widget.SwipeRefreshLayout
+                android:id="@+id/swipeRefreshLayout"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:visibility="gone"
-                android:id="@+id/swipeRefreshLayout"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/toolbar">
+
             <ScrollView
                     android:layout_width="0dp"
-                    android:layout_height="0dp"
-            >
+                    android:layout_height="0dp">
+
                 <LinearLayout
+                        android:id="@+id/linearLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:id="@+id/linearLayout">
+                        android:orientation="vertical">
+
                     <android.support.constraint.ConstraintLayout
+                            android:id="@+id/header"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:id="@+id/header" android:minHeight="160dp">
+                            android:minHeight="160dp">
 
                         <ImageView
+                                android:id="@+id/headerView"
                                 android:layout_width="0dp"
                                 android:layout_height="0dp"
-                                android:id="@+id/headerView"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                android:scaleType="centerCrop"
+                                android:adjustViewBounds="true"
                                 android:contentDescription="@string/descHeader"
+                                android:scaleType="centerCrop"
+                                android:tint="#80000000"
                                 app:layout_constraintBottom_toBottomOf="parent"
-                                android:adjustViewBounds="true"/>
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
                         <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
                                 android:id="@+id/songTitle"
-                                android:textAppearance="@style/textTitle"
-                                android:shadowColor="#000000"
-                                android:shadowDx="0"
-                                android:shadowDy="1"
-                                android:shadowRadius="4"
-                                android:layout_marginStart="16dp"
-                                app:layout_constraintHorizontal_bias="0.0"
-                                android:layout_marginTop="16dp"
-                                app:layout_constraintTop_toTopOf="@+id/headerView"
-                                app:layout_constraintStart_toEndOf="@+id/coverView"
-                                android:layout_marginEnd="16dp" app:layout_constraintEnd_toEndOf="parent"/>
-                        <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:id="@+id/songArtist"
-                                android:textAppearance="@style/textArtist"
-                                android:shadowColor="#000000"
-                                android:shadowDx="0"
-                                android:shadowDy="1"
-                                android:shadowRadius="4"
                                 android:layout_marginStart="16dp"
-                                app:layout_constraintTop_toBottomOf="@+id/songTitle"
+                                android:layout_marginTop="16dp"
                                 android:layout_marginEnd="16dp"
+                                android:shadowColor="#00000000"
+                                android:shadowDx="0"
+                                android:shadowDy="0"
+                                android:shadowRadius="0"
+                                android:textAppearance="@style/textTitle"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintHorizontal_bias="0.0"
+                                app:layout_constraintStart_toEndOf="@+id/coverView"
+                                app:layout_constraintTop_toTopOf="@+id/headerView" />
+
+                        <TextView
+                                android:id="@+id/songArtist"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:layout_marginEnd="16dp"
+                                android:shadowColor="#00000000"
+                                android:shadowDx="0"
+                                android:shadowDy="0"
+                                android:shadowRadius="0"
+                                android:textAppearance="@style/textArtist"
                                 app:layout_constraintEnd_toEndOf="@+id/headerView"
                                 app:layout_constraintHorizontal_bias="0.0"
-                                app:layout_constraintStart_toEndOf="@+id/coverView"/>
-                        <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:id="@+id/songFeat"
-                                android:textAppearance="@style/textFeat"
-                                android:shadowColor="#000000"
-                                android:shadowDx="0"
-                                android:shadowDy="1"
-                                android:shadowRadius="4"
-                                app:layout_constraintTop_toBottomOf="@+id/songArtist"
-                                android:layout_marginEnd="16dp"
-                                app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toEndOf="@+id/coverView"
-                                android:layout_marginStart="16dp"
-                                app:layout_constraintHorizontal_bias="0.0"
-                                android:visibility="gone"
-                                android:includeFontPadding="false"/>
+                                app:layout_constraintTop_toBottomOf="@+id/songTitle" />
+
                         <TextView
+                                android:id="@+id/songFeat"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:id="@+id/songAlbum"
-                                android:textAppearance="@style/textAlbum"
-                                android:shadowColor="#000000"
-                                android:shadowDx="0"
-                                android:shadowDy="1"
-                                android:shadowRadius="4"
                                 android:layout_marginStart="16dp"
                                 android:layout_marginEnd="16dp"
+                                android:includeFontPadding="false"
+                                android:shadowColor="#00000000"
+                                android:shadowDx="0"
+                                android:shadowDy="0"
+                                android:shadowRadius="0"
+                                android:textAppearance="@style/textFeat"
+                                android:visibility="gone"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintHorizontal_bias="0.0"
-                                app:layout_constraintTop_toBottomOf="@+id/songFeat"
-                                app:layout_constraintStart_toEndOf="@+id/coverView"/>
-                        <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="165dp"
-                                android:id="@+id/shadowView"
-                                android:scaleType="fitCenter"
-                                android:shadowColor="#000000"
-                                android:shadowDx="0"
-                                android:shadowDy="1"
-                                android:shadowRadius="4"
-                                app:srcCompat="@mipmap/bg_cover_border"
-                                android:visibility="invisible"
-                                app:layout_constraintStart_toStartOf="@+id/coverView"
-                                app:layout_constraintEnd_toEndOf="@+id/coverView"
-                                app:layout_constraintTop_toTopOf="@+id/coverView"
-                                app:layout_constraintBottom_toBottomOf="@+id/coverView"
-                                android:adjustViewBounds="true" android:paddingTop="1dp"
-                        />
-                        <ImageButton
-                                android:layout_width="wrap_content"
-                                android:layout_height="140dp"
-                                android:id="@+id/coverView" android:adjustViewBounds="true"
-                                android:scaleType="fitCenter" android:background="#00FFFFFF"
-                                android:layout_marginTop="16dp" app:layout_constraintTop_toTopOf="parent"
-                                android:layout_marginBottom="16dp" app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toEndOf="@+id/coverView"
+                                app:layout_constraintTop_toBottomOf="@+id/songArtist" />
+
+                        <TextView
+                                android:id="@+id/songAlbum"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
                                 android:layout_marginStart="16dp"
-                                app:layout_constraintStart_toStartOf="@+id/headerView"
+                                android:layout_marginEnd="16dp"
+                                android:shadowColor="#00000000"
+                                android:shadowDx="0"
+                                android:shadowDy="0"
+                                android:shadowRadius="0"
+                                android:textAppearance="@style/textAlbum"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintHorizontal_bias="0.0"
+                                app:layout_constraintStart_toEndOf="@+id/coverView"
+                                app:layout_constraintTop_toBottomOf="@+id/songFeat" />
+
+                        <ImageButton
+                                android:id="@+id/coverView"
+                                android:layout_width="140dp"
+                                android:layout_height="140dp"
+                                android:layout_marginStart="16dp"
+                                android:layout_marginTop="16dp"
+                                android:layout_marginBottom="16dp"
+                                android:adjustViewBounds="true"
+                                android:background="#00FFFFFF"
                                 android:contentDescription="@string/descCover"
-                                android:visibility="visible"/>
+                                android:scaleType="fitCenter"
+                                android:visibility="visible"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toStartOf="@+id/headerView"
+                                app:layout_constraintTop_toTopOf="parent" />
+
                         <ImageView
+                                android:id="@+id/savedView"
                                 android:layout_width="wrap_content"
-                                android:layout_height="20dp" app:srcCompat="@mipmap/ic_download"
-                                android:id="@+id/savedView" android:adjustViewBounds="true"
-                                android:scaleType="fitCenter" android:layout_marginEnd="8dp"
-                                app:layout_constraintEnd_toEndOf="@+id/coverView" android:layout_marginBottom="8dp"
-                                app:layout_constraintBottom_toBottomOf="@+id/coverView" android:visibility="gone"
-                                android:contentDescription="@string/descSaved"/>
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="8dp"
+                                android:layout_marginBottom="8dp"
+                                android:adjustViewBounds="true"
+                                android:contentDescription="@string/descSaved"
+                                android:scaleType="fitCenter"
+                                android:visibility="gone"
+                                app:layout_constraintBottom_toBottomOf="@+id/coverView"
+                                app:layout_constraintEnd_toEndOf="@+id/coverView"
+                                app:srcCompat="@mipmap/ic_download" />
                     </android.support.constraint.ConstraintLayout>
+
                     <ProgressBar
+                            android:id="@+id/lyricsLoadingWheel"
                             style="?android:attr/progressBarStyle"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:id="@+id/lyricsLoadingWheel"
-                            android:visibility="visible"
-                            android:layout_marginTop="16dp"/>
+                            android:layout_marginTop="16dp"
+                            android:visibility="visible" />
+
                     <TextView
+                            android:id="@+id/songLyrics"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:id="@+id/songLyrics"
-                            android:textAppearance="@style/textLyrics"
-                            android:layout_margin="16dp"/>
+                            android:layout_margin="16dp"
+                            android:textAppearance="@style/textLyrics" />
                 </LinearLayout>
             </ScrollView>
         </android.support.v4.widget.SwipeRefreshLayout>
+
         <android.support.constraint.ConstraintLayout
+                android:id="@+id/welcomeScreen"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:visibility="visible"
-                android:id="@+id/welcomeScreen"
-                app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
             <ImageView
+                    android:id="@+id/background"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/bg_main"
-                    android:id="@+id/background"
+                    android:contentDescription="@string/descDecorationBG"
                     android:scaleType="centerCrop"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    android:contentDescription="@string/descDecorationBG"/>
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/bg_main" />
+
             <TextView
-                    android:text="@string/mainWelcomeHeader"
+                    android:id="@+id/welcomeHeaderTxt"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:id="@+id/welcomeHeaderTxt"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:textAppearance="@style/textWelcomeHeader"
+                    android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
                     android:gravity="center_horizontal|center_vertical"
-                    app:layout_constraintVertical_bias="1.0"
-                    app:layout_constraintHorizontal_bias="0.0"
+                    android:text="@string/mainWelcomeHeader"
+                    android:textAppearance="@style/textWelcomeHeader"
                     app:layout_constraintBottom_toTopOf="@+id/welcomeTxt"
-                    android:layout_marginStart="16dp"/>
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="1.0" />
+
             <TextView
-                    android:text="@string/mainWelcome"
+                    android:id="@+id/welcomeTxt"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:id="@+id/welcomeTxt"
-                    android:layout_marginTop="8dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:textAppearance="@style/textWelcome"
                     android:layout_marginStart="24dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="24dp"
                     android:gravity="center_horizontal|center_vertical"
-                    app:layout_constraintVertical_bias="0.72"/>
-            <Button
-                    android:text="@string/mainGotoSaved"
-                    android:layout_width="300dp"
-                    android:layout_height="55dp"
-                    android:id="@+id/gotoLyricsBtn"
-                    android:layout_marginTop="24dp"
-                    app:layout_constraintTop_toBottomOf="@+id/welcomeTxt"
+                    android:text="@string/mainWelcome"
+                    android:textAppearance="@style/textWelcome"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.72" />
+
+            <Button
+                    android:id="@+id/gotoLyricsBtn"
                     style="@style/buttonDefault"
+                    android:layout_width="300dp"
+                    android:layout_height="55dp"
+                    android:layout_marginTop="24dp"
                     android:background="@drawable/bg_button"
+                    android:text="@string/mainGotoSaved"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintVertical_bias="0.0"/>
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/welcomeTxt"
+                    app:layout_constraintVertical_bias="0.0" />
         </android.support.constraint.ConstraintLayout>
         <ListView
                 android:layout_width="match_parent"
@@ -252,81 +262,87 @@
                 android:id="@+id/toolbar"
                 app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:elevation="6dp" android:background="@color/colorBackground">
+                android:background="@color/colorBackground">
 
             <ImageView
+                    android:id="@+id/searchView"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:id="@+id/searchView"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:scaleType="centerCrop"
                     android:contentDescription="@string/descHeader"
-                    app:layout_constraintHorizontal_bias="0.0" app:layout_constraintVertical_bias="1.0"
-            />
+                    android:scaleType="centerCrop"
+                    android:tint="#80000000"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="1.0" />
+
             <TextView
-                    android:text="@string/drawerSearch"
+                    android:id="@+id/headerTxt"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
-                    app:layout_constraintTop_toTopOf="@+id/drawerBtn"
                     android:layout_centerHorizontal="true"
                     android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:shadowColor="#00000000"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="0"
+                    android:text="@string/drawerSearch"
                     android:textAppearance="@style/textHeader"
+                    android:visibility="visible"
+                    app:layout_constraintBottom_toBottomOf="@+id/drawerBtn"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    android:shadowColor="#000000"
-                    android:shadowDx="0"
-                    android:shadowDy="1"
-                    android:shadowRadius="4"
-                    android:id="@+id/headerTxt"
-                    app:layout_constraintBottom_toBottomOf="@+id/drawerBtn"
-                    android:visibility="visible"
-                    app:layout_constraintVertical_bias="0.0" android:includeFontPadding="false"/>
+                    app:layout_constraintTop_toTopOf="@+id/drawerBtn"
+                    app:layout_constraintVertical_bias="0.0" />
+
             <ImageButton
-                    android:layout_width="34dp"
-                    android:layout_height="34dp"
-                    app:srcCompat="@mipmap/ic_search"
                     android:id="@+id/searchBtn"
                     style="@style/imageButtonNoBackground"
-                    android:layout_marginTop="16dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    android:layout_marginEnd="16dp"
-                    android:foregroundGravity="center"
-                    app:layout_constraintBottom_toTopOf="@+id/npTxt"
-                    android:layout_marginBottom="10dp"
-                    android:contentDescription="@string/descSeacrhBtn" android:scaleType="fitCenter"/>
-            <ImageButton
                     android:layout_width="34dp"
                     android:layout_height="34dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="10dp"
+                    android:contentDescription="@string/descSeacrhBtn"
+                    android:foregroundGravity="center"
+                    android:scaleType="fitCenter"
+                    android:tint="#FFFFFF"
+                    app:layout_constraintBottom_toTopOf="@+id/npTxt"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/round_search_24" />
+
+            <ImageButton
                     android:id="@+id/drawerBtn"
                     style="@style/imageButtonNoBackground"
-                    app:layout_constraintStart_toStartOf="parent"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:foregroundGravity="center"
                     android:layout_marginBottom="10dp"
+                    android:contentDescription="@string/descDrawerBtn"
+                    android:foregroundGravity="center"
+                    android:scaleType="fitCenter"
+                    android:tint="#FFFFFF"
                     app:layout_constraintBottom_toTopOf="@+id/npTxt"
-                    android:contentDescription="@string/descDrawerBtn" app:srcCompat="@mipmap/ic_bars"
-                    android:scaleType="fitCenter"/>
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/round_menu_24" />
+
             <TextView
-                    android:text="@string/nowPlaying"
+                    android:id="@+id/npTxt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/nowPlaying"
                     android:textAppearance="@style/textNP"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:shadowColor="#000000"
-                    android:shadowDx="0"
-                    android:shadowDy="1"
-                    android:shadowRadius="4"
                     android:visibility="gone"
-                    android:id="@+id/npTxt"
-                    android:layout_marginBottom="4dp"/>
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
             <EditText
                     android:layout_width="0dp"
                     android:layout_height="0dp"
@@ -346,14 +362,14 @@
                     android:importantForAutofill="no" app:layout_constraintBottom_toBottomOf="@+id/searchBtn"/>
         </android.support.constraint.ConstraintLayout>
     </android.support.constraint.ConstraintLayout>
-<android.support.design.widget.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="240dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/activity_main_drawer"
-        app:itemTextAppearance="@style/textDrawer">
-</android.support.design.widget.NavigationView>
+    <android.support.design.widget.NavigationView
+            android:id="@+id/nav_view"
+            android:layout_width="240dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:fitsSystemWindows="true"
+            app:headerLayout="@layout/nav_header_main"
+            app:menu="@menu/activity_main_drawer"
+            app:itemTextAppearance="@style/textDrawer">
+    </android.support.design.widget.NavigationView>
 </android.support.v4.widget.DrawerLayout>
