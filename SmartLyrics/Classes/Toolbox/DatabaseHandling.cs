@@ -86,7 +86,7 @@ namespace SmartLyrics.Toolbox
             catch (XmlException ex)
             {
                 Crashes.TrackError(ex);
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "DatabaseHandling.cs: Exception cought! " + ex.ToString());
+                Log.WriteLine(LogPriority.Info, "SmartLyrics", "DatabaseHandling.cs: Exception cought while trying reading database!\n" + ex.ToString());
 
                 return null;
             }
@@ -107,7 +107,7 @@ namespace SmartLyrics.Toolbox
             catch (IOException ex)
             {
                 Crashes.TrackError(ex);
-                Log.WriteLine(LogPriority.Error, "SmartLyrics", "DatabaseHandling.cs: Error while writing lyrics to disk!");
+                Log.WriteLine(LogPriority.Error, "SmartLyrics", "DatabaseHandling.cs: Error while writing lyrics to disk!\n" + ex.ToString());
             }
         }
         #endregion

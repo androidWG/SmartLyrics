@@ -27,7 +27,7 @@ namespace SmartLyrics.APIRequests
                 }
                 catch (HttpRequestException e)
                 {
-                    Android.Util.Log.WriteLine(Android.Util.LogPriority.Error, "SmartLyrics", "SpotifyRequests.cs: Exception Caught:" + e.Message);
+                    Android.Util.Log.WriteLine(Android.Util.LogPriority.Error, "SmartLyrics", "SpotifyRequests.cs: Exception caught while getting song list from Spotify!\n" + e.ToString());
                     return null;
                 }
             }

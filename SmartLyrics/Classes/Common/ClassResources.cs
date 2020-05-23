@@ -45,7 +45,7 @@ namespace SmartLyrics.Common
     {
         private Activity context;
         private List<string> listDataHeader;
-        private Dictionary<string, List<Common.Song>> listDataChild;
+        private Dictionary<string, List<Song>> listDataChild;
         private List<string> filteredHeader;
         private Dictionary<string, List<string>> filteredChild;
 
@@ -119,7 +119,7 @@ namespace SmartLyrics.Common
     public class SavedLyricsAdapter : BaseAdapter<Artist>
     {
         private Activity activity;
-        List<Tuple<string, Common.Song>> allSongs;
+        List<Tuple<string, Song>> allSongs;
 
         public override Artist this[int position] => throw new NotImplementedException();
 
@@ -153,9 +153,9 @@ namespace SmartLyrics.Common
     public class SearchResultAdapter : BaseAdapter<Common.Song>
     {
         private Activity activity;
-        private List<Common.Song> songs;
+        private List<Song> songs;
 
-        public override Common.Song this[int position] => throw new NotImplementedException();
+        public override Song this[int position] => throw new NotImplementedException();
 
         public SearchResultAdapter(Activity activity, List<Common.Song> songs)
         {

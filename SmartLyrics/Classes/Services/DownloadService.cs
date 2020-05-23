@@ -369,9 +369,9 @@ namespace SmartLyrics.Services
 
             try
             {
-                path = System.IO.Path.Combine(path, song.artist + savedSeparator + song.title + ".txt");
-                var pathHeader = System.IO.Path.Combine(pathImg, song.artist + savedSeparator + song.title + "-header.jpg");
-                var pathCover = System.IO.Path.Combine(pathImg, song.artist + savedSeparator + song.title + "-cover.jpg");
+                path = Path.Combine(path, song.artist + savedSeparator + song.title + ".txt");
+                var pathHeader = Path.Combine(pathImg, song.artist + savedSeparator + song.title + "-header.jpg");
+                var pathCover = Path.Combine(pathImg, song.artist + savedSeparator + song.title + "-cover.jpg");
 
                 if (!File.Exists(path))
                 {
@@ -412,7 +412,7 @@ namespace SmartLyrics.Services
             }
             catch (Exception e)
             {
-                Log.WriteLine(LogPriority.Error, "SmartLyrics", "saveSongLyrics (DownloadService): Exception caught! " + e.Message);
+                Log.WriteLine(LogPriority.Error, "SmartLyrics", "saveSongLyrics (DownloadService): Exception caught while saving song in DownloadService!\n" + e.ToString());
             }
 
         }

@@ -115,7 +115,10 @@ namespace SmartLyrics
             {
                 npTxt.Visibility = ViewStates.Visible;
 
-                Animation anim = AnimationUtils.LoadAnimation(this, Resource.Animation.flash);
+                Animation anim = new AlphaAnimation(0.2f, 1.0f);
+                anim.Duration = 700; //You can manage the blinking time with this parameter
+                anim.RepeatMode = RepeatMode.Reverse;
+                anim.RepeatCount = 15;
                 npTxt.StartAnimation(anim);
                 Log.WriteLine(LogPriority.Info, "SmartLyrics", "file_name_here.cs: Playing animation");
 
@@ -344,10 +347,12 @@ namespace SmartLyrics
             EditText searchTxt = FindViewById<EditText>(Resource.Id.searchTxt);
             #endregion
 
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "SearchResuls_ItemClick (MainActivity): Attempting to display song...");
+            Log.WriteLine(LogPriority.Info, "SmartLyrics", $"SearchResuls_ItemClick (MainActivity): Attempting to display song at position {e.Position} with title {songInfo.title} and ID {songInfo.id}.");
 
             InputMethodManager imm = (InputMethodManager)GetSystemService(InputMethodService);
             imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0);
+
+            UpdateSong(false, true);
 
             songInfo.id = resultsToView.ElementAt(e.Position).id;
             songInfo.title = resultsToView.ElementAt(e.Position).title;
@@ -361,8 +366,6 @@ namespace SmartLyrics
             lyricsLoadingWheel.Visibility = ViewStates.Visible;
             npTxt.Visibility = ViewStates.Gone;
             searchResults.Visibility = ViewStates.Gone;
-
-            await UpdateSong(false, true);
 
             await LoadSong();
         }
@@ -458,7 +461,7 @@ namespace SmartLyrics
 
             songInfo.id = (int)parsed["response"]["song"]["id"];
             songInfo.album = (string)parsed["response"]["song"]["album"]["name"];
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "GetAndShowSongDetails (MainActivity): Displaying album name");
+            Log.WriteLine(LogPriority.Info, "SmartLyrics", "GetAndShowSongDetails (MainActivity): Adding album name...");
 
             if (parsed["response"]["song"]["featured_artists"].HasValues)
             {
@@ -485,7 +488,7 @@ namespace SmartLyrics
                 songInfo.featuredArtist = "";
             }
 
-            await UpdateSong(true, false);
+            UpdateSong(true, false);
         }
 
         private async Task GetAndShowLyrics()
@@ -637,7 +640,7 @@ namespace SmartLyrics
                 songInfo.lyrics = await sr.ReadToEndAsync();
                 Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "ReadFromFile (MainActivity): Read lyrics");
 
-                await UpdateSong(true, false, true);
+                UpdateSong(true, false, true);
 
                 lyricsLoadingWheel.Visibility = ViewStates.Gone;
                 savedView.Visibility = ViewStates.Visible;
@@ -703,8 +706,9 @@ namespace SmartLyrics
 
 
         #region Tools
-        private async Task UpdateSong(bool updateImages, bool clearLabels, bool imagesOnDisk = false)
+        private void UpdateSong(bool updateImages, bool clearLabels, bool imagesOnDisk = false)
         {
+            Log.WriteLine(LogPriority.Info, "SmartLyrics", $"UpdateSong (MainActivity): Started updating, updateImages is {updateImages}, clearLabels is {clearLabels} and imagesOnDisk is {imagesOnDisk}");
             TextView songLyrics = FindViewById<TextView>(Resource.Id.songLyrics);
             TextView songTitle = FindViewById<TextView>(Resource.Id.songTitle);
             TextView songArtist = FindViewById<TextView>(Resource.Id.songArtist);
@@ -767,6 +771,7 @@ namespace SmartLyrics
                 }
                 else
                 {
+                    Log.WriteLine(LogPriority.Verbose, "SmartLyrics", $"UpdateSong (MainActivity): Loading cover from {songInfo.cover} and header from {songInfo.header}");
                     ImageService.Instance.LoadUrl(songInfo.cover).Transform(new RoundedTransformation(coverRadius)).Into(coverView);
                     ImageService.Instance.LoadUrl(songInfo.header).Transform(new BlurredTransformation(headerBlur)).Into(headerView);
                     ImageService.Instance.LoadUrl(songInfo.header).Transform(new CropTransformation(3, 0, 0)).Transform(new BlurredTransformation(searchBlur)).Transform(new BlurredTransformation(searchBlur)).Into(searchView);

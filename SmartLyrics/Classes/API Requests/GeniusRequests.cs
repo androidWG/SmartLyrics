@@ -29,7 +29,7 @@ namespace SmartLyrics.APIRequests
                 }
                 catch (HttpRequestException e)
                 {
-                    Android.Util.Log.WriteLine(Android.Util.LogPriority.Error, "SmartLyrics", "Exception Caught: " + e.Message);
+                    Android.Util.Log.WriteLine(Android.Util.LogPriority.Error, "SmartLyrics", "Exception caught while getting search results!\n" + e.ToString());
                     return null;
                 }
             }
@@ -55,32 +55,7 @@ namespace SmartLyrics.APIRequests
                 }
                 catch (HttpRequestException e)
                 {
-                    Android.Util.Log.WriteLine(Android.Util.LogPriority.Error, "SmartLyrics", "Exception Caught:" + e.Message);
-                    return null;
-                }
-            }
-        }
-
-        public static async Task<Stream> GetSongDetailsStream(string APIPath, string authHeader)
-        {
-            using (HttpClient client = new HttpClient())
-            {
-                try
-                {
-                    Android.Util.Log.WriteLine(Android.Util.LogPriority.Verbose, "SmartLyrics", "GeniusRequests.cs: Adding Auth headers to HttpClient");
-                    client.DefaultRequestHeaders.Add("Authorization", authHeader);
-                    Android.Util.Log.WriteLine(Android.Util.LogPriority.Warn, "SmartLyrics", "Url sent to HttpClient: " + new Uri("https://api.genius.com" + APIPath));
-                    HttpResponseMessage responseAsync = await client.GetAsync(new Uri("https://api.genius.com" + APIPath));
-
-                    Android.Util.Log.WriteLine(Android.Util.LogPriority.Verbose, "SmartLyrics", "GeniusRequests.cs: Reading content stream...");
-                    using (Stream stream = await responseAsync.Content.ReadAsStreamAsync())
-                    {
-                        return stream;
-                    }
-                }
-                catch (HttpRequestException e)
-                {
-                    Android.Util.Log.WriteLine(Android.Util.LogPriority.Error, "SmartLyrics", "Exception Caught:" + e.Message);
+                    Android.Util.Log.WriteLine(Android.Util.LogPriority.Error, "SmartLyrics", "Exception caught while getting song details!\n" + e.ToString());
                     return null;
                 }
             }

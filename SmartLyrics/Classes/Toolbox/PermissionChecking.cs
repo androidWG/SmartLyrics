@@ -41,7 +41,7 @@ namespace SmartLyrics.Common
             }
             catch (Exception ex)
             {
-                Log.WriteLine(LogPriority.Error, "SmartLyrics", "PermissionChecking.cs: Exception caught! " + ex.Message);
+                Log.WriteLine(LogPriority.Error, "SmartLyrics", "PermissionChecking.cs: Exception caught while checking or getting permission!\n" + ex.ToString());
                 Crashes.TrackError(ex);
 
                 return 2;

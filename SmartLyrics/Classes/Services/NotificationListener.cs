@@ -14,6 +14,7 @@ using TaskStackBuilder = Android.Support.V4.App.TaskStackBuilder;
 using Newtonsoft.Json.Linq;
 using static SmartLyrics.Toolbox.MiscTools;
 using Android.Preferences;
+using SmartLyrics.Common;
 
 namespace SmartLyrics.Services
 {
@@ -27,9 +28,14 @@ namespace SmartLyrics.Services
 
         ISharedPreferences prefs;
 
-        int maxDistance = 4;
-        string previousSong;
+        Song previousSong;
+        Song detectedSong;
 
+        //max string distance
+        int maxDistance = 4;
+
+
+        #region Standard Activity Shit
         public async override void OnCreate()
         {
             base.OnCreate();
@@ -46,6 +52,29 @@ namespace SmartLyrics.Services
 
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnListenerConnected (NLService): Listener connected");
         }
+        #endregion
+
+
+        //returns as index 0 the title of the notification and as index 1 the artist
+        internal Song GetTitleAndArtistFromExtras(string extras)
+        {
+            string _title = Regex.Match(extras, @"(?<=android\.title=)(.*?)(?=, android\.)").ToString();
+            if (_title.Contains("Remix") || _title.Contains("remix") || _title.Contains("Mix"))
+            {
+                _title = Regex.Replace(_title, @"\(feat\..*?\)", "");
+            }
+            else
+            {
+                _title = Regex.Replace(_title, @"\(.*?\)", "");
+                _title.Trim();
+            }
+
+            string _artist = Regex.Match(extras, @"(?<=android\.text=)(.*?)(?=, android\.)").ToString();
+
+            Song output = new Song() { title = _title, artist = _artist };
+
+            return output;
+        }
 
         public async override void OnNotificationPosted(StatusBarNotification sbn)
         {
@@ -55,20 +84,9 @@ namespace SmartLyrics.Services
             {
                 if (sbn.Notification.Category == "transport")
                 {
-                    string extras = sbn.Notification.Extras.ToString();
+                    Song notificationSong = GetTitleAndArtistFromExtras(sbn.Notification.Extras.ToString());
 
-                    string title = Regex.Match(extras, @"(?<=android\.title=)(.*?)(?=, android\.)").ToString();
-                    if (title.Contains("Remix") || title.Contains("remix") || title.Contains("Mix"))
-                    {
-                        title = Regex.Replace(title, @"\(feat\..*?\)", "");
-                    }
-                    else
-                    {
-                        title = Regex.Replace(title, @"\(.*?\)", "");
-                        title.Trim();
-                    }
-
-                    if (previousSong != title + sbn.PackageName)
+                    if (previousSong.title != notificationSong.title && previousSong.artist != notificationSong.artist)
                     {
                         Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnNotificationPosted (NLService): Previous song is different, getting search results...");
                         await GetAndCompareResults(extras, sbn.PackageName);
@@ -77,28 +95,13 @@ namespace SmartLyrics.Services
             }
         }
 
-        private async Task GetAndCompareResults(string extras, string packageName)
+        private async Task GetAndCompareResults(Song ntfSong, string packageName)
         {
-            string title = Regex.Match(extras, @"(?<=android\.title=)(.*?)(?=, android\.)").ToString();
-            if (title.Contains("Remix") || title.Contains("remix") || title.Contains("Mix"))
-            {
-                title = Regex.Replace(title, @"\(feat\..*?\)", "");
-            }
-            else
-            {
-                title = Regex.Replace(title, @"\(.*?\)", "");
-                title.Trim();
-            }
-
-            string artist = Regex.Match(extras, @"(?<=android\.text=)(.*?)(?=, android\.)").ToString();
-
             bool songFound = false;
-            previousSong = title + packageName;
 
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getAndCompareResults (NLService): Starting async GetSearchResults operation");
-            string results = await APIRequests.Genius.GetSearchResults(artist + " - " + title, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
+            string results = await APIRequests.Genius.GetSearchResults(ntfSong.artist + " - " + ntfSong.title, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
             JObject parsed = JObject.Parse(results);
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getAndCompareResults (NLService): Results parsed into JObject");
 
             IList<JToken> parsedList = parsed["response"]["hits"].Children().ToList();
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getAndCompareResults (NLService): Parsed results into list");
@@ -108,14 +111,14 @@ namespace SmartLyrics.Services
                 string resultTitle = (string)result["result"]["title"];
                 string resultArtist = (string)result["result"]["primary_artist"]["name"];
 
-                if (await Distance(resultTitle, title) <= maxDistance && await Distance(resultArtist, artist) <= maxDistance || resultTitle.Contains(title) && resultArtist.Contains(artist))
+                if (await Distance(resultTitle, ntfSong.title) <= maxDistance && await Distance(resultArtist, ntfSong.artist) <= maxDistance || resultTitle.Contains(ntfSong.title) && resultArtist.Contains(ntfSong.artist))
                 {
-                    MainActivity.notificationSong.title = (string)result["result"]["title"];
-                    MainActivity.notificationSong.artist = (string)result["result"]["primary_artist"]["name"];
-                    MainActivity.notificationSong.cover = (string)result["result"]["song_art_image_thumbnail_url"];
-                    MainActivity.notificationSong.header = (string)result["result"]["header_image_url"];
-                    MainActivity.notificationSong.APIPath = (string)result["result"]["api_path"];
-                    MainActivity.notificationSong.path = (string)result["result"]["path"];
+                    detectedSong.title = (string)result["result"]["title"];
+                    detectedSong.artist = (string)result["result"]["primary_artist"]["name"];
+                    detectedSong.cover = (string)result["result"]["song_art_image_thumbnail_url"];
+                    detectedSong.header = (string)result["result"]["header_image_url"];
+                    detectedSong.APIPath = (string)result["result"]["api_path"];
+                    detectedSong.path = (string)result["result"]["path"];
 
                     songFound = true;
 

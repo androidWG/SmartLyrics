@@ -17,7 +17,7 @@ namespace SmartLyrics.Toolbox
             if (doc.Text.Contains("<div class=\"lyrics\">"))
             {
                 //TODO: handle NullReferenceException from error pages and such
-                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "LyricsParsing.cs: Common.Song page uses old design");
+                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "HTMLParsing.cs: Song page uses old design");
                 HtmlNode node = doc.DocumentNode.SelectSingleNode("//div[@class='lyrics']");
                 string output = await CleanHTML(node.InnerHtml);
                 return output;
