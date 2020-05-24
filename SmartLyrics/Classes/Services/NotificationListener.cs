@@ -1,20 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using Android.App;
+using Android.Content;
+using Android.OS;
+using Android.Preferences;
+using Android.Service.Notification;
+using Android.Support.V4.App;
+using Android.Util;
+
+using Newtonsoft.Json.Linq;
+using WanaKanaNet;
+using SmartLyrics.Common;
+using static SmartLyrics.Toolbox.MiscTools;
+using TaskStackBuilder = Android.Support.V4.App.TaskStackBuilder;
+
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
-using Android.App;
-using Android.Content;
-using Android.Util;
-using Android.Service.Notification;
-using Android.OS;
-using Android.Support.V4.App;
-using TaskStackBuilder = Android.Support.V4.App.TaskStackBuilder;
-
-using Newtonsoft.Json.Linq;
-using static SmartLyrics.Toolbox.MiscTools;
-using Android.Preferences;
-using SmartLyrics.Common;
+using System;
 
 namespace SmartLyrics.Services
 {
@@ -76,6 +78,41 @@ namespace SmartLyrics.Services
             return output;
         }
 
+        internal static string StripJapanese()
+        {
+
+        }
+
+        internal static string StripRomaji()
+        {
+
+        }
+
+        internal static bool ContainsJapanese(string text) => WanaKana.IsMixed(text) || WanaKana.IsJapanese(text);
+
+        internal async Task<int> CalculateLikenessJPN(Song result, Song notification, int index, string packageName = "")
+        {
+            string title = result.title;
+            string artist = result.artist;
+
+            string ntfTitle = notification.title;
+            string ntfArtist = notification.artist;
+
+            //if title is completely in Japanese
+            if (WanaKana.IsJapanese(ntfTitle))
+            {
+
+            }
+        }
+
+        internal async Task<int> CalculateLikeness(Song result, Song notification, int index, string packageName = "")
+        {
+            int titleDist = Distance(result.title, notification.title);
+            int artistDist = Distance(result.artist, notification.artist);
+
+            return titleDist + artistDist + index;
+        }
+
         public async override void OnNotificationPosted(StatusBarNotification sbn)
         {
             base.OnNotificationPosted(sbn);
@@ -89,7 +126,7 @@ namespace SmartLyrics.Services
                     if (previousSong.title != notificationSong.title && previousSong.artist != notificationSong.artist)
                     {
                         Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnNotificationPosted (NLService): Previous song is different, getting search results...");
-                        await GetAndCompareResults(extras, sbn.PackageName);
+                        await GetAndCompareResults(notificationSong, sbn.PackageName);
                     }
                 }
             }
@@ -106,12 +143,24 @@ namespace SmartLyrics.Services
             IList<JToken> parsedList = parsed["response"]["hits"].Children().ToList();
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getAndCompareResults (NLService): Parsed results into list");
 
+            List<Song> likenessRanking = new List<Song>();
             foreach (JToken result in parsedList)
             {
-                string resultTitle = (string)result["result"]["title"];
-                string resultArtist = (string)result["result"]["primary_artist"]["name"];
+                Song resultSong = new Song() { title = (string)result["result"]["title"], artist = (string)result["result"]["primary_artist"]["name"] };
+                int index = parsedList.IndexOf(result);
 
-                if (await Distance(resultTitle, ntfSong.title) <= maxDistance && await Distance(resultArtist, ntfSong.artist) <= maxDistance || resultTitle.Contains(ntfSong.title) && resultArtist.Contains(ntfSong.artist))
+                if (ContainsJapanese(ntfSong.title))
+                {
+                    resultSong.likeness = await CalculateLikenessJPN(resultSong, ntfSong, index);
+                }
+                else
+                {
+                    resultSong.likeness = await CalculateLikeness(resultSong, ntfSong, index);
+                }
+
+                likenessRanking.Add(resultSong);
+
+                if (true)
                 {
                     detectedSong.title = (string)result["result"]["title"];
                     detectedSong.artist = (string)result["result"]["primary_artist"]["name"];

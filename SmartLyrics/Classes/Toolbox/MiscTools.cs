@@ -17,7 +17,7 @@ namespace SmartLyrics.Toolbox
         private static string path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, Globals.savedLyricsLocation);
         private static string pathImg = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, Globals.savedImagesLocation);
 
-        public static async Task<int> Distance(string s, string t)
+        public static int Distance(string s, string t)
         {
             if (string.IsNullOrEmpty(s))
             {

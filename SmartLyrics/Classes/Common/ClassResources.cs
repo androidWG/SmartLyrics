@@ -23,6 +23,7 @@ namespace SmartLyrics.Common
         public string APIPath { get; set; }
         public string path { get; set; }
         public string lyrics { get; set; }
+        public int likeness { get; set; } //used by the NLService
         public int id { get; set; }
     }
 
