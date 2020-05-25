@@ -214,7 +214,7 @@ namespace SmartLyrics.Services
                 string resultTitle = (string)result["result"]["title"];
                 string resultArtist = (string)result["result"]["primary_artist"]["name"];
 
-                if (Distance(resultTitle, s.title) <= maxDistance && Distance(resultArtist, s.artist) <= maxDistance || resultTitle.Contains(s.title) && resultArtist.Contains(s.artist))
+                if ((Text.Distance(resultTitle, s.title) <= maxDistance && Text.Distance(resultArtist, s.artist) <= maxDistance) || resultTitle.Contains(s.title) && resultArtist.Contains(s.artist))
                 {
                     string path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation, (string)result["result"]["primary_artist"]["name"] + savedSeparator + (string)result["result"]["title"] + ".txt");
 

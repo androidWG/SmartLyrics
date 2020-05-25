@@ -91,6 +91,7 @@
     <Compile Include="Classes\Toolbox\MiscTools.cs" />
     <Compile Include="Classes\Toolbox\PermissionChecking.cs" />
     <Compile Include="Classes\API Requests\SpotifyRequests.cs" />
+    <Compile Include="Classes\Toolbox\Text.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

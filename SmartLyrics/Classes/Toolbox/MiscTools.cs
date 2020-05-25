@@ -1,9 +1,6 @@
 ﻿using Android.App;
 using Android.Util;
 
-using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -12,45 +9,15 @@ using Path = System.IO.Path;
 
 namespace SmartLyrics.Toolbox
 {
-    class MiscTools
+    static class MiscTools
     {
-        private static string path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, Globals.savedLyricsLocation);
-        private static string pathImg = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, Globals.savedImagesLocation);
-
-        public static int Distance(string s, string t)
+        public static float ConvertRange(
+            float originalStart, float originalEnd, // original range
+            float newStart, float newEnd, // desired range
+            float value) // value to convert
         {
-            if (string.IsNullOrEmpty(s))
-            {
-                if (string.IsNullOrEmpty(t))
-                    return 0;
-                return t.Length;
-            }
-
-            if (string.IsNullOrEmpty(t))
-            {
-                return s.Length;
-            }
-
-            int n = s.Length;
-            int m = t.Length;
-            int[,] d = new int[n + 1, m + 1];
-
-            // initialize the top and right of the table to 0, 1, 2, ...
-            for (int i = 0; i <= n; d[i, 0] = i++) ;
-            for (int j = 1; j <= m; d[0, j] = j++) ;
-
-            for (int i = 1; i <= n; i++)
-            {
-                for (int j = 1; j <= m; j++)
-                {
-                    int cost = (t[j - 1] == s[i - 1]) ? 0 : 1;
-                    int min1 = d[i - 1, j] + 1;
-                    int min2 = d[i, j - 1] + 1;
-                    int min3 = d[i - 1, j - 1] + cost;
-                    d[i, j] = Math.Min(Math.Min(min1, min2), min3);
-                }
-            }
-            return d[n, m];
+            double scale = (double)(newEnd - newStart) / (originalEnd - originalStart);
+            return (float)(newStart + ((value - originalStart) * scale));
         }
 
         public static bool IsInForeground()
@@ -61,36 +28,10 @@ namespace SmartLyrics.Toolbox
             return myProcess.Importance == Importance.Foreground;
         }
 
-        public static float ConvertRange(
-            float originalStart, float originalEnd, // original range
-            float newStart, float newEnd, // desired range
-            float value) // value to convert
-        {
-            double scale = (double)(newEnd - newStart) / (originalEnd - originalStart);
-            return (float)(newStart + ((value - originalStart) * scale));
-        }
-
-        public double GetBrightness(Color color)
-        {
-            return (0.2126 * color.R + 0.7152 * color.G + 0.0722 * color.B);
-        }
-
-        public async Task<double> GetAverageBrightness(IEnumerable<Color> colors)
-        {
-            int count = 0;
-            double sumBrightness = 0;
-
-            foreach (var color in colors)
-            {
-                count++;
-                sumBrightness += GetBrightness(color);
-            }
-
-            return sumBrightness / count;
-        }
-
         public static async Task CheckAndCreateAppFolders()
         {
+            string path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, Globals.savedLyricsLocation);
+            string pathImg = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, Globals.savedImagesLocation);
             //TODO: add IOException handling
 
             if (Directory.Exists(path))
