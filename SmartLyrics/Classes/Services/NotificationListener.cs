@@ -30,7 +30,7 @@ namespace SmartLyrics.Services
 
         ISharedPreferences prefs;
 
-        Song previousSong;
+        Song previousSong = new Song() { title = "", artist = "" };
         Song detectedSong;
 
         //max string distance
@@ -113,29 +113,30 @@ namespace SmartLyrics.Services
 
         internal static bool ContainsJapanese(string text) => WanaKana.IsMixed(text) || WanaKana.IsJapanese(text);
 
-        internal async Task<int> CalculateLikenessJPN(Song result, Song notification, int index, string packageName = "")
+        //TODO: consider titles with (Remix) and such
+        internal async Task<int> CalculateLikeness(Song result, Song notification, int index, string packageName = "")
         {
-            string title = result.title;
-            string artist = result.artist;
+            string title = result.title.ToLowerInvariant();
+            string artist = result.artist.ToLowerInvariant();
 
-            string ntfTitle = notification.title;
-            string ntfArtist = notification.artist;
+            string ntfTitle = notification.title.ToLowerInvariant();
+            ntfTitle.Replace("🅴", ""); //remove "🅴" used by Apple Music for explicit songs
+            string ntfArtist = notification.artist.ToLowerInvariant();
 
-            ntfTitle = await StripJapanese(ntfTitle);
-            ntfArtist = await StripJapanese(ntfArtist);
+            title = await StripJapanese(title);
+            artist = await StripJapanese(artist);
 
             int titleDist = MiscTools.Distance(title, ntfTitle);
             int artistDist = MiscTools.Distance(artist, ntfArtist);
 
-            return titleDist + artistDist + index;
-        }
+            if (ntfTitle.Contains(title)) { titleDist -= 4; }
+            if (ntfArtist.Contains(artist)) { artistDist -= 6; }
 
-        internal async Task<int> CalculateLikeness(Song result, Song notification, int index, string packageName = "")
-        {
-            int titleDist = MiscTools.Distance(result.title, notification.title);
-            int artistDist = MiscTools.Distance(result.artist, notification.artist);
+            int likeness = titleDist + artistDist + index;
+            if (likeness < 0) { likeness = 0; }
 
-            return titleDist + artistDist + index;
+            Log.WriteLine(LogPriority.Verbose, $"SmartLyrics", $"file_name_here.cs: Title - {title} vs {ntfTitle}\nArtist - {artist} vs {ntfArtist}\nLikeness - {likeness}");
+            return likeness;
         }
 
         public async override void OnNotificationPosted(StatusBarNotification sbn)
@@ -160,66 +161,62 @@ namespace SmartLyrics.Services
         private async Task GetAndCompareResults(Song ntfSong, string packageName)
         {
             bool songFound = false;
+            previousSong = ntfSong;
 
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getAndCompareResults (NLService): Starting async GetSearchResults operation");
             string results = await HTTPRequests.GetRequest(Globals.geniusSearchURL + ntfSong.artist + " - " + ntfSong.title, Globals.geniusAuthHeader);
             JObject parsed = JObject.Parse(results);
 
             IList<JToken> parsedList = parsed["response"]["hits"].Children().ToList();
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getAndCompareResults (NLService): Parsed results into list");
+            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", $"getAndCompareResults (NLService): Parsed results into list with size {parsedList.Count}");
 
             List<Song> likenessRanking = new List<Song>();
-            foreach (JToken result in parsedList)
+            Song selected = new Song();
+
+            if (parsedList.Count == 0)
             {
-                Song resultSong = new Song()
-                { 
-                    title = (string)result["result"]["title"],
-                    artist = (string)result["result"]["primary_artist"]["name"]
+                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "file_name_here.cs: No search results!");
+            }
+            else if (parsedList.Count == 1)
+            {
+                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "file_name_here.cs: Search returned 1 result");
+                selected = new Song()
+                {
+                    id = (int)parsedList[0]["result"]["id"],
+                    title = (string)parsedList[0]["result"]["title"],
+                    artist = (string)parsedList[0]["result"]["primary_artist"]["name"],
+                    cover = (string)parsedList[0]["result"]["song_art_image_thumbnail_url"],
+                    header = (string)parsedList[0]["result"]["header_image_url"],
+                    APIPath = (string)parsedList[0]["result"]["api_path"],
+                    path = (string)parsedList[0]["result"]["path"]
                 };
 
-                int index = parsedList.IndexOf(result);
+                selected.likeness = await CalculateLikeness(selected, ntfSong, 0);
+            }
+            else
+            {
+                foreach (JToken result in parsedList)
+                {
+                    Song resultSong = new Song()
+                    {
+                        title = (string)result["result"]["title"],
+                        artist = (string)result["result"]["primary_artist"]["name"]
+                    };
 
-                if (ContainsJapanese(ntfSong.title))
-                {
-                    resultSong.likeness = await CalculateLikenessJPN(resultSong, ntfSong, index);
-                }
-                else
-                {
+                    Log.WriteLine(LogPriority.Info, "SmartLyrics", $"file_name_here.cs: Evaluating song {resultSong.title} by {resultSong.artist}");
+
+                    int index = parsedList.IndexOf(result);
+
                     resultSong.likeness = await CalculateLikeness(resultSong, ntfSong, index);
+
+                    likenessRanking.Add(resultSong);
                 }
 
-                likenessRanking.Add(resultSong);
-                likenessRanking.OrderBy(o => o.likeness);
-
-                Song selected = likenessRanking.First();
-                Log.WriteLine(LogPriority.Error, "SmartLyrics", $"file_name_here.cs: Selected song is {selected.title} by {selected.artist} with likeness {selected.likeness}.");
-
-                //if (true)
-                //{
-                //    detectedSong.title = (string)result["result"]["title"];
-                //    detectedSong.artist = (string)result["result"]["primary_artist"]["name"];
-                //    detectedSong.cover = (string)result["result"]["song_art_image_thumbnail_url"];
-                //    detectedSong.header = (string)result["result"]["header_image_url"];
-                //    detectedSong.APIPath = (string)result["result"]["api_path"];
-                //    detectedSong.path = (string)result["result"]["path"];
-
-                //    songFound = true;
-
-                //    if (!MiscTools.IsInForeground())
-                //    {
-                //        CreateNotification(artist, title);
-                //        MainActivity.checkOnStart = true;
-                //        Log.WriteLine(LogPriority.Info, "SmartLyrics", "getAndCompareResults (NLService): Found song match, creating notification...");
-                //    }
-                //    else
-                //    {
-                //        Log.WriteLine(LogPriority.Warn, "SmartLyrics", "getAndCompareResults (NLService): Application is in foreground");
-                //    }
-
-                //    break;
-                //}
+                likenessRanking = likenessRanking.OrderBy(o => o.likeness).ToList();
+                selected = likenessRanking.First();
             }
 
+            Log.WriteLine(LogPriority.Error, "SmartLyrics", $"file_name_here.cs: Selected song is {selected.title} by {selected.artist} with likeness {selected.likeness}.");
             //if (!songFound)
             //{
             //    Log.WriteLine(LogPriority.Warn, "SmartLyrics", "getAndCompareResults (NLService): Common.Song not found, trying to search again...");
