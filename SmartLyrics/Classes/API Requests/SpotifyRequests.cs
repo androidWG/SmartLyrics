@@ -9,14 +9,17 @@ namespace SmartLyrics.APIRequests
     {
         public static async Task<string> GetSavedSongs(string authHeader, string url)
         {
+            
             using (HttpClient client = new HttpClient())
             {
                 try
                 {
-                    Android.Util.Log.WriteLine(Android.Util.LogPriority.Verbose, "SmartLyrics", "SpotifyRequests.cs: Adding Auth headers to HttpClient");
                     client.DefaultRequestHeaders.Add("Authorization", authHeader);
-                    Android.Util.Log.WriteLine(Android.Util.LogPriority.Warn, "SmartLyrics", "Url sent to HttpClient: " + new Uri(url));
-                    HttpResponseMessage responseAsync = await client.GetAsync(new Uri(url));
+
+                    Uri urlToSend = new Uri(url);
+
+                    HttpResponseMessage responseAsync = await client.GetAsync(urlToSend);
+                    Android.Util.Log.WriteLine(Android.Util.LogPriority.Warn, "SmartLyrics", "SpotifyRequests.cs: Url sent to HttpClient: " + urlToSend);
 
                     Android.Util.Log.WriteLine(Android.Util.LogPriority.Verbose, "SmartLyrics", "SpotifyRequests.cs: Reading content stream...");
                     using (Stream stream = await responseAsync.Content.ReadAsStreamAsync())

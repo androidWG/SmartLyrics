@@ -14,6 +14,9 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
+using SmartLyrics.Toolbox;
+using static SmartLyrics.Globals;
 using static SmartLyrics.Toolbox.MiscTools;
 
 namespace SmartLyrics.Services
@@ -198,10 +201,10 @@ namespace SmartLyrics.Services
             callsMade++;
 
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "geniusSearch (DownloadService): Starting geniusSearch");
-            string results = await APIRequests.Genius.GetSearchResults(s.artist + " - " + s.title, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
+            string results = await HTTPRequests.GetRequest(geniusSearchURL + s.artist + " - " + s.title, geniusAuthHeader);
             if (results == null)
             {
-                results = await APIRequests.Genius.GetSearchResults(s.artist + " - " + s.title, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
+                results = await HTTPRequests.GetRequest(geniusSearchURL + s.artist + " - " + s.title, geniusAuthHeader);
             }
             JObject parsed = JObject.Parse(results);
 
@@ -211,7 +214,7 @@ namespace SmartLyrics.Services
                 string resultTitle = (string)result["result"]["title"];
                 string resultArtist = (string)result["result"]["primary_artist"]["name"];
 
-                if (await Distance(resultTitle, s.title) <= maxDistance && await Distance(resultArtist, s.artist) <= maxDistance || resultTitle.Contains(s.title) && resultArtist.Contains(s.artist))
+                if (Distance(resultTitle, s.title) <= maxDistance && Distance(resultArtist, s.artist) <= maxDistance || resultTitle.Contains(s.title) && resultArtist.Contains(s.artist))
                 {
                     string path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation, (string)result["result"]["primary_artist"]["name"] + savedSeparator + (string)result["result"]["title"] + ".txt");
 
@@ -297,11 +300,11 @@ namespace SmartLyrics.Services
             callsMade++;
 
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "getDetails (DownloadService): Starting getDetails operation");
-            string results = await APIRequests.Genius.GetSongDetails(APIPath, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
+            string results = await HTTPRequests.GetRequest(geniusAPIURL + APIPath, geniusAuthHeader);
             if (results == null)
             {
                 Log.WriteLine(LogPriority.Debug, "SmartLyrics", "getDetails (DownloadService): Returned null, calling API again...");
-                results = await APIRequests.Genius.GetSongDetails(APIPath, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
+                results = await HTTPRequests.GetRequest(geniusAPIURL + APIPath, geniusAuthHeader);
             }
             JObject parsed = JObject.Parse(results);
 
