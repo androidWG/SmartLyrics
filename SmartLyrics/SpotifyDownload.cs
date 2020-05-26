@@ -34,8 +34,8 @@ namespace SmartLyrics
 
         Services.DownloadServiceConnection serviceConnection;
 
-        string path = System.IO.Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SmartLyrics/Saved Lyrics/Spotify/");
-        string pathImg = System.IO.Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SmartLyrics/Saved Lyrics/Spotify/Image Cache/");
+        string path = System.IO.Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, "SmartLyrics/Saved Lyrics/Spotify/");
+        string pathImg = System.IO.Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, "SmartLyrics/Saved Lyrics/Spotify/Image Cache/");
 
         protected override async void OnCreate(Bundle savedInstanceState)
         {

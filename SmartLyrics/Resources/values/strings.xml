@@ -47,14 +47,25 @@
         music app to see its lyrics.
     </string>
     <string name="mainSpotifyFinishedHeader">WE ARE DONE!</string>
-    <string name="prefDetect">Show detected song notification</string>
-    <string name="prefDetectSummary">Shows a notification when SmartLyrics detects a song playing with matching lyrics.
-        This does not stop the listener service.
-    </string>
+    <string name="prefDetect">Show notification for detected songs</string>
+    <string name="prefDetectSummary">Shows a notification when SmartLyrics detects a song playing with matching lyrics.</string>
     <string name="prefHeader">Save header images</string>
-    <string name="prefHeaderSummary">Enabling this will allow SmartLyrics to save header images together with cover
-        images. Disabling it might save you a few megabytes of storage if you have a large library.
-    </string>
     <string name="saveError">An error occurred while saving this song. Please try again.</string>
     <string name="readError">An error occurred while reading a file. Please try again.</string>
+    <string name="prefHeaderSummary">SmartLyrics saves both the background header image and album cover image when saving a song, and for each song the header image takes up a few hundred kilobytes.Disabling this can save some space if you want to save lots of songs. To delete headers for already saved songs, click the button below.</string>
+    <string name="prefAdvanced">Advacned Settings</string>
+    <string name="prefDeleteHeader">Delete existing header images</string>
+    <string name="prefRomanize">Auto-romanize song lyrics</string>
+    <string name="prefJapaneseLang">Japanese Language</string>
+    <string name="prefRomanizeMode">Romanization mode</string>
+    <string name="prefRomanizeModeSummary">Choose between spaced or normal romanization.</string>
+    <string name="prefRomanizeMode_spaced">Spaced</string>
+    <string name="prefRomanizeMode_normal">Normal</string>
+    <string name="prefAutoUpdate">Auto-update song page</string>
+    <string name="prefAutoUpdateSummary">Automatically update the song when in Now Playing mode</string>
+    <string name="prefBackup">Backup saved lyrics</string>
+    <string name="prefRestore">Restore saved lyrics backup</string>
+    <string name="prefSync">Sync with connected music service</string>
+    <string name="prefSyncSummary">Automatically download and delete lyrics for songs that were added or removed from a music service you\'ve connected to.</string>
+    <string name="prefBackupRestore">Backup and Restore</string>
 </resources>

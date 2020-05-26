@@ -1,17 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+            android:defaultValue="true"
+            android:key="detect_song"
+            android:summary="@string/prefDetectSummary"
+            android:title="@string/prefDetect" />
+    <SwitchPreference
+            android:defaultValue="false"
+            android:key="auto_update_page"
+            android:summary="@string/prefAutoUpdateSummary"
+            android:title="@string/prefAutoUpdate" />
+    <SwitchPreference
+            android:defaultValue="true"
+            android:key="sync"
+            android:summary="@string/prefSyncSummary"
+            android:title="@string/prefSync" />
+    <PreferenceCategory android:title="@string/prefBackupRestore">
 
-    <android.support.v7.preference.SwitchPreferenceCompat
-            android:defaultValue="true"
-            android:title="@string/prefDetect" android:key="detect_song"
-            android:summary="@string/prefDetectSummary"/>
-    <android.support.v7.preference.SwitchPreferenceCompat
-            android:defaultValue="true"
-            android:title="@string/prefHeader" android:key="save_header"
-            android:summary="@string/prefHeaderSummary"/>
-    <EditTextPreference
-            android:defaultValue="Default value"
-            android:selectAllOnFocus="true"
-            android:singleLine="false"
-            android:title="SmartLyrics" android:key="info" android:summary="Made by Samuel Rodrigues, 2019"/>
-</android.support.v7.preference.PreferenceScreen>
+        <Preference
+                android:key="backup"
+                android:title="@string/prefBackup" />
+        <Preference
+                android:key="restore"
+                android:title="@string/prefRestore" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/prefJapaneseLang">
+
+        <ListPreference
+                android:defaultValue="1"
+                android:entries="@array/romanization_modes_text"
+                android:entryValues="@array/romanization_modes_values"
+                android:key="list_preference_1"
+                android:summary="@string/prefRomanizeModeSummary"
+                android:title="@string/prefRomanizeMode" />
+        <SwitchPreference
+                android:defaultValue="false"
+                android:key="switch_preference_1"
+                android:title="@string/prefRomanize" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/prefAdvanced">
+
+        <SwitchPreference
+                android:defaultValue="true"
+                android:key="save_header"
+                android:summary="@string/prefHeaderSummary"
+                android:title="@string/prefHeader" />
+        <Preference
+                android:key="delete_header_imgs"
+                android:title="@string/prefDeleteHeader" />
+    </PreferenceCategory>
+</PreferenceScreen>

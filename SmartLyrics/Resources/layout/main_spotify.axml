@@ -11,71 +11,49 @@
             android:layout_height="match_parent" android:id="@+id/constraintMain">
 
         <android.support.constraint.ConstraintLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:id="@+id/toolbar"
-                app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:id="@+id/searchView"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:scaleType="centerCrop"
-                    android:contentDescription="@string/descHeader"
-                    app:layout_constraintHorizontal_bias="0.0" app:layout_constraintVertical_bias="1.0"/>
             <TextView
-                    android:text="@string/drawerSpotify"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
-                    app:layout_constraintTop_toTopOf="@+id/drawerBtn"
                     android:layout_centerHorizontal="true"
+                    android:layout_marginStart="16dp"
                     android:gravity="center"
-                    android:textAppearance="@style/textHeader"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    android:includeFontPadding="false"
                     android:shadowColor="#000000"
                     android:shadowDx="0"
                     android:shadowDy="1"
                     android:shadowRadius="4"
-                    app:layout_constraintBottom_toBottomOf="@+id/drawerBtn"
+                    android:text="@string/drawerSpotify"
+                    android:textAppearance="@style/textHeader"
                     android:visibility="visible"
-                    app:layout_constraintVertical_bias="0.0" android:includeFontPadding="false"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp" app:layout_constraintStart_toEndOf="@+id/drawerBtn"/>
+                    app:layout_constraintBottom_toBottomOf="@+id/drawerBtn"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/drawerBtn"
+                    app:layout_constraintVertical_bias="0.0" />
+
             <ImageButton
-                    android:layout_width="34dp"
-                    android:layout_height="34dp"
                     android:id="@+id/drawerBtn"
                     style="@style/imageButtonNoBackground"
-                    app:layout_constraintStart_toStartOf="parent"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:foregroundGravity="center"
-                    app:srcCompat="@mipmap/ic_bars"
-                    android:layout_marginBottom="10dp"
-                    app:layout_constraintBottom_toTopOf="@+id/npTxt"
                     android:contentDescription="@string/descDrawerBtn"
-                    android:elevation="4dp" android:scaleType="fitCenter"/>
-            <TextView
-                    android:text="@string/nowPlaying"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@style/textNP"
+                    android:elevation="4dp"
+                    android:foregroundGravity="center"
+                    android:scaleType="fitCenter"
+                    android:tint="#FFFFFF"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:shadowColor="#000000"
-                    android:shadowDx="0"
-                    android:shadowDy="1"
-                    android:shadowRadius="4"
-                    android:visibility="gone"
-                    android:id="@+id/npTxt"
-                    android:layout_marginBottom="4dp"/>
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/round_menu_24" />
+
         </android.support.constraint.ConstraintLayout>
         <android.support.constraint.ConstraintLayout
                 android:layout_width="0dp"
@@ -151,13 +129,18 @@
                     android:fontFamily="@font/open_sans_bold" android:textColor="@color/veryWhite"
                     android:gravity="center" android:includeFontPadding="false" android:id="@+id/textView4"/>
         </android.support.constraint.ConstraintLayout>
+
         <WebView
+                android:id="@+id/spotifyAuth"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                app:layout_constraintTop_toBottomOf="@+id/toolbar" app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent"
-                android:visibility="visible" android:layout_marginTop="8dp" android:id="@+id/spotifyAuth"
-                android:drawingCacheQuality="auto"/>
+                android:layout_marginTop="8dp"
+                android:drawingCacheQuality="auto"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/toolbar" />
         <android.support.constraint.ConstraintLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

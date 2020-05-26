@@ -56,14 +56,11 @@
         app de música para ver a sua letra.
     </string>
     <string name="prefDetect">Mostrar notificação para músicas detectadas</string>
-    <string name="prefDetectSummary">Mostra uma notificação quando o SmartLyrics detecta uma música tocando com uma
-        letra correspondente. Isso não desativa o serviço de acesso às notificações.
-    </string>
+    <string name="prefDetectSummary">Mostra uma notificação quando o SmartLyrics detecta uma música tocando com uma letra correspondente.</string>
     <string name="prefHeader">Salvar imagens do cabeçalho</string>
-    <string name="prefHeaderSummary">Ativar essa opção permite que o SmartLyrics salve imagens de fundo do cabeçalho
-        junto com a imagem da capa da música. Desativar isso pode salvar alguns megabytes de armazenamento se você tiver
-        uma biblioteca grande.
-    </string>
+    <string name="prefHeaderSummary">O SmartLyrics salva a imagem do cabeçalho do plano de fundo e a imagem da capa do álbum ao salvar uma música e, para cada música, a imagem do cabeçalho ocupa algumas centenas de kilobytes. Desativar isso pode economizar espaço, se você quiser salvar muitas músicas. Para excluir cabeçalhos de músicas já salvas, clique no botão abaixo.</string>
     <string name="saveError">Ocorreu um erro ao salvar essa letra. Por favor tente novamente.</string>
     <string name="readError">Ocorreu um erro ao ler um arquivo. Por favor tente novamente.</string>
+    <string name="prefAdvanced">Configurações avançadas</string>
+    <string name="prefDeleteHeader">Excluir imagens de cabeçalho existentes</string>
 </resources>

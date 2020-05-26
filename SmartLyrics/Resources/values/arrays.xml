@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="romanization_modes_text">
+        <item>@string/prefRomanizeMode_normal</item>
+        <item>@string/prefRomanizeMode_spaced</item>
+    </array>
+    <array name="romanization_modes_values">
+        <item>modeNormal</item>
+        <item>modeSpaced</item>
+    </array>
+</resources>

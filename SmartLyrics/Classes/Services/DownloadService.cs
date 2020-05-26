@@ -37,8 +37,8 @@ namespace SmartLyrics.Services
 
         string savedLyricsLocation = "SmartLyrics/Saved Lyrics/Spotify/";
         string savedImagesLocation = "SmartLyrics/Saved Lyrics/Spotify/Image Cache/";
-        string path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SmartLyrics/Saved Lyrics/Spotify/");
-        string pathImg = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, "SmartLyrics/Saved Lyrics/Spotify/Image Cache/");
+        string path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, "SmartLyrics/Saved Lyrics/Spotify/");
+        string pathImg = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, "SmartLyrics/Saved Lyrics/Spotify/Image Cache/");
         string savedSeparator = @"!@=-@!";
 
         public IBinder Binder { get; private set; }
@@ -216,7 +216,7 @@ namespace SmartLyrics.Services
 
                 if ((Text.Distance(resultTitle, s.title) <= maxDistance && Text.Distance(resultArtist, s.artist) <= maxDistance) || resultTitle.Contains(s.title) && resultArtist.Contains(s.artist))
                 {
-                    string path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation, (string)result["result"]["primary_artist"]["name"] + savedSeparator + (string)result["result"]["title"] + ".txt");
+                    string path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation, (string)result["result"]["primary_artist"]["name"] + savedSeparator + (string)result["result"]["title"] + ".txt");
 
                     if (!File.Exists(path))
                     {
@@ -367,8 +367,8 @@ namespace SmartLyrics.Services
         {
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "saveSongLyrics (DownloadService): Started saveSongLyrics operation");
 
-            path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation);
-            pathImg = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedImagesLocation);
+            path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation);
+            pathImg = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedImagesLocation);
 
             try
             {

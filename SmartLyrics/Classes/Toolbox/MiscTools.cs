@@ -30,8 +30,8 @@ namespace SmartLyrics.Toolbox
 
         public static async Task CheckAndCreateAppFolders()
         {
-            string path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, Globals.savedLyricsLocation);
-            string pathImg = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, Globals.savedImagesLocation);
+            string path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, Globals.savedLyricsLocation);
+            string pathImg = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, Globals.savedImagesLocation);
             //TODO: add IOException handling
 
             if (Directory.Exists(path))

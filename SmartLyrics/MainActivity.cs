@@ -83,6 +83,7 @@ namespace SmartLyrics
             SetContentView(Resource.Layout.main);
             CrossCurrentActivity.Current.Activity = this; //don't remove this, permission stuff needs it
             CrossCurrentActivity.Current.Init(this, savedInstanceState);
+            Xamarin.Essentials.Platform.Init(this, savedInstanceState);
 
             AppCenter.Start("b07a2f8e-5d02-4516-aadc-2cba2c27fcf8",
                    typeof(Analytics), typeof(Crashes));
@@ -391,7 +392,7 @@ namespace SmartLyrics
                     StartActivity(intent);
                     break;
                 case (Resource.Id.nav_settings):
-                    intent = new Intent(this, typeof(Settings)).SetFlags(ActivityFlags.ReorderToFront);
+                    intent = new Intent(this, typeof(SettingsActivity)).SetFlags(ActivityFlags.ReorderToFront);
                     StartActivity(intent);
                     break;
             }
@@ -459,14 +460,18 @@ namespace SmartLyrics
             JObject parsed = JObject.Parse(results);
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "GetAndShowSongDetails (MainActivity): Results parsed into JObject");
 
-            songInfo.id = (int)parsed["response"]["song"]["id"];
+            songInfo.title = (string)parsed["response"]["song"]["title"];
+            songInfo.artist = (string)parsed["response"]["song"]["primary_artist"]["name"];
             songInfo.album = (string)parsed["response"]["song"]["album"]["name"];
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "GetAndShowSongDetails (MainActivity): Adding album name...");
+            songInfo.header = (string)parsed["response"]["song"]["header_image_url"];
+            songInfo.cover = (string)parsed["response"]["song"]["song_art_image_url"];
+            songInfo.APIPath = (string)parsed["response"]["song"]["api_path"];
+            songInfo.path = (string)parsed["response"]["song"]["path"];
+            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "GetAndShowSongDetails (MainActivity): Updated song values");
 
             if (parsed["response"]["song"]["featured_artists"].HasValues)
             {
                 IList<JToken> parsedList = parsed["response"]["song"]["featured_artists"].Children().ToList();
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "GetAndShowSongDetails (MainActivity): Featured artists parsed list created");
 
                 songInfo.featuredArtist = "feat. ";
                 foreach (JToken artist in parsedList)
@@ -486,6 +491,20 @@ namespace SmartLyrics
             else
             {
                 songInfo.featuredArtist = "";
+            }
+
+            //exceute all Japanese transliteration tasks at once
+            if (songInfo.title.ContainsJapanese() || songInfo.artist.ContainsJapanese())
+            {
+                var awaitTitle = songInfo.title.StripJapanese();
+                var awaitArtist = songInfo.artist.StripJapanese();
+                var awaitAlbum = songInfo.album.StripJapanese();
+
+                await Task.WhenAll(awaitTitle, awaitArtist, awaitAlbum);
+
+                songInfo.title = await awaitTitle;
+                songInfo.artist = await awaitArtist;
+                songInfo.album = await awaitAlbum;
             }
 
             UpdateSong(true, false);
@@ -531,10 +550,7 @@ namespace SmartLyrics
             checkOnStart = false;
 
             #region UI Variables
-            ImageButton coverView = FindViewById<ImageButton>(Resource.Id.coverView);
-            ImageView headerView = FindViewById<ImageView>(Resource.Id.headerView);
             ImageView savedView = FindViewById<ImageView>(Resource.Id.savedView);
-            
             ImageView searchView = FindViewById<ImageView>(Resource.Id.searchView);
 
             EditText searchTxt = FindViewById<EditText>(Resource.Id.searchTxt);
@@ -624,7 +640,7 @@ namespace SmartLyrics
         private async Task ReadFromFile()
         {
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "ReadFromFile (MainActivity): Started ReadFromFile method");
-            var path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation + songInfo.id + lyricsExtension);
+            var path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation + songInfo.id + lyricsExtension);
 
             #region UI Variables
             ImageView savedView = FindViewById<ImageView>(Resource.Id.savedView);
@@ -652,7 +668,7 @@ namespace SmartLyrics
 
         private async Task SaveSong()
         {
-            string pathImg = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedImagesLocation);
+            string pathImg = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedImagesLocation);
 
             await MiscTools.CheckAndCreateAppFolders();
 
@@ -727,7 +743,10 @@ namespace SmartLyrics
             }
             else
             {
-                songLyrics.TextFormatted = Html.FromHtml(songInfo.lyrics, FromHtmlOptions.ModeCompact);
+                if (!string.IsNullOrEmpty(songInfo.lyrics))
+                {
+                    songLyrics.TextFormatted = Html.FromHtml(songInfo.lyrics, FromHtmlOptions.ModeCompact);
+                }
                 songTitle.Text = songInfo.title;
                 songArtist.Text = songInfo.artist;
                 songAlbum.Text = songInfo.album;
@@ -752,8 +771,8 @@ namespace SmartLyrics
 
                 if (imagesOnDisk)
                 {
-                    string coverPath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path + "/" + savedImagesLocation, songInfo.id + "-cover.jpg");
-                    string headerPath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path + "/" + savedImagesLocation, songInfo.id + "-header.jpg");
+                    string coverPath = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath + "/" + savedImagesLocation, songInfo.id + "-cover.jpg");
+                    string headerPath = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath + "/" + savedImagesLocation, songInfo.id + "-header.jpg");
 
                     ImageService.Instance.LoadFile(coverPath).Transform(new RoundedTransformation(coverRadius)).Into(coverView);
                     if (File.Exists(headerPath))
@@ -801,6 +820,9 @@ namespace SmartLyrics
         //same on any activity that asks for permissions
         public override async void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
         {
+            Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "OnRequestPermissionsResult (MainActivity): Permission: " + permissions[0] + " | Result: " + grantResults[0].ToString());
 
             if (grantResults[0] == Android.Content.PM.Permission.Granted)

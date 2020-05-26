@@ -42,11 +42,11 @@
         あなたはダウンロードしたすべての曲を閲覧するためにアプリの引き出しの上に保存された歌詞のページに行き、その歌詞を見るためにどんな音楽アプリからでも演奏を始めることができます。
     </string>
     <string name="prefDetect">検出された曲の通知を表示</string>
-    <string name="prefDetectSummary">SmartLyricsが、一致する歌詞で再生されている曲を検出したときに通知を表示します。 これはリスナーサービスを停止しません。</string>
+    <string name="prefDetectSummary">SmartLyricsが、一致する歌詞で再生されている曲を検出したときに通知を表示します。</string>
     <string name="prefHeader">ヘッダー画像を保存する</string>
-    <string name="prefHeaderSummary">これを有効にすると、SmartLyricsはカバー画像と一緒にヘッダ画像を保存することができます。
-        大規模なライブラリがある場合は、これを無効にすると、数メガバイトのストレージを節約できます。
-    </string>
+    <string name="prefHeaderSummary">SmartLyricsは、曲を保存するときに、背景のヘッダー画像とアルバムカバー画像の両方を保存します。各曲のヘッダー画像には数百キロバイトかかります。これを無効にすると、たくさんの曲を保存する場合にスペースを節約できます。 保存済みの曲のヘッダーを削除するには、下のボタンをクリックしてください。</string>
     <string name="saveError">この曲の保存中にエラーが発生しました。 もう一度お試しください。</string>
     <string name="readError">ファイルの読み取り中にエラーが発生しました。 もう一度お試しください。</string>
+    <string name="prefAdvanced">高度な設定</string>
+    <string name="prefDeleteHeader">既存のヘッダー画像を削除する</string>
 </resources>

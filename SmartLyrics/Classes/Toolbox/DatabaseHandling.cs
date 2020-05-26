@@ -15,8 +15,8 @@ namespace SmartLyrics.Toolbox
     class DatabaseHandling
     {
         private static DataTable db = new DataTable("db");
-        private static string path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation + databaseLocation);
-        private static string lyricsPath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation);
+        private static string path = Path.Combine(Android.App.Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation + databaseLocation);
+        private static string lyricsPath = Path.Combine(Android.App.Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation);
 
         #region Toolbox
         //clear table and add correct columns

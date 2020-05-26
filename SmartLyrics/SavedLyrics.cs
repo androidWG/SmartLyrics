@@ -33,8 +33,8 @@ namespace SmartLyrics
         private List<Artist> artistList = new List<Artist>();
 
         List<string> artistName;
-        List<Tuple<string, Common.Song>> allSongs = new List<Tuple<string, Common.Song>>();
-        Dictionary<string, List<Common.Song>> artistSongs = new Dictionary<string, List<Common.Song>>();
+        List<Tuple<string, Song>> allSongs = new List<Tuple<string, Song>>();
+        Dictionary<string, List<Song>> artistSongs = new Dictionary<string, List<Song>>();
 
         private bool nonGrouped = false;
 
@@ -220,7 +220,7 @@ namespace SmartLyrics
             progressBar.Visibility = ViewStates.Visible;
 
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "SavedLyrics.cs: CheckAndSetPermissions returened true, trying to read directory...");
-            var path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.Path, savedLyricsLocation);
+            var path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation);
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", $"SavedLyrics.cs: Path is \"{path}\"");
 
             await MiscTools.CheckAndCreateAppFolders();

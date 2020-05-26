@@ -7,9 +7,9 @@ using Android.Support.V4.App;
 using Android.Util;
 
 using Newtonsoft.Json.Linq;
-using WanaKanaNet;
 using SmartLyrics.Common;
 using SmartLyrics.Toolbox;
+using static SmartLyrics.Globals;
 using TaskStackBuilder = Android.Support.V4.App.TaskStackBuilder;
 
 using System.Collections.Generic;
@@ -24,17 +24,15 @@ namespace SmartLyrics.Services
     [IntentFilter(new[] { "android.service.notification.NotificationListenerService" })]
     class NLService : NotificationListenerService
     {
-        static readonly int NOTIFICATION_ID = 1000;
-        static readonly string CHANNEL_ID = "auto_lyrics_detect_sl";
+        internal static readonly int NOTIFICATION_ID = 1000;
+        internal static readonly string CHANNEL_ID = "auto_lyrics_detect_sl";
         internal static readonly string COUNT_KEY = "count";
 
         ISharedPreferences prefs;
-
-        Song previousSong = new Song() { title = "", artist = "" };
-        Song detectedSong;
+        private Song previousSong = new Song() { title = "", artist = "" };
 
         //max string distance
-        int maxLikeness = 6;
+        private readonly int maxLikeness = 12;
 
 
         #region Standard Activity Shit
@@ -78,41 +76,6 @@ namespace SmartLyrics.Services
             return output;
         }
 
-        internal static async Task<string> StripJapanese(string input)
-        {
-            if (WanaKana.IsJapanese(input))
-            {
-                string converted = await HTTPRequests.PostRequest(Globals.romanizeConvertURL + "?to=romaji&mode=spaced&useHTML=false", input);
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "file_name_here.cs: Converted string is " + converted);
-
-                input = converted;
-            }
-            else if (WanaKana.IsMixed(input))
-            {
-                //checks if title follows "romaji (japanese)" format
-                //and keeps only romaji.
-                if (input.Contains("("))
-                {
-                    string inside = Regex.Match(input, @"(?<=\()(.*?)(?=\))").Value;
-                    string outside = Regex.Replace(input, @" ?\(.*?\)", "");
-
-                    if (ContainsJapanese(inside))
-                    {
-                        input = outside;
-                    }
-                    else if (ContainsJapanese(outside))
-                    {
-                        input = inside;
-                    }
-                }
-            }
-
-            //returns unchaged input if it doesn't follow format
-            return input;
-        }
-
-        internal static bool ContainsJapanese(string text) => WanaKana.IsMixed(text) || WanaKana.IsJapanese(text);
-
         internal async Task<int> CalculateLikeness(Song result, Song notification, int index)
         {
             /* This method is supposed to accurately measure how much the detected song
@@ -137,10 +100,13 @@ namespace SmartLyrics.Services
 
             string ntfTitle = notification.title.ToLowerInvariant();
             ntfTitle.Replace("🅴", ""); //remove "🅴" used by Apple Music for explicit songs
+            //remove anything inside brackets since almost everytime
+            //it's not relevant info
+            ntfTitle = Regex.Replace(ntfTitle, @"\[.*?\]", "").Trim();
             string ntfArtist = notification.artist.ToLowerInvariant();
 
-            title = await StripJapanese(title);
-            artist = await StripJapanese(artist);
+            title = await JapaneseTools.StripJapanese(title);
+            artist = await JapaneseTools.StripJapanese(artist);
 
             int titleDist = Text.Distance(title, ntfTitle);
             int artistDist = Text.Distance(artist, ntfArtist);
@@ -154,11 +120,11 @@ namespace SmartLyrics.Services
             int likeness = titleDist + artistDist + index;
             if (likeness < 0) { likeness = 0; }
 
-            Log.WriteLine(LogPriority.Verbose, $"SmartLyrics", $"file_name_here.cs: Title - {title} vs {ntfTitle}\nArtist - {artist} vs {ntfArtist}\nLikeness - {likeness}");
+            Log.WriteLine(LogPriority.Verbose, $"SmartLyrics", $"Title - {title} vs {ntfTitle}\nArtist - {artist} vs {ntfArtist}\nLikeness - {likeness}");
             return likeness;
         }
 
-        //strips artist and title strings for remixes and collabs
+        //strips artist and title strings for remixes, collabs and edits
         internal Song StripSongForSearch(Song input)
         {
             string strippedTitle = input.title;
@@ -166,17 +132,25 @@ namespace SmartLyrics.Services
 
             //removes any Remix, Edit, or Featuring info encapsulated
             //in parenthesis or brackets
-            if (input.title.ContainsAll("(", ")", "[", "]"))
+            if (input.title.Contains("(") || input.title.Contains("["))
             {
-                MatchCollection inside = Regex.Matches(input.title, @"\(.*?\)");
-                inside.Concat(Regex.Matches(input.title, @"\[.*?\]").ToArray());
+                List<Match> inside = Regex.Matches(input.title, @"\(.*?\)").ToList();
+                List<Match> insideBrk = Regex.Matches(input.title, @"\[.*?\]").ToList();
+                inside = inside.Concat(insideBrk).ToList();
+
+                Log.WriteLine(LogPriority.Error, "SmartLyrics", $"file_name_here.cs: inside list length: {inside.Count()}");
 
                 foreach (Match s in inside)
                 {
-                    if (s.Value.ToLowerInvariant().ContainsAny("feat.", "ft.", "featuring ", "edit", "mix"))
-                        { strippedTitle.Replace(s.Value, ""); }
+                    if (s.Value.ToLowerInvariant().ContainsAny("feat", "ft", "featuring", "edit", "mix"))
+                    {
+                        Log.WriteLine(LogPriority.Info, "SmartLyrics", $"file_name_here.cs: s.Value - {s.Value}");
+                        strippedTitle = input.title.Replace(s.Value, "");
+                    }
                 }
             }
+
+            strippedTitle.Replace("🅴", ""); //remove "🅴" used by Apple Music for explicit songs
 
             if (input.artist.Contains(" & "))
             {
@@ -199,9 +173,10 @@ namespace SmartLyrics.Services
             {
                 if (sbn.Notification.Category == "transport")
                 {
+                    Log.WriteLine(LogPriority.Info, "SmartLyrics", "file_name_here.cs: Recieved OnNotificationPosted");
                     Song notificationSong = GetTitleAndArtistFromExtras(sbn.Notification.Extras.ToString());
 
-                    if (previousSong.title != notificationSong.title && previousSong.artist != notificationSong.artist && !string.IsNullOrEmpty(notificationSong.title))
+                    if (previousSong.title != notificationSong.title && !string.IsNullOrEmpty(notificationSong.title))
                     {
                         Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnNotificationPosted (NLService): Previous song is different and not empty, getting search results...");
                         await GetAndCompareResults(notificationSong, sbn.PackageName);
@@ -223,7 +198,7 @@ namespace SmartLyrics.Services
             // a song with (Remix) on the title would still appear if we searched
             // without (Remix) tag
             Song stripped = StripSongForSearch(ntfSong);
-            string results = await HTTPRequests.GetRequest(Globals.geniusSearchURL + stripped.artist + " - " + stripped.title, Globals.geniusAuthHeader); //search on genius
+            string results = await HTTPRequests.GetRequest(geniusSearchURL + stripped.artist + " - " + stripped.title, geniusAuthHeader); //search on genius
 
             JObject parsed = JObject.Parse(results);
 
@@ -277,7 +252,7 @@ namespace SmartLyrics.Services
                 mostLikely = likenessRanking.First();
             }
 
-            if (mostLikely.likeness > maxLikeness)
+            if (mostLikely.likeness >= maxLikeness)
             {
                 Log.WriteLine(LogPriority.Error, "SmartLyrics", $"file_name_here.cs: Selected song {mostLikely.title} by {mostLikely.artist} with likeness {mostLikely.likeness} is too unlikely.\n Song not found.");
             }
@@ -285,48 +260,15 @@ namespace SmartLyrics.Services
             {
                 Log.WriteLine(LogPriority.Error, "SmartLyrics", "file_name_here.cs: Song not found!");
             }
-            else
+            else if (mostLikely.likeness <= maxLikeness)
             {
                 Log.WriteLine(LogPriority.Warn, "SmartLyrics", $"file_name_here.cs: Selected song is {mostLikely.title} by {mostLikely.artist} with likeness {mostLikely.likeness}.");
+
+                MainActivity.notificationSong = mostLikely;
+                MainActivity.fromNotification = true;
+
+                CreateNotification(mostLikely.title, mostLikely.artist);
             }
-            //if (!songFound)
-            //{
-            //    Log.WriteLine(LogPriority.Warn, "SmartLyrics", "getAndCompareResults (NLService): Common.Song not found, trying to search again...");
-            //    results = await APIRequests.Genius.GetSearchResults(title, "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28");
-            //    parsed = JObject.Parse(results);
-            //    Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getAndCompareResults (NLService): Results parsed into JObject");
-
-            //    parsedList = parsed["response"]["hits"].Children().ToList();
-            //    Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getAndCompareResults (NLService): Parsed results into list");
-
-            //    foreach (JToken result in parsedList)
-            //    {
-            //        if (await Text.Distance((string)result["result"]["title"], artist + " - " + title) <= maxLikeness + 10)
-            //        {
-            //            MainActivity.notificationSong.title = (string)result["result"]["title"];
-            //            MainActivity.notificationSong.artist = (string)result["result"]["primary_artist"]["name"];
-            //            MainActivity.notificationSong.cover = (string)result["result"]["song_art_image_thumbnail_url"];
-            //            MainActivity.notificationSong.header = (string)result["result"]["header_image_url"];
-            //            MainActivity.notificationSong.APIPath = (string)result["result"]["api_path"];
-            //            MainActivity.notificationSong.path = (string)result["result"]["path"];
-
-            //            songFound = true;
-
-            //            if (!MiscTools.IsInForeground())
-            //            {
-            //                CreateNotification(artist, title);
-            //                MainActivity.checkOnStart = true;
-            //                Log.WriteLine(LogPriority.Info, "SmartLyrics", "getAndCompareResults (NLService): Found song match, creating notification...");
-            //            }
-            //            else
-            //            {
-            //                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "getAndCompareResults (NLService): Application is in foreground");
-            //            }
-
-            //            break;
-            //        }
-            //    }
-            //}
         }
 
         private async Task CreateNotificationChannel()
@@ -365,7 +307,7 @@ namespace SmartLyrics.Services
 
             var notificationManager = NotificationManagerCompat.From(this);
             notificationManager.Notify(NOTIFICATION_ID, builder.Build());
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "createNotification (NLService): Notification made!");
+            Log.WriteLine(LogPriority.Info, "SmartLyrics", "CreateNotification (NLService): Notification made!");
         }
     }
 }
