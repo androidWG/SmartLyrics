@@ -123,7 +123,7 @@ namespace SmartLyrics
                 npTxt.StartAnimation(anim);
                 Log.WriteLine(LogPriority.Info, "SmartLyrics", "file_name_here.cs: Playing animation");
 
-                ChangeNotificationToInfo();
+                songInfo = notificationSong;
                 await LoadSong();
             }
 
@@ -135,7 +135,7 @@ namespace SmartLyrics
                     npTxt.Visibility = ViewStates.Visible;
                     songLyrics.Text = "";
 
-                    ChangeNotificationToInfo();
+                    songInfo = notificationSong;
                     await LoadSong();
                 }
                 else
@@ -195,7 +195,7 @@ namespace SmartLyrics
                 Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnResume (MainActivity): Trying to load song from notification");
 
                 npTxt.Visibility = ViewStates.Visible;
-                ChangeNotificationToInfo();
+                songInfo = notificationSong;
                 fromNotification = false;
                 await LoadSong();
             }
@@ -800,18 +800,6 @@ namespace SmartLyrics
             }
 
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "UpdateSong (MainActivity): Finished updating");
-        }
-
-        private void ChangeNotificationToInfo()
-        {
-            songInfo.title = notificationSong.title;
-            songInfo.artist = notificationSong.artist;
-            songInfo.featuredArtist = notificationSong.featuredArtist;
-            songInfo.album = notificationSong.album;
-            songInfo.cover = notificationSong.cover;
-            songInfo.header = notificationSong.header;
-            songInfo.APIPath = notificationSong.APIPath;
-            songInfo.path = notificationSong.path;
         }
         #endregion
 

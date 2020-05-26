@@ -49,8 +49,21 @@ namespace SmartLyrics.Services
         public async override void OnListenerConnected()
         {
             base.OnListenerConnected();
-
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnListenerConnected (NLService): Listener connected");
+
+            var notifications = GetActiveNotifications();
+            foreach (StatusBarNotification n in notifications)
+            {
+                if (n.Notification.Category == "transport")
+                {
+                    Song notificationSong = GetTitleAndArtistFromExtras(n.Notification.Extras.ToString());
+                    if (!string.IsNullOrEmpty(notificationSong.title))
+                    {
+                        Log.WriteLine(LogPriority.Info, "SmartLyrics", "file_name_here.cs: Found song, starting search...");
+                        await GetAndCompareResults(notificationSong, n.PackageName);
+                    }
+                }
+            }
         }
         #endregion
 
@@ -236,8 +249,13 @@ namespace SmartLyrics.Services
                 {
                     Song resultSong = new Song()
                     {
+                        id = (int)result["result"]["id"],
                         title = (string)result["result"]["title"],
-                        artist = (string)result["result"]["primary_artist"]["name"]
+                        artist = (string)result["result"]["primary_artist"]["name"],
+                        cover = (string)result["result"]["song_art_image_thumbnail_url"],
+                        header = (string)result["result"]["header_image_url"],
+                        APIPath = (string)result["result"]["api_path"],
+                        path = (string)result["result"]["path"]
                     };
 
                     Log.WriteLine(LogPriority.Info, "SmartLyrics", $"file_name_here.cs: Evaluating song {resultSong.title} by {resultSong.artist}");
@@ -267,7 +285,10 @@ namespace SmartLyrics.Services
                 MainActivity.notificationSong = mostLikely;
                 MainActivity.fromNotification = true;
 
-                CreateNotification(mostLikely.title, mostLikely.artist);
+                if (!MiscTools.IsInForeground())
+                {
+                    CreateNotification(mostLikely.title, mostLikely.artist);
+                }
             }
         }
 

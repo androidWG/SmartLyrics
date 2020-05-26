@@ -659,6 +659,25 @@ namespace SmartLyrics
 			}
 		}
 		
+		public partial class Array
+		{
+			
+			// aapt resource value: 0x7f120000
+			public const int romanization_modes_text = 2131886080;
+			
+			// aapt resource value: 0x7f120001
+			public const int romanization_modes_values = 2131886081;
+			
+			static Array()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Array()
+			{
+			}
+		}
+		
 		public partial class Attribute
 		{
 			
@@ -6870,8 +6889,8 @@ namespace SmartLyrics
 		public partial class Menu
 		{
 			
-			// aapt resource value: 0x7f120000
-			public const int activity_main_drawer = 2131886080;
+			// aapt resource value: 0x7f130000
+			public const int activity_main_drawer = 2131951616;
 			
 			static Menu()
 			{
@@ -7293,6 +7312,24 @@ namespace SmartLyrics
 			// aapt resource value: 0x7f0e005f
 			public const int permissionDenied = 2131624031;
 			
+			// aapt resource value: 0x7f0e0084
+			public const int prefAdvanced = 2131624068;
+			
+			// aapt resource value: 0x7f0e008c
+			public const int prefAutoUpdate = 2131624076;
+			
+			// aapt resource value: 0x7f0e008d
+			public const int prefAutoUpdateSummary = 2131624077;
+			
+			// aapt resource value: 0x7f0e008e
+			public const int prefBackup = 2131624078;
+			
+			// aapt resource value: 0x7f0e0092
+			public const int prefBackupRestore = 2131624082;
+			
+			// aapt resource value: 0x7f0e0085
+			public const int prefDeleteHeader = 2131624069;
+			
 			// aapt resource value: 0x7f0e007e
 			public const int prefDetect = 2131624062;
 			
@@ -7302,17 +7339,44 @@ namespace SmartLyrics
 			// aapt resource value: 0x7f0e0080
 			public const int prefHeader = 2131624064;
 			
-			// aapt resource value: 0x7f0e0081
-			public const int prefHeaderSummary = 2131624065;
+			// aapt resource value: 0x7f0e0083
+			public const int prefHeaderSummary = 2131624067;
+			
+			// aapt resource value: 0x7f0e0087
+			public const int prefJapaneseLang = 2131624071;
+			
+			// aapt resource value: 0x7f0e008f
+			public const int prefRestore = 2131624079;
+			
+			// aapt resource value: 0x7f0e0086
+			public const int prefRomanize = 2131624070;
+			
+			// aapt resource value: 0x7f0e0088
+			public const int prefRomanizeMode = 2131624072;
+			
+			// aapt resource value: 0x7f0e0089
+			public const int prefRomanizeModeSummary = 2131624073;
+			
+			// aapt resource value: 0x7f0e008b
+			public const int prefRomanizeMode_normal = 2131624075;
+			
+			// aapt resource value: 0x7f0e008a
+			public const int prefRomanizeMode_spaced = 2131624074;
+			
+			// aapt resource value: 0x7f0e0090
+			public const int prefSync = 2131624080;
+			
+			// aapt resource value: 0x7f0e0091
+			public const int prefSyncSummary = 2131624081;
 			
 			// aapt resource value: 0x7f0e0003
 			public const int preference_copied = 2131623939;
 			
-			// aapt resource value: 0x7f0e0083
-			public const int readError = 2131624067;
-			
 			// aapt resource value: 0x7f0e0082
-			public const int saveError = 2131624066;
+			public const int readError = 2131624066;
+			
+			// aapt resource value: 0x7f0e0081
+			public const int saveError = 2131624065;
 			
 			// aapt resource value: 0x7f0e0062
 			public const int savedSuccessfully = 2131624034;
