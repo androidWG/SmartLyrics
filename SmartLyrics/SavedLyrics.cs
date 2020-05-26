@@ -200,7 +200,8 @@ namespace SmartLyrics
                     StartActivity(intent);
                     break;
                 case (Resource.Id.nav_settings):
-                    Log.WriteLine(LogPriority.Info, "SmartLyrics", "SavedLyrics.cs: Test for Settings button on drawer");
+                    intent = new Intent(this, typeof(SettingsActivity)).SetFlags(ActivityFlags.ReorderToFront);
+                    StartActivity(intent);
                     break;
             }
 

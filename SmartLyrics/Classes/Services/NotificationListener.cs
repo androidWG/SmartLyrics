@@ -285,7 +285,7 @@ namespace SmartLyrics.Services
                 MainActivity.notificationSong = mostLikely;
                 MainActivity.fromNotification = true;
 
-                if (!MiscTools.IsInForeground())
+                if (!MainActivity.inForeground)
                 {
                     CreateNotification(mostLikely.title, mostLikely.artist);
                 }
@@ -310,6 +310,7 @@ namespace SmartLyrics.Services
 
         private void CreateNotification(string artist, string title)
         {
+            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "file_name_here.cs: Creating notification");
             MainActivity.fromNotification = true;
 
             TaskStackBuilder stackBuilder = TaskStackBuilder.Create(this);

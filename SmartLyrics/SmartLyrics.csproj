@@ -80,6 +80,7 @@
     <Reference Include="Mono.Android" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\Animations.cs" />
     <Compile Include="Classes\Toolbox\HTTPRequests.cs" />
     <Compile Include="Classes\Services\Binders.cs" />
     <Compile Include="Classes\Common\ClassResources.cs" />

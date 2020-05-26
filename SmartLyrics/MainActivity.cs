@@ -36,7 +36,6 @@ using System.Threading.Tasks;
 
 using static SmartLyrics.Globals;
 using SmartLyrics.Toolbox;
-using Android.Views.Animations;
 
 namespace SmartLyrics
 {
@@ -45,8 +44,19 @@ namespace SmartLyrics
     {
         List<Song> resultsToView;
         public static Song songInfo = new Song();
-        public static Song notificationSong = new Song();
+        public static Song _ntfSong = new Song();
+        public static Song notificationSong
+        {
+            get { return _ntfSong; }
+            set 
+            {
+                _ntfSong = value;
+                var activity = new MainActivity();
+                activity.ShowUpdateNotifier();
+            }
+        }
 
+        public static bool inForeground = true;
         public static bool fromFile = false;
         public static bool fromNotification = false;
         public static bool checkOnStart = false;
@@ -116,13 +126,6 @@ namespace SmartLyrics
             {
                 npTxt.Visibility = ViewStates.Visible;
 
-                Animation anim = new AlphaAnimation(0.2f, 1.0f);
-                anim.Duration = 700; //You can manage the blinking time with this parameter
-                anim.RepeatMode = RepeatMode.Reverse;
-                anim.RepeatCount = 15;
-                npTxt.StartAnimation(anim);
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "file_name_here.cs: Playing animation");
-
                 songInfo = notificationSong;
                 await LoadSong();
             }
@@ -174,13 +177,20 @@ namespace SmartLyrics
             #endregion
         }
 
+        protected override void OnPause()
+        {
+            base.OnPause();
+            inForeground = false;
+        }
+
         protected override async void OnResume()
         {
             base.OnResume();
+            inForeground = true;
 
             TextView npTxt = FindViewById<TextView>(Resource.Id.npTxt);
 
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnResume (MainActivity): onResume started");
+            Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnResume (MainActivity): OnResume started");
 
             if (fromFile)
             {
@@ -450,6 +460,16 @@ namespace SmartLyrics
             }
         }
         #endregion
+
+
+        private void ShowUpdateNotifier()
+        {
+            TextView npTxt = FindViewById<TextView>(Resource.Id.npTxt);
+
+            var anim = Animations.BlinkingAnimation(700, 10);
+            npTxt.StartAnimation(anim);
+            Log.WriteLine(LogPriority.Info, "SmartLyrics", "ShowUpdateNotifier (MainActivity): Playing animation");
+        }
 
 
         #region Load from Internet
