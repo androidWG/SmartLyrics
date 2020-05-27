@@ -55,12 +55,32 @@
         pode ir para a página Letras Salvas para navegar por todas suas músicas salvas ou só começe a tocar em qualquer
         app de música para ver a sua letra.
     </string>
-    <string name="prefDetect">Mostrar notificação para músicas detectadas</string>
-    <string name="prefDetectSummary">Mostra uma notificação quando o SmartLyrics detecta uma música tocando com uma letra correspondente.</string>
+    <string name="prefDetectNotification">Mostrar notificação para músicas detectadas</string>
+    <string name="prefDetectNotificationSummary">Mostra uma notificação quando o SmartLyrics detecta uma música tocando com uma letra correspondente.</string>
     <string name="prefHeader">Salvar imagens do cabeçalho</string>
     <string name="prefHeaderSummary">O SmartLyrics salva a imagem do cabeçalho do plano de fundo e a imagem da capa do álbum ao salvar uma música e, para cada música, a imagem do cabeçalho ocupa algumas centenas de kilobytes. Desativar isso pode economizar espaço, se você quiser salvar muitas músicas. Para excluir cabeçalhos de músicas já salvas, clique no botão abaixo.</string>
     <string name="saveError">Ocorreu um erro ao salvar essa letra. Por favor tente novamente.</string>
     <string name="readError">Ocorreu um erro ao ler um arquivo. Por favor tente novamente.</string>
     <string name="prefAdvanced">Configurações avançadas</string>
     <string name="prefDeleteHeader">Excluir imagens de cabeçalho existentes</string>
+    <string name="prefSyncSummary">Baixar e deletar automaticamente letras de músicas que foram adicionadas ou removidas do serviço de streaming de música que você conectou.</string>
+    <string name="prefSync">Sincronizar com o serviço de música conectado</string>
+    <string name="prefRomanizeModeSummary">Escolha entre romanização normal ou espaçada.</string>
+    <string name="prefRomanizeMode_spaced">Espaçada</string>
+    <string name="prefRomanizeMode_normal">Normal</string>
+    <string name="prefRomanizeMode">Modo de romanização</string>
+    <string name="prefRomanize">Auto-romanizar letras</string>
+    <string name="prefRestore">Restaurar backup de letras salvas</string>
+    <string name="prefJapaneseLang">Língua Japonesa</string>
+    <string name="prefBackupRestore">Backup e Restauração</string>
+    <string name="prefBackup">Backup de letras salvas</string>
+    <string name="prefAutoUpdateSummary">Atualizar automaticamente a música quando estiver no modo Tocando Agora.</string>
+    <string name="prefAutoUpdate">Auto-atualizar letra</string>
+    <string name="infoScreenFooter">Letras e imagens do Genius</string>
+    <string name="descShine">Alerta brilhante de nova música detectada</string>
+    <string name="descFabSwitch">Mudar para janela flutuante</string>
+    <string name="descFabMore">Abrir um menu para mostrar mais opções</string>
+    <string name="noResults">Nenhum resultado</string>
+    <string name="prefDetectSummary">Detectar músicas tocando em aplicativos de streaming e mostrar letras quando estiver no aplicativo. Desativar isso também desativa o serviço de detecção de plano de fundo.</string>
+    <string name="prefDetect">Detectar músicas tocando em segundo plano</string>
 </resources>

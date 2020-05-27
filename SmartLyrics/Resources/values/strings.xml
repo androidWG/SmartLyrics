@@ -47,8 +47,8 @@
         music app to see its lyrics.
     </string>
     <string name="mainSpotifyFinishedHeader">WE ARE DONE!</string>
-    <string name="prefDetect">Show notification for detected songs</string>
-    <string name="prefDetectSummary">Shows a notification when SmartLyrics detects a song playing with matching lyrics.</string>
+    <string name="prefDetectNotification">Show notification for detected songs</string>
+    <string name="prefDetectNotificationSummary">Shows a notification when SmartLyrics detects a song playing with matching lyrics.</string>
     <string name="prefHeader">Save header images</string>
     <string name="saveError">An error occurred while saving this song. Please try again.</string>
     <string name="readError">An error occurred while reading a file. Please try again.</string>
@@ -62,10 +62,17 @@
     <string name="prefRomanizeMode_spaced">Spaced</string>
     <string name="prefRomanizeMode_normal">Normal</string>
     <string name="prefAutoUpdate">Auto-update song page</string>
-    <string name="prefAutoUpdateSummary">Automatically update the song when in Now Playing mode</string>
+    <string name="prefAutoUpdateSummary">Automatically update the song when in Now Playing mode.</string>
     <string name="prefBackup">Backup saved lyrics</string>
     <string name="prefRestore">Restore saved lyrics backup</string>
     <string name="prefSync">Sync with connected music service</string>
     <string name="prefSyncSummary">Automatically download and delete lyrics for songs that were added or removed from a music service you\'ve connected to.</string>
     <string name="prefBackupRestore">Backup and Restore</string>
+    <string name="descShine">Shining alert for new detected song</string>
+    <string name="descFabMore">Open a menu to show more options</string>
+    <string name="descFabSwitch">Switch to floating lyrics view</string>
+    <string name="infoScreenFooter">Lyrics and images provided by Genius</string>
+    <string name="noResults">No results found</string>
+    <string name="prefDetect">Detect songs playing on background</string>
+    <string name="prefDetectSummary">Detect songs playing on music apps and shows lyrics when in-app. Disabling this also disables the background detection service.</string>
 </resources>

@@ -41,12 +41,32 @@
     <string name="mainSpotifyFinished">すべてのSpotifyトラックの歌詞があなたのデバイスにダウンロードされました。
         あなたはダウンロードしたすべての曲を閲覧するためにアプリの引き出しの上に保存された歌詞のページに行き、その歌詞を見るためにどんな音楽アプリからでも演奏を始めることができます。
     </string>
-    <string name="prefDetect">検出された曲の通知を表示</string>
-    <string name="prefDetectSummary">SmartLyricsが、一致する歌詞で再生されている曲を検出したときに通知を表示します。</string>
+    <string name="prefDetectNotification">検出された曲の通知を表示</string>
+    <string name="prefDetectNotificationSummary">SmartLyricsが、一致する歌詞で再生されている曲を検出したときに通知を表示します。</string>
     <string name="prefHeader">ヘッダー画像を保存する</string>
     <string name="prefHeaderSummary">SmartLyricsは、曲を保存するときに、背景のヘッダー画像とアルバムカバー画像の両方を保存します。各曲のヘッダー画像には数百キロバイトかかります。これを無効にすると、たくさんの曲を保存する場合にスペースを節約できます。 保存済みの曲のヘッダーを削除するには、下のボタンをクリックしてください。</string>
     <string name="saveError">この曲の保存中にエラーが発生しました。 もう一度お試しください。</string>
     <string name="readError">ファイルの読み取り中にエラーが発生しました。 もう一度お試しください。</string>
     <string name="prefAdvanced">高度な設定</string>
     <string name="prefDeleteHeader">既存のヘッダー画像を削除する</string>
+    <string name="prefAutoUpdate">曲の自動更新ページ</string>
+    <string name="prefAutoUpdateSummary">プレイビューモードのときに曲を自動的に更新する</string>
+    <string name="prefBackup">保存した歌詞のバックアップ</string>
+    <string name="prefBackupRestore">バックアップと復元</string>
+    <string name="prefJapaneseLang">日本語</string>
+    <string name="prefRestore">保存した歌詞のバックアップを復元する</string>
+    <string name="prefRomanize">歌詞の自動ローマ字化</string>
+    <string name="prefRomanizeMode">ローマ字モード</string>
+    <string name="prefRomanizeMode_normal">正常</string>
+    <string name="prefRomanizeMode_spaced">スペースあり</string>
+    <string name="prefRomanizeModeSummary">ローマ字間隔または通常のローマ字を選択します。</string>
+    <string name="prefSync">接続された音楽サービスと同期</string>
+    <string name="prefSyncSummary">接続している音楽サービスに追加または削除された曲の歌詞を自動的にダウンロードして削除します。</string>
+    <string name="infoScreenFooter">Geniusが提供する歌詞と画像</string>
+    <string name="descShine">新しく検出された曲の輝く警告</string>
+    <string name="descFabSwitch">フローティング歌詞ビューに切り替え</string>
+    <string name="descFabMore">メニューを開いてその他のオプションを表示する</string>
+    <string name="prefDetectSummary">音楽アプリで再生中の曲を検出し、アプリ内に歌詞を表示します。 これを無効にすると、バックグラウンド検出サービスも無効になります。</string>
+    <string name="prefDetect">バックグラウンドで再生されている曲を検出する</string>
+    <string name="noResults">結果が見つかりません</string>
 </resources>

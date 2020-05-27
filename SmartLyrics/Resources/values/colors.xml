@@ -8,5 +8,6 @@
   <color name="veryWhite">#ffffff</color>
   <color name="lessWhite">#F2F2F2</color>
   <color name="lightGray">#C8C8C8</color>
+  <color name="gray">#929292</color>
   <color name="buttonBG">#2E3033</color>
 </resources>

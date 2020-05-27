@@ -8,6 +8,11 @@
             android:summary="@string/prefDetectSummary"
             android:title="@string/prefDetect" />
     <SwitchPreference
+            android:defaultValue="true"
+            android:key="detect_song_notification"
+            android:summary="@string/prefDetectNotificationSummary"
+            android:title="@string/prefDetectNotification" />
+    <SwitchPreference
             android:defaultValue="false"
             android:key="auto_update_page"
             android:summary="@string/prefAutoUpdateSummary"
@@ -29,7 +34,7 @@
     <PreferenceCategory android:title="@string/prefJapaneseLang">
 
         <ListPreference
-                android:defaultValue="1"
+                android:defaultValue="modeSpaced"
                 android:entries="@array/romanization_modes_text"
                 android:entryValues="@array/romanization_modes_values"
                 android:key="list_preference_1"

@@ -11,10 +11,12 @@ namespace SmartLyrics.Toolbox
     {
         public static async Task<string> StripJapanese(this string input)
         {
+            Log.WriteLine(LogPriority.Info, "SmartLyrics", $"JapaneseTools.cs: Processing string '{input}'");
+
             if (WanaKana.IsJapanese(input))
             {
                 string converted = await HTTPRequests.PostRequest(Globals.romanizeConvertURL + "?to=romaji&mode=spaced&useHTML=false", input);
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "file_name_here.cs: Converted string is " + converted);
+                Log.WriteLine(LogPriority.Info, "SmartLyrics", "JapaneseTools.cs: Converted string from API is " + converted);
 
                 input = converted;
             }

@@ -20,13 +20,13 @@ namespace SmartLyrics.Toolbox
             return (float)(newStart + ((value - originalStart) * scale));
         }
 
-        //public static bool IsInForeground()
-        //{
-        //    RunningAppProcessInfo myProcess = new RunningAppProcessInfo();
-        //    GetMyMemoryState(myProcess);
+        public static bool IsInForeground()
+        {
+            RunningAppProcessInfo myProcess = new RunningAppProcessInfo();
+            GetMyMemoryState(myProcess);
 
-        //    return myProcess.Importance == Importance.Foreground;
-        //}
+            return myProcess.Importance == Importance.Foreground;
+        }
 
         public static async Task CheckAndCreateAppFolders()
         {

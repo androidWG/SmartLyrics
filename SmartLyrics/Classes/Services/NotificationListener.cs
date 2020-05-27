@@ -1,7 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Preferences;
 using Android.Service.Notification;
 using Android.Support.V4.App;
 using Android.Util;
@@ -41,7 +40,7 @@ namespace SmartLyrics.Services
             base.OnCreate();
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnCreate (NLService): Service created");
 
-            prefs = PreferenceManager.GetDefaultSharedPreferences(this);
+            prefs = AndroidX.Preference.PreferenceManager.GetDefaultSharedPreferences(this);
 
             await CreateNotificationChannel();
         }
@@ -285,7 +284,7 @@ namespace SmartLyrics.Services
                 MainActivity.notificationSong = mostLikely;
                 MainActivity.fromNotification = true;
 
-                if (!MainActivity.inForeground)
+                if (!MiscTools.IsInForeground())
                 {
                     CreateNotification(mostLikely.title, mostLikely.artist);
                 }

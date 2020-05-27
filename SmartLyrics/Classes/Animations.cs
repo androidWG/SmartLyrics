@@ -24,5 +24,16 @@ namespace SmartLyrics
 
             return anim;
         }
+
+        public static Animation BlinkingImageAnimation(int duration, int repeatCount)
+        {
+            Animation anim = new AlphaAnimation(1f, 0.2f);
+            anim.Duration = duration; //You can manage the blinking time with this parameter
+            anim.RepeatMode = RepeatMode.Reverse;
+            anim.RepeatCount = repeatCount;
+            anim.FillAfter = true;
+
+            return anim;
+        }
     }
 }
