@@ -14,41 +14,41 @@ namespace SmartLyrics.Common
     #region Storage Classes or just classes idk what to call this
     public class Song
     {
-        public string title { get; set; }
-        public string artist { get; set; }
-        public string album { get; set; }
-        public string featuredArtist { get; set; }
-        public string cover { get; set; }
-        public string header { get; set; }
+        public string Title { get; set; }
+        public string Artist { get; set; }
+        public string Album { get; set; }
+        public string FeaturedArtist { get; set; }
+        public string Cover { get; set; }
+        public string Header { get; set; }
         public string APIPath { get; set; }
-        public string path { get; set; }
-        public string lyrics { get; set; }
-        public int likeness { get; set; } //used by the NLService
-        public int id { get; set; }
+        public string Path { get; set; }
+        public string Lyrics { get; set; }
+        public int Likeness { get; set; } //used by the NLService
+        public int Id { get; set; }
     }
 
     public class Artist
     {
-        public int id { get; set; }
-        public string name { get; set; }
-        public List<Song> songs { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public List<Song> Songs { get; set; }
     }
 
     public class Lyrics
     {
-        public int id { get; set; }
-        public string lyrics { get; set; }
+        public int Id { get; set; }
+        public string Lyric { get; set; }
     }
     #endregion
 
     #region Adapters
     public class ExpandableListAdapter : BaseExpandableListAdapter
     {
-        private Activity context;
-        private List<string> listDataHeader;
-        private Dictionary<string, List<Song>> listDataChild;
-        private List<string> filteredHeader;
-        private Dictionary<string, List<string>> filteredChild;
+        private readonly Activity context;
+        private readonly List<string> listDataHeader;
+        private readonly Dictionary<string, List<Song>> listDataChild;
+        //private readonly List<string> filteredHeader;
+        //private readonly Dictionary<string, List<string>> filteredChild;
 
         public ExpandableListAdapter(Activity context, List<string> listDataHeader, Dictionary<string, List<Common.Song>> listChildData)
         {
@@ -59,7 +59,7 @@ namespace SmartLyrics.Common
         //for child item view
         public override Java.Lang.Object GetChild(int groupPosition, int childPosition)
         {
-            return listDataChild[listDataHeader[groupPosition]][childPosition].title;
+            return listDataChild[listDataHeader[groupPosition]][childPosition].Title;
         }
         public override long GetChildId(int groupPosition, int childPosition)
         {
@@ -119,8 +119,8 @@ namespace SmartLyrics.Common
 
     public class SavedLyricsAdapter : BaseAdapter<Artist>
     {
-        private Activity activity;
-        List<Tuple<string, Song>> allSongs;
+        private readonly Activity activity;
+        private readonly List<Tuple<string, Song>> allSongs;
 
         public override Artist this[int position] => throw new NotImplementedException();
 
@@ -145,7 +145,7 @@ namespace SmartLyrics.Common
             TextView titleTxt = view.FindViewById<TextView>(Resource.Id.songTitle);
             TextView artistTxt = view.FindViewById<TextView>(Resource.Id.songArtist);
 
-            titleTxt.Text = allSongs.ElementAt(position).Item2.title;
+            titleTxt.Text = allSongs.ElementAt(position).Item2.Title;
             artistTxt.Text = allSongs.ElementAt(position).Item1;
             return view;
         }
@@ -153,8 +153,8 @@ namespace SmartLyrics.Common
 
     public class SearchResultAdapter : BaseAdapter<Common.Song>
     {
-        private Activity activity;
-        private List<Song> songs;
+        private readonly Activity activity;
+        private readonly List<Song> songs;
 
         public override Song this[int position] => throw new NotImplementedException();
 
@@ -170,7 +170,7 @@ namespace SmartLyrics.Common
 
         public override long GetItemId(int position)
         {
-            return songs[position].id;
+            return songs[position].Id;
         }
 
         public override View GetView(int position, View convertView, ViewGroup parent)
@@ -180,9 +180,9 @@ namespace SmartLyrics.Common
             TextView artistTxt = view.FindViewById<TextView>(Resource.Id.songArtist);
             ImageView coverImg = view.FindViewById<ImageView>(Resource.Id.cover);
 
-            titleTxt.Text = songs[position].title;
-            artistTxt.Text = songs[position].artist;
-            ImageService.Instance.LoadUrl(songs[position].cover).Transform(new RoundedTransformation(20)).Into(coverImg);
+            titleTxt.Text = songs[position].Title;
+            artistTxt.Text = songs[position].Artist;
+            ImageService.Instance.LoadUrl(songs[position].Cover).Transform(new RoundedTransformation(20)).Into(coverImg);
 
             return view;
         }

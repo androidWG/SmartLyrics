@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SmartLyrics.Toolbox
 {
-    class SongParsing
+    internal class SongParsing
     {
         //returns as index 0 the title of the notification and as index 1 the artist
         public static Song GetTitleAndArtistFromExtras(string extras)
@@ -27,7 +27,7 @@ namespace SmartLyrics.Toolbox
 
             string _artist = Regex.Match(extras, @"(?<=android\.text=)(.*?)(?=, android\.)").ToString();
 
-            Song output = new Song() { title = _title, artist = _artist };
+            Song output = new Song() { Title = _title, Artist = _artist };
 
             return output;
         }
@@ -49,41 +49,41 @@ namespace SmartLyrics.Toolbox
              * never used in Genius, so we should always remove those.
              */
 
-            string strippedTitle = input.title;
-            string strippedArtist = input.artist;
+            string strippedTitle = input.Title;
+            string strippedArtist = input.Artist;
 
             //removes any Remix, Edit, or Featuring info encapsulated
             //in parenthesis or brackets
-            if (input.title.Contains("(") || input.title.Contains("["))
+            if (input.Title.Contains("(") || input.Title.Contains("["))
             {
-                List<Match> inside = Regex.Matches(input.title, @"\(.*?\)").ToList();
-                List<Match> insideBrk = Regex.Matches(input.title, @"\[.*?\]").ToList();
+                List<Match> inside = Regex.Matches(input.Title, @"\(.*?\)").ToList();
+                List<Match> insideBrk = Regex.Matches(input.Title, @"\[.*?\]").ToList();
                 inside = inside.Concat(insideBrk).ToList();
 
-                Log.WriteLine(LogPriority.Error, "SmartLyrics", $"file_name_here.cs: inside list length: {inside.Count()}");
+                Log.WriteLine(LogPriority.Error, "SongParsing", $"StripSongForSearch: 'inside' list length: {inside.Count()}");
 
                 foreach (Match s in inside)
                 {
                     if (s.Value.ToLowerInvariant().ContainsAny("feat", "ft", "featuring", "edit", "mix"))
                     {
-                        Log.WriteLine(LogPriority.Info, "SmartLyrics", $"file_name_here.cs: s.Value - {s.Value}");
-                        strippedTitle = input.title.Replace(s.Value, "");
+                        Log.WriteLine(LogPriority.Info, "SongParsing", $"StripSongForSearch: s.Value - {s.Value}");
+                        strippedTitle = input.Title.Replace(s.Value, "");
                     }
                 }
             }
 
             strippedTitle.Replace("🅴", ""); //remove "🅴" used by Apple Music for explicit songs
 
-            if (input.artist.Contains(" & "))
+            if (input.Artist.Contains(" & "))
             {
-                strippedArtist = Regex.Replace(input.artist, @" & .*$", "");
+                strippedArtist = Regex.Replace(input.Artist, @" & .*$", "");
             }
 
             strippedTitle.Trim();
             strippedArtist.Trim();
 
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "file_name_here.cs: Stripped title");
-            Song output = new Song() { title = strippedTitle, artist = strippedArtist };
+            Log.WriteLine(LogPriority.Verbose, "SongParsing", "StripSongForSearch: Stripped title");
+            Song output = new Song() { Title = strippedTitle, Artist = strippedArtist };
             return output;
         }
 
@@ -106,15 +106,15 @@ namespace SmartLyrics.Toolbox
              * song, "Daddy Like", since Genius doesn't have the remixed version.
             */
 
-            string title = result.title.ToLowerInvariant();
-            string artist = result.artist.ToLowerInvariant();
+            string title = result.Title.ToLowerInvariant();
+            string artist = result.Artist.ToLowerInvariant();
 
-            string ntfTitle = notification.title.ToLowerInvariant();
+            string ntfTitle = notification.Title.ToLowerInvariant();
             ntfTitle.Replace("🅴", ""); //remove "🅴" used by Apple Music for explicit songs
             //remove anything inside brackets since almost everytime
             //it's not relevant info
             ntfTitle = Regex.Replace(ntfTitle, @"\[.*?\]", "").Trim();
-            string ntfArtist = notification.artist.ToLowerInvariant();
+            string ntfArtist = notification.Artist.ToLowerInvariant();
 
             title = await JapaneseTools.StripJapanese(title);
             artist = await JapaneseTools.StripJapanese(artist);

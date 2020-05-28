@@ -24,18 +24,15 @@ namespace SmartLyrics
     [Activity(Label = "SpotifyDownload", ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, ScreenOrientation = ScreenOrientation.Portrait)]
     public class SpotifyDownload : AppCompatActivity
     {
-        static int randomState = new Random().Next(2000, 10000000);
-        static string accessToken = "";
+        private static readonly int randomState = new Random().Next(2000, 10000000);
+        private static string accessToken = "";
         private bool _shouldStop = false;
-        Timer timer = new Timer();
-
-        ConstraintLayout startedLayout;
-        ConstraintLayout finishedLayout;
-
-        Services.DownloadServiceConnection serviceConnection;
-
-        string path = System.IO.Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, "SmartLyrics/Saved Lyrics/Spotify/");
-        string pathImg = System.IO.Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, "SmartLyrics/Saved Lyrics/Spotify/Image Cache/");
+        private readonly Timer timer = new Timer();
+        private ConstraintLayout startedLayout;
+        private ConstraintLayout finishedLayout;
+        private Services.DownloadServiceConnection serviceConnection;
+        private readonly string path = System.IO.Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, "SmartLyrics/Saved Lyrics/Spotify/");
+        private readonly string pathImg = System.IO.Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, "SmartLyrics/Saved Lyrics/Spotify/Image Cache/");
 
         protected override async void OnCreate(Bundle savedInstanceState)
         {
@@ -197,7 +194,7 @@ namespace SmartLyrics
 
         public class SpotifyAuthClient : WebViewClient
         {
-            private Context context;
+            private readonly Context context;
 
             public SpotifyAuthClient(Context context)
             {

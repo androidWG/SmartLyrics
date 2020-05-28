@@ -18,28 +18,27 @@ using System.Threading.Tasks;
 using SmartLyrics.Toolbox;
 using static SmartLyrics.Globals;
 using static SmartLyrics.Toolbox.MiscTools;
+using SmartLyrics.Common;
 
 namespace SmartLyrics.Services
 {
     [Service(Name = "com.SamuelR.SmartLyrics.DownloadService")]
     public class DownloadService : Service
     {
-        List<Common.Song> savedTracks = new List<Common.Song>();
-        int maxDistance = 4;
-        float current = 0;
-        int completedTasks = 0;
-        int callsMade = 0;
+        private List<Song> savedTracks = new List<Song>();
+        private readonly int maxDistance = 4;
+        private float current = 0;
+        private int completedTasks = 0;
+        private int callsMade = 0;
         public static int progress = 0;
-        bool isWorking = false;
-
-        static readonly int NOTIFICATION_ID = 177013;
-        static readonly string CHANNEL_ID = "download_lyrics_bg_sl";
-
-        string savedLyricsLocation = "SmartLyrics/Saved Lyrics/Spotify/";
-        string savedImagesLocation = "SmartLyrics/Saved Lyrics/Spotify/Image Cache/";
-        string path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, "SmartLyrics/Saved Lyrics/Spotify/");
-        string pathImg = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, "SmartLyrics/Saved Lyrics/Spotify/Image Cache/");
-        string savedSeparator = @"!@=-@!";
+        private bool isWorking = false;
+        private static readonly int NOTIFICATION_ID = 177013;
+        private static readonly string CHANNEL_ID = "download_lyrics_bg_sl";
+        private readonly string savedLyricsLocation = "SmartLyrics/Saved Lyrics/Spotify/";
+        private readonly string savedImagesLocation = "SmartLyrics/Saved Lyrics/Spotify/Image Cache/";
+        private string path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, "SmartLyrics/Saved Lyrics/Spotify/");
+        private string pathImg = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, "SmartLyrics/Saved Lyrics/Spotify/Image Cache/");
+        private readonly string savedSeparator = @"!@=-@!";
 
         public IBinder Binder { get; private set; }
 
@@ -138,10 +137,10 @@ namespace SmartLyrics.Services
 
                 foreach (JToken result in parsedList)
                 {
-                    Common.Song song = new Common.Song()
+                    Song song = new Song()
                     {
-                        title = Regex.Replace((string)result["track"]["name"], @"\(feat\. .+", ""),
-                        artist = (string)result["track"]["artists"][0]["name"]
+                        Title = Regex.Replace((string)result["track"]["name"], @"\(feat\. .+", ""),
+                        Artist = (string)result["track"]["artists"][0]["name"]
                     };
 
                     savedTracks.Add(song);
@@ -153,11 +152,11 @@ namespace SmartLyrics.Services
 
         private async Task getGeniusSearchResults()
         {
-            List<Common.Song> geniusTemp = new List<Common.Song>();
+            List<Song> geniusTemp = new List<Song>();
 
             float total = savedTracks.Count;
 
-            foreach (Common.Song s in savedTracks)
+            foreach (Song s in savedTracks)
             {
                 if (callsMade == 50)
                 {
@@ -196,15 +195,15 @@ namespace SmartLyrics.Services
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getGeniusSearchResults (DownloadService): Changed savedTracks to Genius results");
         }
 
-        private async Task geniusSearch(Common.Song s, List<Common.Song> geniusTemp)
+        private async Task geniusSearch(Song s, List<Song> geniusTemp)
         {
             callsMade++;
 
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "geniusSearch (DownloadService): Starting geniusSearch");
-            string results = await HTTPRequests.GetRequest(geniusSearchURL + s.artist + " - " + s.title, geniusAuthHeader);
+            string results = await HTTPRequests.GetRequest(geniusSearchURL + s.Artist + " - " + s.Title, geniusAuthHeader);
             if (results == null)
             {
-                results = await HTTPRequests.GetRequest(geniusSearchURL + s.artist + " - " + s.title, geniusAuthHeader);
+                results = await HTTPRequests.GetRequest(geniusSearchURL + s.Artist + " - " + s.Title, geniusAuthHeader);
             }
             JObject parsed = JObject.Parse(results);
 
@@ -214,22 +213,22 @@ namespace SmartLyrics.Services
                 string resultTitle = (string)result["result"]["title"];
                 string resultArtist = (string)result["result"]["primary_artist"]["name"];
 
-                if ((Text.Distance(resultTitle, s.title) <= maxDistance && Text.Distance(resultArtist, s.artist) <= maxDistance) || resultTitle.Contains(s.title) && resultArtist.Contains(s.artist))
+                if ((Text.Distance(resultTitle, s.Title) <= maxDistance && Text.Distance(resultArtist, s.Artist) <= maxDistance) || resultTitle.Contains(s.Title) && resultArtist.Contains(s.Artist))
                 {
                     string path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation, (string)result["result"]["primary_artist"]["name"] + savedSeparator + (string)result["result"]["title"] + ".txt");
 
                     if (!File.Exists(path))
                     {
-                        Log.WriteLine(LogPriority.Info, "SmartLyrics", "geniusSearch (DownloadService): Common.Song found! Adding to geniusTemp");
+                        Log.WriteLine(LogPriority.Info, "SmartLyrics", "geniusSearch (DownloadService): Song found! Adding to geniusTemp");
 
-                        Common.Song song = new Common.Song()
+                        Song song = new Song()
                         {
-                            title = (string)result["result"]["title"],
-                            artist = (string)result["result"]["primary_artist"]["name"],
-                            cover = (string)result["result"]["song_art_image_thumbnail_url"],
-                            header = (string)result["result"]["header_image_url"],
+                            Title = (string)result["result"]["title"],
+                            Artist = (string)result["result"]["primary_artist"]["name"],
+                            Cover = (string)result["result"]["song_art_image_thumbnail_url"],
+                            Header = (string)result["result"]["header_image_url"],
                             APIPath = (string)result["result"]["api_path"],
-                            path = (string)result["result"]["path"]
+                            Path = (string)result["result"]["path"]
                         };
 
                         geniusTemp.Add(song);
@@ -238,7 +237,7 @@ namespace SmartLyrics.Services
                     }
                     else
                     {
-                        Log.WriteLine(LogPriority.Info, "SmartLyrics", "geniusSearch (DownloadService): Common.Song found but already downloaded");
+                        Log.WriteLine(LogPriority.Info, "SmartLyrics", "geniusSearch (DownloadService): Song found but already downloaded");
                         break;
                     }
                 }
@@ -254,13 +253,13 @@ namespace SmartLyrics.Services
             completedTasks = 0;
             current = 0;
 
-            List<Common.Song> geniusTemp = new List<Common.Song>();
+            List<Song> geniusTemp = new List<Song>();
 
             float total = savedTracks.Count;
 
             if (savedTracks.Count != 0)
             {
-                foreach (Common.Song s in savedTracks)
+                foreach (Song s in savedTracks)
                 {
                     if (callsMade == 10)
                     {
@@ -308,53 +307,53 @@ namespace SmartLyrics.Services
             }
             JObject parsed = JObject.Parse(results);
 
-            Common.Song song = new Common.Song()
+            Song song = new Song()
             {
-                title = (string)parsed["response"]["song"]["title"],
-                artist = (string)parsed["response"]["song"]["primary_artist"]["name"],
-                album = (string)parsed.SelectToken("response.song.album.name"),
-                header = (string)parsed["response"]["song"]["header_image_url"],
-                cover = (string)parsed["response"]["song"]["song_art_image_url"],
+                Title = (string)parsed["response"]["song"]["title"],
+                Artist = (string)parsed["response"]["song"]["primary_artist"]["name"],
+                Album = (string)parsed.SelectToken("response.song.album.name"),
+                Header = (string)parsed["response"]["song"]["header_image_url"],
+                Cover = (string)parsed["response"]["song"]["song_art_image_url"],
                 APIPath = (string)parsed["response"]["song"]["api_path"],
-                path = (string)parsed["response"]["song"]["path"]
+                Path = (string)parsed["response"]["song"]["path"]
             };
 
-            Log.WriteLine(LogPriority.Debug, "SmartLyrics", "getDetails (DownloadService): Created new Common.Song variable");
+            Log.WriteLine(LogPriority.Debug, "SmartLyrics", "getDetails (DownloadService): Created new Song variable");
 
             if (parsed["response"]["song"]["featured_artists"].HasValues)
             {
                 Log.WriteLine(LogPriority.Info, "SmartLyrics", "getDetails (DownloadService): Track has featured artists");
                 IList<JToken> parsedList = parsed["response"]["song"]["featured_artists"].Children().ToList();
-                song.featuredArtist = "feat. ";
+                song.FeaturedArtist = "feat. ";
                 foreach (JToken artist in parsedList)
                 {
-                    if (song.featuredArtist == "feat. ")
+                    if (song.FeaturedArtist == "feat. ")
                     {
-                        song.featuredArtist += artist["name"].ToString();
+                        song.FeaturedArtist += artist["name"].ToString();
                     }
                     else
                     {
-                        song.featuredArtist += ", " + artist["name"].ToString();
+                        song.FeaturedArtist += ", " + artist["name"].ToString();
                     }
                 }
             }
             else
             {
                 Log.WriteLine(LogPriority.Info, "SmartLyrics", "getDetails (DownloadService): Track does not have featured artists");
-                song.featuredArtist = "";
+                song.FeaturedArtist = "";
             }
 
             string downloadedLyrics;
 
             HtmlWeb web = new HtmlWeb();
             Log.WriteLine(LogPriority.Debug, "SmartLyrics", "getDetails (DownloadService): Trying to load page");
-            HtmlDocument doc = await web.LoadFromWebAsync("https://genius.com" + song.path);
+            HtmlDocument doc = await web.LoadFromWebAsync("https://genius.com" + song.Path);
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getDetails (DownloadService): Loaded Genius page");
             HtmlNode lyricsBody = doc.DocumentNode.SelectSingleNode("//div[@class='lyrics']");
 
             downloadedLyrics = Regex.Replace(lyricsBody.InnerText, @"^\s*", "");
             downloadedLyrics = Regex.Replace(downloadedLyrics, @"[\s]+$", "");
-            song.lyrics = downloadedLyrics;
+            song.Lyrics = downloadedLyrics;
 
             await saveSongLyrics(song);
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "getDetails (DownloadService): Finished saving!");
@@ -363,7 +362,7 @@ namespace SmartLyrics.Services
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "getDetails (DownloadService): Completed getDetails task for " + song.APIPath);
         }
 
-        private async Task saveSongLyrics(Common.Song song)
+        private async Task saveSongLyrics(Song song)
         {
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "saveSongLyrics (DownloadService): Started saveSongLyrics operation");
 
@@ -372,38 +371,38 @@ namespace SmartLyrics.Services
 
             try
             {
-                path = Path.Combine(path, song.artist + savedSeparator + song.title + ".txt");
-                string pathHeader = Path.Combine(pathImg, song.artist + savedSeparator + song.title + "-header.jpg");
-                string pathCover = Path.Combine(pathImg, song.artist + savedSeparator + song.title + "-cover.jpg");
+                path = Path.Combine(path, song.Artist + savedSeparator + song.Title + ".txt");
+                string pathHeader = Path.Combine(pathImg, song.Artist + savedSeparator + song.Title + "-header.jpg");
+                string pathCover = Path.Combine(pathImg, song.Artist + savedSeparator + song.Title + "-cover.jpg");
 
                 if (!File.Exists(path))
                 {
                     using (StreamWriter sw = File.CreateText(path))
                     {
                         Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "saveSongLyrics (DownloadService): File doesn't exist, creating" + path.ToString());
-                        await sw.WriteAsync(song.lyrics);
+                        await sw.WriteAsync(song.Lyrics);
                         await sw.WriteLineAsync("\n");
                         await sw.WriteLineAsync(@"!!@@/\/\-----00-----/\/\@@!!");
-                        await sw.WriteLineAsync(song.title);
-                        await sw.WriteLineAsync(song.artist);
-                        await sw.WriteLineAsync(song.album);
-                        await sw.WriteLineAsync(song.featuredArtist);
-                        await sw.WriteLineAsync(song.header);
-                        await sw.WriteLineAsync(song.cover);
+                        await sw.WriteLineAsync(song.Title);
+                        await sw.WriteLineAsync(song.Artist);
+                        await sw.WriteLineAsync(song.Album);
+                        await sw.WriteLineAsync(song.FeaturedArtist);
+                        await sw.WriteLineAsync(song.Header);
+                        await sw.WriteLineAsync(song.Cover);
                         await sw.WriteLineAsync(song.APIPath);
-                        await sw.WriteLineAsync(song.path);
+                        await sw.WriteLineAsync(song.Path);
                     }
 
                     using (FileStream fileStream = File.Create(pathHeader))
                     {
-                        Stream header = await ImageService.Instance.LoadUrl(song.header).AsJPGStreamAsync();
+                        Stream header = await ImageService.Instance.LoadUrl(song.Header).AsJPGStreamAsync();
                         header.Seek(0, SeekOrigin.Begin);
                         header.CopyTo(fileStream);
                     }
 
                     using (FileStream fileStream = File.Create(pathCover))
                     {
-                        Stream cover = await ImageService.Instance.LoadUrl(song.cover).AsJPGStreamAsync();
+                        Stream cover = await ImageService.Instance.LoadUrl(song.Cover).AsJPGStreamAsync();
                         cover.Seek(0, SeekOrigin.Begin);
                         cover.CopyTo(fileStream);
                     }

@@ -7,16 +7,16 @@ using WanaKanaNet;
 
 namespace SmartLyrics.Toolbox
 {
-    static class JapaneseTools
+    internal static class JapaneseTools
     {
         public static async Task<string> StripJapanese(this string input)
         {
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", $"JapaneseTools.cs: Processing string '{input}'");
+            Log.WriteLine(LogPriority.Verbose, "JapaneseTools", $"StripJapanese: Processing string '{input}'");
 
             if (WanaKana.IsJapanese(input))
             {
                 string converted = await HTTPRequests.PostRequest(Globals.romanizeConvertURL + "?to=romaji&mode=spaced&useHTML=false", input);
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "JapaneseTools.cs: Converted string from API is " + converted);
+                Log.WriteLine(LogPriority.Info, "JapaneseTools", "StripJapanese: Converted string from API is " + converted);
 
                 input = converted;
             }

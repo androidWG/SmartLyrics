@@ -8,22 +8,21 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Xml;
 
+using SmartLyrics.Common;
 using static SmartLyrics.Globals;
 
 namespace SmartLyrics.Toolbox
 {
-    class DatabaseHandling
+    internal class DatabaseHandling
     {
         private static DataTable db = new DataTable("db");
-        private static string path = Path.Combine(Android.App.Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation + databaseLocation);
-        private static string lyricsPath = Path.Combine(Android.App.Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation);
+        private static readonly string path = Path.Combine(Android.App.Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation + databaseLocation);
+        private static readonly string lyricsPath = Path.Combine(Android.App.Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation);
 
         #region Toolbox
         //clear table and add correct columns
         internal static void InitializeTable()
         {
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "DatabaseHandling.cs: Initializing DataTable...");
-
             db.Clear();
             db.Columns.Clear();
 
@@ -37,22 +36,22 @@ namespace SmartLyrics.Toolbox
             db.Columns.Add("APIPath", typeof(string));
             db.Columns.Add("path", typeof(string));
 
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "DatabaseHandling.cs: Finished initializing!");
+            Log.WriteLine(LogPriority.Info, "DatabaseHandling", "InitializeTable: Finished initializing datatable!");
         }
 
-        internal static Common.Song DataRowToSong(DataRow dr)
+        internal static Song DataRowToSong(DataRow dr)
         {
-            Common.Song song = new Common.Song
+            Song song = new Song
             {
-                id = (int)dr["id"],
-                title = (string)dr["title"],
-                artist = (string)dr["artist"],
-                album = (string)dr["album"],
-                featuredArtist = (string)dr["featuredArtist"],
-                cover = (string)dr["cover"],
-                header = (string)dr["header"],
+                Id = (int)dr["id"],
+                Title = (string)dr["title"],
+                Artist = (string)dr["artist"],
+                Album = (string)dr["album"],
+                FeaturedArtist = (string)dr["featuredArtist"],
+                Cover = (string)dr["cover"],
+                Header = (string)dr["header"],
                 APIPath = (string)dr["APIPath"],
-                path = (string)dr["path"]
+                Path = (string)dr["path"]
             };
 
             return song;
@@ -60,7 +59,7 @@ namespace SmartLyrics.Toolbox
 
         internal static async Task<DataTable> ReadFromDatabaseFile(string path)
         {
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "DatabaseHandling.cs: Reading database from file...");
+            Log.WriteLine(LogPriority.Info, "DatabaseHandling", "ReadFromDatabaseFile: Reading database from file...");
             DataTable _dt = new DataTable("db"); //name needs to be the same as the "db" variable
             
             //TODO: better error handling
@@ -86,7 +85,7 @@ namespace SmartLyrics.Toolbox
             catch (XmlException ex)
             {
                 Crashes.TrackError(ex);
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "DatabaseHandling.cs: Exception cought while trying reading database!\n" + ex.ToString());
+                Log.WriteLine(LogPriority.Info, "DatabaseHandling", "ReadFromDatabaseFile: Exception cought while trying reading database!\n" + ex.ToString());
 
                 return null;
             }
@@ -94,45 +93,45 @@ namespace SmartLyrics.Toolbox
             return _dt;
         }
 
-        internal static async Task WriteLyrics(Common.Song songInfo)
+        internal static async Task WriteLyrics(Song songInfo)
         {
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "DatabaseHandling.cs: Preparing to write lyrics to disk...");
-            string _filepath = Path.Combine(lyricsPath, songInfo.id + lyricsExtension);
+            Log.WriteLine(LogPriority.Verbose, "DatabaseHandling", "WriteLyrics: Preparing to write lyrics to disk...");
+            string _filepath = Path.Combine(lyricsPath, songInfo.Id + lyricsExtension);
 
             try 
             {
-                File.WriteAllText(_filepath, songInfo.lyrics);
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "DatabaseHandling.cs: Wrote lyrics for {songInfo.title} to disk!");
+                File.WriteAllText(_filepath, songInfo.Lyrics);
+                Log.WriteLine(LogPriority.Info, "DatabaseHandling", "WriteLyrics: Wrote lyrics for {songInfo.title} to disk!");
             }
             catch (IOException ex)
             {
                 Crashes.TrackError(ex);
-                Log.WriteLine(LogPriority.Error, "SmartLyrics", "DatabaseHandling.cs: Error while writing lyrics to disk!\n" + ex.ToString());
+                Log.WriteLine(LogPriority.Error, "DatabaseHandling", "WriteLyrics: Error while writing lyrics to disk!\n" + ex.ToString());
             }
         }
         #endregion
 
         //writes a song to the saved lyrics database
         //returns true if successful
-        public static async Task<bool> WriteInfoAndLyrics(Common.Song songInfo)
+        public static async Task<bool> WriteInfoAndLyrics(Song songInfo)
         {
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "DatabaseHandling.cs: Started WriteInfoAndLyrics method");
+            Log.WriteLine(LogPriority.Info, "DatabaseHandling", "WriteInfoAndLyrics: Started WriteInfoAndLyrics method");
 
             InitializeTable();
             db = await ReadFromDatabaseFile(path);
 
-            if (await GetSongFromTable(songInfo.id) == null)
+            if (await GetSongFromTable(songInfo.Id) == null)
             {
                 db.Rows.Add(
-                    songInfo.id,
-                    songInfo.title,
-                    songInfo.artist,
-                    songInfo.album,
-                    songInfo.featuredArtist,
-                    songInfo.cover,
-                    songInfo.header,
+                    songInfo.Id,
+                    songInfo.Title,
+                    songInfo.Artist,
+                    songInfo.Album,
+                    songInfo.FeaturedArtist,
+                    songInfo.Cover,
+                    songInfo.Header,
                     songInfo.APIPath,
-                    songInfo.path);
+                    songInfo.Path);
 
                 db.WriteXml(path);
 
@@ -146,18 +145,18 @@ namespace SmartLyrics.Toolbox
             }
         }
 
-        public static async Task<List<Common.Song>> GetSongList()
+        public static async Task<List<Song>> GetSongList()
         {
             if (File.Exists(path))
             {
                 InitializeTable();
                 db = await ReadFromDatabaseFile(path);
 
-                List<Common.Song> _songs = new List<Common.Song>();
+                List<Song> _songs = new List<Song>();
 
                 foreach (DataRow dr in db.Rows)
                 {
-                    Common.Song _ = DataRowToSong(dr);
+                    Song _ = DataRowToSong(dr);
                     _songs.Add(_);
                 }
 
@@ -169,18 +168,18 @@ namespace SmartLyrics.Toolbox
             }
         }
 
-        public static async Task<Common.Song> GetSongFromTable(int id)
+        public static async Task<Song> GetSongFromTable(int id)
         {
             //Genius does not have a song with ID 0, if we recieve a request with
             //ID 0, immediately return null
             if (id == 0)
             {
-                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "DatabaseHandling.cs: Common.Song ID is 0, returning null...");
+                Log.WriteLine(LogPriority.Warn, "DatabaseHandling", "GetSongFromTable: Song ID is 0, returning null...");
                 return null;
             }
             else
             {
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", $"DatabaseHandling.cs: Attempting to find song with ID {id} on table...");
+                Log.WriteLine(LogPriority.Verbose, "DatabaseHandling", $"GetSongFromTable: Attempting to find song with ID {id} on table...");
 
                 DataRow[] _;
                 try
@@ -196,24 +195,24 @@ namespace SmartLyrics.Toolbox
                 {
                     DataRow dr = _[0];
 
-                    Common.Song song = new Common.Song
+                    Song song = new Song
                     {
-                        id = (int)dr["id"],
-                        title = (string)dr["title"],
-                        artist = (string)dr["artist"],
-                        album = (string)dr["album"],
-                        featuredArtist = (string)dr["featuredArtist"],
-                        cover = (string)dr["cover"],
-                        header = (string)dr["header"],
+                        Id = (int)dr["id"],
+                        Title = (string)dr["title"],
+                        Artist = (string)dr["artist"],
+                        Album = (string)dr["album"],
+                        FeaturedArtist = (string)dr["featuredArtist"],
+                        Cover = (string)dr["cover"],
+                        Header = (string)dr["header"],
                         APIPath = (string)dr["APIPath"],
-                        path = (string)dr["path"]
+                        Path = (string)dr["path"]
                     };
 
                     return song;
                 }
                 else
                 {
-                    Log.WriteLine(LogPriority.Info, "SmartLyrics", "DatabaseHandling.cs: Did not find song, returning null...");
+                    Log.WriteLine(LogPriority.Info, "DatabaseHandling", "GetSongFromTable: Did not find song, returning null...");
                     return null;
                 }
             }

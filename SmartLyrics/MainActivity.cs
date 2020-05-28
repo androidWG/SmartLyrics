@@ -45,25 +45,23 @@ namespace SmartLyrics
     [Activity(Label = "@string/app_name", MainLauncher = true, ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenSize | Android.Content.PM.ConfigChanges.Orientation, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public class MainActivity : AppCompatActivity, ActivityCompat.IOnRequestPermissionsResultCallback
     {
-        List<Song> resultsToView;
+        private List<Song> resultsToView;
         public static Song songInfo = new Song();
         public static Song notificationSong;
         private Song previousNtfSong;
 
         public static bool fromFile = false;
         public static bool fromNotification = false;
-
-        readonly int coverRadius = 16;
-        readonly int headerBlur = 25;
-        readonly int searchBlur = 25;
+        private readonly int coverRadius = 16;
+        private readonly int headerBlur = 25;
+        private readonly int searchBlur = 25;
 
         private Timer checkTimer;
         private bool nowPlayingMode = false;
         private bool shouldCheck = true;
         private ISharedPreferences prefs;
-
-        string lastView;
-        string lastSearch = "";
+        private string lastView;
+        private string lastSearch = "";
 
         //! this variable keeps track of multiple simultaneous searches
         //! that happen while you're typing. this list contains no relevant content
@@ -71,7 +69,7 @@ namespace SmartLyrics
         //! the list when the method started and when results are ready to show up.
         //? there's almost definitely a better way of keeping track of the newest
         //? search then the size of a lize (int variable for example)
-        List<string> t = new List<string>();
+        private readonly List<string> t = new List<string>();
 
         //! used to alert a method that called PermissionChecking.CheckAndSetPermissions
         //! that the user made their decision
@@ -79,14 +77,13 @@ namespace SmartLyrics
         //! index 0 is the status of the permission (true = arrived, false = didn't arrive)
         //! index 1 is the result (true = granted, false = denied)
         //same on any activity that asks for permissions
-        bool[] permissionGranted = new bool[2] { false, false };
-
-        TextView npTxt;
-        ImageView shineView;
-        TextView noResultsTxt;
-        TextView faceTxt;
-        ConstraintLayout welcomeScreen;
-        SwipeRefreshLayout refreshLayout;
+        private readonly bool[] permissionGranted = new bool[2] { false, false };
+        private TextView npTxt;
+        private ImageView shineView;
+        private TextView noResultsTxt;
+        private TextView faceTxt;
+        private ConstraintLayout welcomeScreen;
+        private SwipeRefreshLayout refreshLayout;
 
         #region Standard Activity Shit
         protected override async void OnCreate(Bundle savedInstanceState)
@@ -95,7 +92,7 @@ namespace SmartLyrics
             SetContentView(Resource.Layout.main);
             CrossCurrentActivity.Current.Activity = this; //don't remove this, permission stuff needs it
             CrossCurrentActivity.Current.Init(this, savedInstanceState);
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnCreate (MainActivity): Loaded view");
+            Log.WriteLine(LogPriority.Info, "MainActivity", "OnCreate: Loaded view");
 
             //startup error handling
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
@@ -137,7 +134,7 @@ namespace SmartLyrics
             #region Event Subscriptions
             refreshLayout.Refresh += async delegate
             {
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "refreshLayout.Refresh (MainActivity): Refreshing song...");
+                Log.WriteLine(LogPriority.Verbose, "MainActivity", "refreshLayout.Refresh: Refreshing song...");
                 if (!nowPlayingMode && notificationSong != previousNtfSong)
                 {
                     npTxt.Visibility = ViewStates.Visible;
@@ -172,7 +169,7 @@ namespace SmartLyrics
                 if (searchTxt.Text == "")
                 {
                     t.Clear();
-                    Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnCreate (MainActivity): Cleared Task list");
+                    Log.WriteLine(LogPriority.Info, "MainActivity", "OnCreate: Cleared Task list");
                 }
 
                 t.Add("wow taskk");
@@ -188,11 +185,11 @@ namespace SmartLyrics
         protected override async void OnResume()
         {
             base.OnResume();
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "OnResume (MainActivity): OnResume started");
+            Log.WriteLine(LogPriority.Verbose, "MainActivity", "OnResume: OnResume started");
 
             if (fromFile)
             {
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnResume (MainActivity): Trying to load song from file");
+                Log.WriteLine(LogPriority.Info, "MainActivity", "OnResume: Trying to load song from file");
 
                 npTxt.Visibility = ViewStates.Gone;
                 fromFile = false;
@@ -200,7 +197,7 @@ namespace SmartLyrics
             }
             else if (fromNotification)
             {
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnResume (MainActivity): From notification, attempting to load");
+                Log.WriteLine(LogPriority.Info, "MainActivity", "OnResume: From notification, attempting to load");
 
                 RunOnUiThread(() => 
                 {
@@ -301,7 +298,7 @@ namespace SmartLyrics
                 noResultsTxt.Visibility = ViewStates.Invisible;
                 faceTxt.Visibility = ViewStates.Invisible;
 
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SearchKeybaordButton_Action (MainActivity): Started search...");
+                Log.WriteLine(LogPriority.Verbose, "MainActivity", "SearchKeybaordButton_Action: Started search...");
 
                 //pass on index property to GetAndShowSearchResults to keep track of most recent query
                 await GetAndShowSearchResults(searchTxt.Text, index);
@@ -312,10 +309,10 @@ namespace SmartLyrics
 
         private async Task SaveButton_Action()
         {
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SaveButton_Action (MainActivity): Clicked on save button");
+            Log.WriteLine(LogPriority.Verbose, "MainActivity", "SaveButton_Action: Clicked on save button");
 
             //check for write permissions
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SaveButton_Action (MainActivity): Checking write permission...");
+            Log.WriteLine(LogPriority.Verbose, "MainActivity", "SaveButton_Action: Checking write permission...");
             string permission = Manifest.Permission.WriteExternalStorage;
             int permissionStatus = await PermissionChecking.CheckAndSetPermissions(permission, this);
 
@@ -340,7 +337,7 @@ namespace SmartLyrics
                     while (!permissionGranted[0])
                     {
                         await Task.Delay(200);
-                        Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SaveButton_Action (MainActivity): Waiting permission status...");
+                        Log.WriteLine(LogPriority.Verbose, "MainActivity", "SaveButton_Action: Waiting permission status...");
                     }
 
                     //reset permission marker
@@ -361,12 +358,12 @@ namespace SmartLyrics
                     snackbar = Snackbar.Make(layout, Resource.String.saveError, Snackbar.LengthLong);
                     snackbar.Show();
 
-                    Log.WriteLine(LogPriority.Error, "SmartLyrics", "SaveButton_Action (MainActivity): An error occured while getting permission!");
+                    Log.WriteLine(LogPriority.Error, "MainActivity", "SaveButton_Action: An error occured while getting permission!");
                     break;
             }
         }
 
-        async void SearchResuls_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
+        private async void SearchResuls_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
             #region UI Variables
             ProgressBar lyricsLoadingWheel = FindViewById<ProgressBar>(Resource.Id.lyricsLoadingWheel);
@@ -374,21 +371,21 @@ namespace SmartLyrics
             EditText searchTxt = FindViewById<EditText>(Resource.Id.searchTxt);
             #endregion
 
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", $"SearchResuls_ItemClick (MainActivity): Attempting to display song at position {e.Position} with title {songInfo.title} and ID {songInfo.id}.");
+            Log.WriteLine(LogPriority.Info, "MainActivity", $"SearchResuls_ItemClick: Attempting to display song at position {e.Position} with title {songInfo.Title} and ID {songInfo.Id}.");
 
             InputMethodManager imm = (InputMethodManager)GetSystemService(InputMethodService);
             imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0);
 
             UpdateSong(false, true);
 
-            songInfo.id = resultsToView.ElementAt(e.Position).id;
-            songInfo.title = resultsToView.ElementAt(e.Position).title;
-            songInfo.artist = resultsToView.ElementAt(e.Position).artist;
-            songInfo.header = resultsToView.ElementAt(e.Position).header;
-            songInfo.cover = resultsToView.ElementAt(e.Position).cover;
+            songInfo.Id = resultsToView.ElementAt(e.Position).Id;
+            songInfo.Title = resultsToView.ElementAt(e.Position).Title;
+            songInfo.Artist = resultsToView.ElementAt(e.Position).Artist;
+            songInfo.Header = resultsToView.ElementAt(e.Position).Header;
+            songInfo.Cover = resultsToView.ElementAt(e.Position).Cover;
             songInfo.APIPath = resultsToView.ElementAt(e.Position).APIPath;
-            songInfo.path = resultsToView.ElementAt(e.Position).path;
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SearchResuls_ItemClick (MainActivity): Added info to class");
+            songInfo.Path = resultsToView.ElementAt(e.Position).Path;
+            Log.WriteLine(LogPriority.Verbose, "MainActivity", "SearchResuls_ItemClick: Added info to class");
 
             lyricsLoadingWheel.Visibility = ViewStates.Visible;
             searchResults.Visibility = ViewStates.Gone;
@@ -396,7 +393,7 @@ namespace SmartLyrics
             await LoadSong();
         }
 
-        void NavigationView_NavigationViewSelected(object sender, NavigationView.NavigationItemSelectedEventArgs e)
+        private void NavigationView_NavigationViewSelected(object sender, NavigationView.NavigationItemSelectedEventArgs e)
         {
             DrawerLayout drawer = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);
 
@@ -435,14 +432,14 @@ namespace SmartLyrics
             ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
             #endregion
 
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", $"GetAndShowSearchResults (MainActivity): Started GetAndShowSearchResults method of index {index}, query {query}");
+            Log.WriteLine(LogPriority.Info, "MainActivity", $"GetAndShowSearchResults: Started GetAndShowSearchResults method of index {index}, query {query}");
 
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "GetAndShowSearchResults (MainActivity): Starting GetSearchResults operation");
+            Log.WriteLine(LogPriority.Verbose, "MainActivity", "GetAndShowSearchResults: Starting GetSearchResults operation");
             string results = await HTTPRequests.GetRequest(geniusSearchURL + Uri.EscapeUriString(query), geniusAuthHeader);
             JObject parsed = JObject.Parse(results);
 
             IList<JToken> parsedList = parsed["response"]["hits"].Children().ToList();
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "GetAndShowSearchResults (MainActivity): Parsed results into list");
+            Log.WriteLine(LogPriority.Verbose, "MainActivity", "GetAndShowSearchResults: Parsed results into list");
 
             if (parsedList.Count != 0)
             {
@@ -451,29 +448,29 @@ namespace SmartLyrics
                 {
                     Song song = new Song()
                     {
-                        id = (int)result["result"]["id"],
-                        title = (string)result["result"]["title"],
-                        artist = (string)result["result"]["primary_artist"]["name"],
-                        cover = (string)result["result"]["song_art_image_thumbnail_url"],
-                        header = (string)result["result"]["header_image_url"],
+                        Id = (int)result["result"]["id"],
+                        Title = (string)result["result"]["title"],
+                        Artist = (string)result["result"]["primary_artist"]["name"],
+                        Cover = (string)result["result"]["song_art_image_thumbnail_url"],
+                        Header = (string)result["result"]["header_image_url"],
                         APIPath = (string)result["result"]["api_path"],
-                        path = (string)result["result"]["path"]
+                        Path = (string)result["result"]["path"]
                     };
 
                     resultsToView.Add(song);
                 }
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "GetAndShowSearchResults (MainActivity): Created results list for listVew");
+                Log.WriteLine(LogPriority.Verbose, "MainActivity", "GetAndShowSearchResults: Created results list for listVew");
 
                 if (index == t.Count)
                 {
                     SearchResultAdapter adapter = new SearchResultAdapter(this, resultsToView);
                     searchResults.Adapter = adapter;
 
-                    Log.WriteLine(LogPriority.Info, "SmartLyrics", $"GetAndShowSearchResults (MainActivity): Added results of {index}, query {query} to activity view at count {t.Count}");
+                    Log.WriteLine(LogPriority.Info, "MainActivity", $"GetAndShowSearchResults: Added results of {index}, query {query} to activity view at count {t.Count}");
                 }
                 else
                 {
-                    Log.WriteLine(LogPriority.Warn, "SmartLyrics", $"GetAndShowSearchResults (MainActivity): Results of index {index}, query {query} is smaller than Task list of size {t.Count}");
+                    Log.WriteLine(LogPriority.Warn, "MainActivity", $"GetAndShowSearchResults: Results of index {index}, query {query} is smaller than Task list of size {t.Count}");
                 }
             }
             else
@@ -484,7 +481,7 @@ namespace SmartLyrics
 
                 noResultsTxt.Visibility = ViewStates.Visible;
                 faceTxt.Visibility = ViewStates.Visible;
-                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "GetAndShowSearchResults (MainActivity): No results found!");
+                Log.WriteLine(LogPriority.Warn, "MainActivity", "GetAndShowSearchResults: No results found!");
             }
         }
         #endregion
@@ -496,7 +493,7 @@ namespace SmartLyrics
             {
                 if (notificationSong != previousNtfSong)
                 {
-                    Log.WriteLine(LogPriority.Info, "SmartLyrics", "CheckIfSongIsPlaying (MainActivity): Song playing is different, updating...");
+                    Log.WriteLine(LogPriority.Info, "MainActivity", "CheckIfSongIsPlaying: Song playing is different, updating...");
 
                     nowPlayingMode = true;
                     songInfo = notificationSong;
@@ -515,7 +512,7 @@ namespace SmartLyrics
 
                         Android.Views.Animations.Animation anim = Animations.BlinkingAnimation(700, 3);
                         npTxt.StartAnimation(anim);
-                        Log.WriteLine(LogPriority.Info, "SmartLyrics", "CheckIfSongIsPlaying (MainActivity): Playing animation on npTxt");
+                        Log.WriteLine(LogPriority.Info, "MainActivity", "CheckIfSongIsPlaying: Playing animation on npTxt");
                     }
                     else if (!nowPlayingMode)
                     {
@@ -524,18 +521,18 @@ namespace SmartLyrics
                         Android.Views.Animations.Animation anim = Animations.BlinkingImageAnimation(800, 4);
                         shineView.Visibility = ViewStates.Visible;
                         shineView.StartAnimation(anim);
-                        Log.WriteLine(LogPriority.Info, "SmartLyrics", "CheckIfSongIsPlaying (MainActivity): Playing animation on shineView");
+                        Log.WriteLine(LogPriority.Info, "MainActivity", "CheckIfSongIsPlaying: Playing animation on shineView");
                     }
                 }
                 else if (notificationSong == songInfo && !nowPlayingMode)
                 {
-                    Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "CheckIfSongIsPlaying (MainActivity): Song playing is the same as the one being shown");
+                    Log.WriteLine(LogPriority.Verbose, "MainActivity", "CheckIfSongIsPlaying: Song playing is the same as the one being shown");
                     nowPlayingMode = true;
                 }
             }
             else
             {
-                //Log.WriteLine(LogPriority.Verbose, "SmartLyrics", $"CheckIfSongIsPlaying (MainActivity): Should check is {shouldCheck} and IsInForeground is {MiscTools.IsInForeground()}");
+                //Log.WriteLine(LogPriority.Verbose, "MainActivity", $"CheckIfSongIsPlaying: Should check is {shouldCheck} and IsInForeground is {MiscTools.IsInForeground()}");
             }
         }
 
@@ -557,56 +554,56 @@ namespace SmartLyrics
         #region Load from Internet
         private async Task GetAndShowSongDetails()
         {
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "GetAndShowSongDetails (MainActivity): Starting GetSongDetails operation");
+            Log.WriteLine(LogPriority.Info, "MainActivity", "GetAndShowSongDetails: Starting GetSongDetails operation");
             string results = await HTTPRequests.GetRequest(geniusAPIURL + songInfo.APIPath, geniusAuthHeader);
             JObject parsed = JObject.Parse(results);
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "GetAndShowSongDetails (MainActivity): Results parsed into JObject");
+            Log.WriteLine(LogPriority.Verbose, "MainActivity", "GetAndShowSongDetails: Results parsed into JObject");
 
-            songInfo.title = (string)parsed["response"]["song"]["title"];
-            songInfo.artist = (string)parsed["response"]["song"]["primary_artist"]["name"];
-            songInfo.album = (string)parsed["response"]["song"]["album"]["name"];
-            songInfo.header = (string)parsed["response"]["song"]["header_image_url"];
-            songInfo.cover = (string)parsed["response"]["song"]["song_art_image_url"];
+            songInfo.Title = (string)parsed["response"]["song"]["title"];
+            songInfo.Artist = (string)parsed["response"]["song"]["primary_artist"]["name"];
+            songInfo.Album = (string)parsed["response"]["song"]["album"]["name"];
+            songInfo.Header = (string)parsed["response"]["song"]["header_image_url"];
+            songInfo.Cover = (string)parsed["response"]["song"]["song_art_image_url"];
             songInfo.APIPath = (string)parsed["response"]["song"]["api_path"];
-            songInfo.path = (string)parsed["response"]["song"]["path"];
-            //Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "GetAndShowSongDetails (MainActivity): Updated song values");
+            songInfo.Path = (string)parsed["response"]["song"]["path"];
+            //Log.WriteLine(LogPriority.Verbose, "MainActivity", "GetAndShowSongDetails: Updated song values");
 
             if (parsed["response"]["song"]["featured_artists"].HasValues)
             {
                 IList<JToken> parsedList = parsed["response"]["song"]["featured_artists"].Children().ToList();
 
-                songInfo.featuredArtist = "feat. ";
+                songInfo.FeaturedArtist = "feat. ";
                 foreach (JToken artist in parsedList)
                 {
-                    if (songInfo.featuredArtist == "feat. ")
+                    if (songInfo.FeaturedArtist == "feat. ")
                     {
-                        songInfo.featuredArtist += artist["name"].ToString();
+                        songInfo.FeaturedArtist += artist["name"].ToString();
                     }
                     else
                     {
-                        songInfo.featuredArtist += ", " + artist["name"].ToString();
+                        songInfo.FeaturedArtist += ", " + artist["name"].ToString();
                     }
                 }
 
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "GetAndShowSongDetails (MainActivity): Added featured artists to songInfo");
+                Log.WriteLine(LogPriority.Info, "MainActivity", "GetAndShowSongDetails: Added featured artists to songInfo");
             }
             else
             {
-                songInfo.featuredArtist = "";
+                songInfo.FeaturedArtist = "";
             }
 
             //exceute all Japanese transliteration tasks at once
-            if (songInfo.title.ContainsJapanese() || songInfo.artist.ContainsJapanese())
+            if (songInfo.Title.ContainsJapanese() || songInfo.Artist.ContainsJapanese())
             {
-                Task<string> awaitTitle = songInfo.title.StripJapanese();
-                Task<string> awaitArtist = songInfo.artist.StripJapanese();
-                Task<string> awaitAlbum = songInfo.album.StripJapanese();
+                Task<string> awaitTitle = songInfo.Title.StripJapanese();
+                Task<string> awaitArtist = songInfo.Artist.StripJapanese();
+                Task<string> awaitAlbum = songInfo.Album.StripJapanese();
 
                 await Task.WhenAll(awaitTitle, awaitArtist, awaitAlbum);
 
-                songInfo.title = await awaitTitle;
-                songInfo.artist = await awaitArtist;
-                songInfo.album = await awaitAlbum;
+                songInfo.Title = await awaitTitle;
+                songInfo.Artist = await awaitArtist;
+                songInfo.Album = await awaitAlbum;
             }
 
             UpdateSong(true, false);
@@ -614,7 +611,7 @@ namespace SmartLyrics
 
         private async Task GetAndShowLyrics()
         {
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "GetAndShowLyrics (MainActivity): Started GetAndShowLyrics method");
+            Log.WriteLine(LogPriority.Info, "MainActivity", "GetAndShowLyrics: Started GetAndShowLyrics method");
 
             #region UI Variables
             TextView songLyrics = FindViewById<TextView>(Resource.Id.songLyrics);
@@ -625,18 +622,18 @@ namespace SmartLyrics
             #endregion
 
             HtmlWeb web = new HtmlWeb();
-            HtmlDocument doc = await web.LoadFromWebAsync("https://genius.com" + songInfo.path);
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "GetAndShowLyrics (MainActivity): Loaded Genius page");
+            HtmlDocument doc = await web.LoadFromWebAsync("https://genius.com" + songInfo.Path);
+            Log.WriteLine(LogPriority.Verbose, "MainActivity", "GetAndShowLyrics: Loaded Genius page");
 
-            songInfo.lyrics = await HTMLParsing.ParseHTML(doc);
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "GetAndShowLyrics (MainActivity): Parsed HTML");
+            songInfo.Lyrics = await HTMLParsing.ParseHTML(doc);
+            Log.WriteLine(LogPriority.Verbose, "MainActivity", "GetAndShowLyrics: Parsed HTML");
 
             lyricsLoadingWheel.Visibility = ViewStates.Gone;
             fabMore.Visibility = ViewStates.Visible;
 
-            songLyrics.TextFormatted = Html.FromHtml(songInfo.lyrics, FromHtmlOptions.ModeCompact);
+            songLyrics.TextFormatted = Html.FromHtml(songInfo.Lyrics, FromHtmlOptions.ModeCompact);
 
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "GetAndShowLyrics (MainActivity): Showing lyrics");
+            Log.WriteLine(LogPriority.Info, "MainActivity", "GetAndShowLyrics: Showing lyrics");
             refreshLayout.Refreshing = false;
 
             savedView.Visibility = ViewStates.Gone;
@@ -650,7 +647,7 @@ namespace SmartLyrics
         //if songInfo contains a song path
         private async Task LoadSong()
         {
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "LoadSong (MainActivity): Started LoadSong method");
+            Log.WriteLine(LogPriority.Info, "MainActivity", "LoadSong: Started LoadSong method");
 
             refreshLayout.Visibility = ViewStates.Visible;
             welcomeScreen.Visibility = ViewStates.Gone;
@@ -669,9 +666,9 @@ namespace SmartLyrics
             #endregion
 
             //check if song is downloaded
-            if (await DatabaseHandling.GetSongFromTable(songInfo.id) == null)
+            if (await DatabaseHandling.GetSongFromTable(songInfo.Id) == null)
             {
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "LoadSong (MainActivity): File for song doesn't exist, getting data from APIRequests.Genius...");
+                Log.WriteLine(LogPriority.Info, "MainActivity", "LoadSong: File for song doesn't exist, getting data from APIRequests.Genius...");
 
                 savedView.Visibility = ViewStates.Gone;
 
@@ -683,12 +680,12 @@ namespace SmartLyrics
                 catch (NullReferenceException ex)
                 {
                     Crashes.TrackError(ex);
-                    Log.WriteLine(LogPriority.Error, "SmartLyrics", "LoadSong (MainActivity): NullReferenceException while getting lyrics");
+                    Log.WriteLine(LogPriority.Error, "MainActivity", "LoadSong: NullReferenceException while getting lyrics");
                 }
             }
             else
             {
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "LoadSong (MainActivity): File for song exists, starting CheckAndSetPermissions...");
+                Log.WriteLine(LogPriority.Info, "MainActivity", "LoadSong: File for song exists, starting CheckAndSetPermissions...");
 
                 string permission = Manifest.Permission.ReadExternalStorage;
                 int permissionStatus = await PermissionChecking.CheckAndSetPermissions(permission, this);
@@ -713,7 +710,7 @@ namespace SmartLyrics
                         while (!permissionGranted[0])
                         {
                             await Task.Delay(200);
-                            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SaveButton_Action (MainActivity): Waiting permission status...");
+                            Log.WriteLine(LogPriority.Verbose, "MainActivity", "SaveButton_Action: Waiting permission status...");
                         }
 
                         //reset permission marker
@@ -734,7 +731,7 @@ namespace SmartLyrics
                         snackbar = Snackbar.Make(layout, Resource.String.readError, Snackbar.LengthLong);
                         snackbar.Show();
 
-                        Log.WriteLine(LogPriority.Error, "SmartLyrics", "LoadSong (MainActivity): An error occured while requesting permission!");
+                        Log.WriteLine(LogPriority.Error, "MainActivity", "LoadSong: An error occured while requesting permission!");
                         break;
                     }
                 }
@@ -743,8 +740,8 @@ namespace SmartLyrics
 
         private async Task ReadFromFile()
         {
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "ReadFromFile (MainActivity): Started ReadFromFile method");
-            string path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation + songInfo.id + lyricsExtension);
+            Log.WriteLine(LogPriority.Info, "MainActivity", "ReadFromFile: Started ReadFromFile method");
+            string path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation + songInfo.Id + lyricsExtension);
 
             #region UI Variables
             ImageView savedView = FindViewById<ImageView>(Resource.Id.savedView);
@@ -758,8 +755,8 @@ namespace SmartLyrics
             {
                 //songInfo is already loaded, load lyrics and images from disk
                 //TODO: add error handling
-                songInfo.lyrics = await sr.ReadToEndAsync();
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "ReadFromFile (MainActivity): Read lyrics");
+                songInfo.Lyrics = await sr.ReadToEndAsync();
+                Log.WriteLine(LogPriority.Verbose, "MainActivity", "ReadFromFile: Read lyrics");
 
                 UpdateSong(true, false, true);
 
@@ -769,7 +766,7 @@ namespace SmartLyrics
                 savedView.Visibility = ViewStates.Visible;
                 refreshLayout.Refreshing = false;
 
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "ReadFromFile (MainActivity): Done reading from file!");
+                Log.WriteLine(LogPriority.Info, "MainActivity", "ReadFromFile: Done reading from file!");
             }
 
             shouldCheck = true;
@@ -779,12 +776,10 @@ namespace SmartLyrics
         {
             string pathImg = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedImagesLocation);
 
-            await MiscTools.CheckAndCreateAppFolders();
-
             //header and cover images are always saved on a separate folder with
             //the song's ID to identify it
-            string pathHeader = Path.Combine(pathImg, songInfo.id + "-header.jpg");
-            string pathCover = Path.Combine(pathImg, songInfo.id + "-cover.jpg");
+            string pathHeader = Path.Combine(pathImg, songInfo.Id + "-header.jpg");
+            string pathCover = Path.Combine(pathImg, songInfo.Id + "-cover.jpg");
 
             if (await DatabaseHandling.WriteInfoAndLyrics(songInfo))
             {
@@ -792,14 +787,14 @@ namespace SmartLyrics
                 ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
                 Snackbar snackbar = Snackbar.Make(layout, Resource.String.savedSuccessfully, Snackbar.LengthLong);
                 snackbar.Show();
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "SaveSong (MainActivity): Song saved successfully! ");
+                Log.WriteLine(LogPriority.Info, "MainActivity", "SaveSong: Song saved successfully! ");
             }
             else
             {
                 ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
                 Snackbar snackbar = Snackbar.Make(layout, Resource.String.alreadySaved, Snackbar.LengthLong);
                 snackbar.Show();
-                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "SaveSong (MainActivity): Song already exists!");
+                Log.WriteLine(LogPriority.Warn, "MainActivity", "SaveSong: Song already exists!");
             }
 
             //save header and cover images based on preferences
@@ -807,21 +802,21 @@ namespace SmartLyrics
             {
                 using (FileStream fileStream = File.Create(pathHeader))
                 {
-                    Stream header = await ImageService.Instance.LoadUrl(songInfo.header).AsJPGStreamAsync();
+                    Stream header = await ImageService.Instance.LoadUrl(songInfo.Header).AsJPGStreamAsync();
                     header.Seek(0, SeekOrigin.Begin);
                     header.CopyTo(fileStream);
 
-                    Log.WriteLine(LogPriority.Info, "SmartLyrics", "SaveSong (MainActivity): Saved header image.");
+                    Log.WriteLine(LogPriority.Info, "MainActivity", "SaveSong: Saved header image.");
                 }
             }
 
             using (FileStream fileStream = File.Create(pathCover))
             {
-                Stream cover = await ImageService.Instance.LoadUrl(songInfo.cover).AsJPGStreamAsync();
+                Stream cover = await ImageService.Instance.LoadUrl(songInfo.Cover).AsJPGStreamAsync();
                 cover.Seek(0, SeekOrigin.Begin);
                 cover.CopyTo(fileStream);
 
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "SaveSong (MainActivity): Saved cover image.");
+                Log.WriteLine(LogPriority.Info, "MainActivity", "SaveSong: Saved cover image.");
             }
 
             ImageView savedView = FindViewById<ImageView>(Resource.Id.savedView);
@@ -833,7 +828,7 @@ namespace SmartLyrics
         #region Tools
         private void UpdateSong(bool updateImages, bool clearLabels, bool imagesOnDisk = false)
         {
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", $"UpdateSong (MainActivity): Started updating, updateImages is {updateImages}, clearLabels is {clearLabels} and imagesOnDisk is {imagesOnDisk}");
+            Log.WriteLine(LogPriority.Info, "MainActivity", $"UpdateSong: Started updating, updateImages is {updateImages}, clearLabels is {clearLabels} and imagesOnDisk is {imagesOnDisk}");
             TextView songLyrics = FindViewById<TextView>(Resource.Id.songLyrics);
             TextView songTitle = FindViewById<TextView>(Resource.Id.songTitle);
             TextView songArtist = FindViewById<TextView>(Resource.Id.songArtist);
@@ -848,28 +843,28 @@ namespace SmartLyrics
                 songAlbum.Text = "";
                 songFeat.Text = "";
 
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "UpdateSong (MainActivity): Cleared labels");
+                Log.WriteLine(LogPriority.Verbose, "MainActivity", "UpdateSong: Cleared labels");
             }
             else
             {
-                if (!string.IsNullOrEmpty(songInfo.lyrics))
+                if (!string.IsNullOrEmpty(songInfo.Lyrics))
                 {
-                    songLyrics.TextFormatted = Html.FromHtml(songInfo.lyrics, FromHtmlOptions.ModeCompact);
+                    songLyrics.TextFormatted = Html.FromHtml(songInfo.Lyrics, FromHtmlOptions.ModeCompact);
                 }
-                songTitle.Text = songInfo.title;
-                songArtist.Text = songInfo.artist;
-                songAlbum.Text = songInfo.album;
-                if (songInfo.featuredArtist == "")
+                songTitle.Text = songInfo.Title;
+                songArtist.Text = songInfo.Artist;
+                songAlbum.Text = songInfo.Album;
+                if (songInfo.FeaturedArtist == "")
                 {
                     songFeat.Visibility = ViewStates.Gone;
                 }
                 else
                 {
                     songFeat.Visibility = ViewStates.Visible;
-                    songFeat.Text = songInfo.featuredArtist;
+                    songFeat.Text = songInfo.FeaturedArtist;
                 }
 
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "UpdateSong (MainActivity): Updated labels");
+                Log.WriteLine(LogPriority.Verbose, "MainActivity", "UpdateSong: Updated labels");
             }
 
             if (updateImages)
@@ -880,8 +875,8 @@ namespace SmartLyrics
 
                 if (imagesOnDisk)
                 {
-                    string coverPath = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath + "/" + savedImagesLocation, songInfo.id + "-cover.jpg");
-                    string headerPath = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath + "/" + savedImagesLocation, songInfo.id + "-header.jpg");
+                    string coverPath = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath + "/" + savedImagesLocation, songInfo.Id + "-cover.jpg");
+                    string headerPath = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath + "/" + savedImagesLocation, songInfo.Id + "-header.jpg");
 
                     ImageService.Instance.LoadFile(coverPath).Transform(new RoundedTransformation(coverRadius)).Into(coverView);
                     if (File.Exists(headerPath))
@@ -895,20 +890,20 @@ namespace SmartLyrics
                         ImageService.Instance.LoadFile(coverPath).Transform(new CropTransformation(3, 0, 0)).Transform(new BlurredTransformation(searchBlur)).Transform(new BlurredTransformation(searchBlur)).Into(searchView);
                     }
 
-                    Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "UpdateSong (MainActivity): Updated images from disk");
+                    Log.WriteLine(LogPriority.Verbose, "MainActivity", "UpdateSong: Updated images from disk");
                 }
                 else
                 {
-                    Log.WriteLine(LogPriority.Verbose, "SmartLyrics", $"UpdateSong (MainActivity): Loading cover from {songInfo.cover} and header from {songInfo.header}");
-                    ImageService.Instance.LoadUrl(songInfo.cover).Transform(new RoundedTransformation(coverRadius)).Into(coverView);
-                    ImageService.Instance.LoadUrl(songInfo.header).Transform(new BlurredTransformation(headerBlur)).Into(headerView);
-                    ImageService.Instance.LoadUrl(songInfo.header).Transform(new CropTransformation(3, 0, 0)).Transform(new BlurredTransformation(searchBlur)).Transform(new BlurredTransformation(searchBlur)).Into(searchView);
+                    Log.WriteLine(LogPriority.Verbose, "MainActivity", $"UpdateSong: Loading cover from {songInfo.Cover} and header from {songInfo.Header}");
+                    ImageService.Instance.LoadUrl(songInfo.Cover).Transform(new RoundedTransformation(coverRadius)).Into(coverView);
+                    ImageService.Instance.LoadUrl(songInfo.Header).Transform(new BlurredTransformation(headerBlur)).Into(headerView);
+                    ImageService.Instance.LoadUrl(songInfo.Header).Transform(new CropTransformation(3, 0, 0)).Transform(new BlurredTransformation(searchBlur)).Transform(new BlurredTransformation(searchBlur)).Into(searchView);
 
-                    Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "UpdateSong (MainActivity): Updated images from the internet");
+                    Log.WriteLine(LogPriority.Verbose, "MainActivity", "UpdateSong: Updated images from the internet");
                 }
             }
 
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "UpdateSong (MainActivity): Finished updating");
+            Log.WriteLine(LogPriority.Info, "MainActivity", "UpdateSong: Finished updating");
         }
         #endregion
 
@@ -920,7 +915,7 @@ namespace SmartLyrics
             Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
 
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "OnRequestPermissionsResult (MainActivity): Permission: " + permissions[0] + " | Result: " + grantResults[0].ToString());
+            Log.WriteLine(LogPriority.Verbose, "MainActivity", "OnRequestPermissionsResult: Permission: " + permissions[0] + " | Result: " + grantResults[0].ToString());
 
             if (grantResults[0] == Android.Content.PM.Permission.Granted)
             {

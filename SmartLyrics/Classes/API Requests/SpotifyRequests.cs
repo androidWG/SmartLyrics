@@ -5,7 +5,7 @@ using System.Net.Http;
 
 namespace SmartLyrics.APIRequests
 {
-    class Spotify
+    internal class Spotify
     {
         public static async Task<string> GetSavedSongs(string authHeader, string url)
         {

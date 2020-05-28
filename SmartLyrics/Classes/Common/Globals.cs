@@ -1,6 +1,6 @@
 ﻿namespace SmartLyrics
 {
-    class Globals
+    internal class Globals
     {
         public static readonly string savedLyricsLocation = "SmartLyrics/Saved Lyrics/";
         public static readonly string savedImagesLocation = "SmartLyrics/Saved Lyrics/Image Cache/";

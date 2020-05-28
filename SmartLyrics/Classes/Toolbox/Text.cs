@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace SmartLyrics.Toolbox
 {
-    static class Text
+    internal static class Text
     {
         public static int Distance(string s, string t)
         {

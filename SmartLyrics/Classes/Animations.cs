@@ -13,7 +13,7 @@ using Android.Widget;
 
 namespace SmartLyrics
 {
-    class Animations
+    internal class Animations
     {
         public static Animation BlinkingAnimation(int duration, int repeatCount)
         {

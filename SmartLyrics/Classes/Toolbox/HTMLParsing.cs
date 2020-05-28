@@ -8,7 +8,7 @@ using HtmlAgilityPack;
 
 namespace SmartLyrics.Toolbox
 {
-    class HTMLParsing
+    internal class HTMLParsing
     {
         //takes a Genius song page (old and 2020 design) and returns a HTML formatted
         //string containing lyrics
@@ -17,7 +17,7 @@ namespace SmartLyrics.Toolbox
             if (doc.Text.Contains("<div class=\"lyrics\">"))
             {
                 //TODO: handle NullReferenceException from error pages and such
-                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "HTMLParsing.cs: Song page uses old design");
+                Log.WriteLine(LogPriority.Warn, "HTMLParsing", "ParseHTML: Song page uses old design");
                 HtmlNode node = doc.DocumentNode.SelectSingleNode("//div[@class='lyrics']");
                 string output = await CleanHTML(node.InnerHtml);
                 return output;
@@ -57,6 +57,8 @@ namespace SmartLyrics.Toolbox
             _ = _.Replace(@"|/", "</");
 
             _ = _.Replace("<br><br><br>", "<br><br>");
+
+            Log.WriteLine(LogPriority.Verbose, "HTMLParsing", "CleanHTML: Cleaned HTML");
 
             string output = _;
             return output;

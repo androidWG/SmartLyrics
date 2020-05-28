@@ -1,4 +1,7 @@
-﻿using Microsoft.AppCenter.Crashes;
+﻿using Android.Util;
+
+using Microsoft.AppCenter.Crashes;
+
 using System;
 using System.IO;
 using System.Net.Http;
@@ -7,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SmartLyrics.Toolbox
 {
-    class HTTPRequests
+    internal class HTTPRequests
     {
         public static async Task<string> GetRequest(string url, string authHeader)
         {
@@ -23,12 +26,12 @@ namespace SmartLyrics.Toolbox
                     Uri urlToSend = new Uri(url);
 
                     HttpResponseMessage responseAsync = await client.GetAsync(urlToSend);
-                    Android.Util.Log.WriteLine(Android.Util.LogPriority.Warn, "SmartLyrics", "HTTPRequests.cs: Url sent to HttpClient: " + urlToSend);
+                    Log.WriteLine(LogPriority.Verbose, "HTTPRequests", "GetRequest: Url sent to HttpClient: " + urlToSend);
 
                     using (Stream stream = await responseAsync.Content.ReadAsStreamAsync())
                     using (StreamReader reader = new StreamReader(stream))
                     {
-                        Android.Util.Log.WriteLine(Android.Util.LogPriority.Verbose, "SmartLyrics", "HTTPRequests.cs: Reading content stream...");
+                        Log.WriteLine(LogPriority.Verbose, "HTTPRequests", "GetRequest: Reading content stream...");
                         return reader.ReadToEnd();
                     }
                 }
@@ -37,7 +40,7 @@ namespace SmartLyrics.Toolbox
             {
                 Crashes.TrackError(e);
 
-                Android.Util.Log.WriteLine(Android.Util.LogPriority.Error, "SmartLyrics", $"Exception caught while getting URL {url}! \n{e}");
+                Log.WriteLine(LogPriority.Error, "HTTPRequests", $"GetRequest: Exception caught while getting URL {url}! \n{e}");
                 return null;
             }
         }
@@ -56,12 +59,12 @@ namespace SmartLyrics.Toolbox
                     HttpContent content = new StringContent(body, Encoding.UTF8, "text/plain");
 
                     HttpResponseMessage responseAsync = await client.PostAsync(url, content);
-                    Android.Util.Log.WriteLine(Android.Util.LogPriority.Warn, "SmartLyrics", "HTTPRequests.cs: Url sent to HttpClient: " + url);
+                    Log.WriteLine(LogPriority.Verbose, "HTTPRequests", "PostRequest: Url sent to HttpClient: " + url);
 
                     using (Stream stream = await responseAsync.Content.ReadAsStreamAsync())
                     using (StreamReader reader = new StreamReader(stream))
                     {
-                        Android.Util.Log.WriteLine(Android.Util.LogPriority.Verbose, "SmartLyrics", "HTTPRequests.cs: Reading content stream...");
+                        Log.WriteLine(LogPriority.Verbose, "HTTPRequests", "PostRequest: Reading content stream...");
                         return reader.ReadToEnd();
                     }
                 }
@@ -70,7 +73,7 @@ namespace SmartLyrics.Toolbox
             {
                 Crashes.TrackError(e);
 
-                Android.Util.Log.WriteLine(Android.Util.LogPriority.Error, "SmartLyrics", $"Exception caught while getting URL {url}! \n{e}");
+                Log.WriteLine(LogPriority.Error, "HTTPRequests", $"PostRequest: Exception caught while getting URL {url}! \n{e}");
                 return null;
             }
         }

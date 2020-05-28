@@ -13,6 +13,7 @@ using Android.Widget;
 using Android.Support.V7.App;
 using Android.Support.V4.Widget;
 using Android.Support.Design.Widget;
+using Android.Util;
 
 namespace SmartLyrics
 {
@@ -46,9 +47,11 @@ namespace SmartLyrics
             {
                 drawer.OpenDrawer(navigationView);
             };
+
+            Log.WriteLine(LogPriority.Info, "Settings", "OnCreate: Finished OnCreate");
         }
 
-        void NavigationView_NavigationViewSelected(object sender, NavigationView.NavigationItemSelectedEventArgs e)
+        private void NavigationView_NavigationViewSelected(object sender, NavigationView.NavigationItemSelectedEventArgs e)
         {
             DrawerLayout drawer = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);
 

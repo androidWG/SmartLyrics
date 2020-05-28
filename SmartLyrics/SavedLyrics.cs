@@ -31,10 +31,9 @@ namespace SmartLyrics
     public class SavedLyrics : AppCompatActivity, ActivityCompat.IOnRequestPermissionsResultCallback
     {
         private List<Artist> artistList = new List<Artist>();
-
-        List<string> artistName;
-        List<Tuple<string, Song>> allSongs = new List<Tuple<string, Song>>();
-        Dictionary<string, List<Song>> artistSongs = new Dictionary<string, List<Song>>();
+        private List<string> artistName;
+        private List<Tuple<string, Song>> allSongs = new List<Tuple<string, Song>>();
+        private Dictionary<string, List<Song>> artistSongs = new Dictionary<string, List<Song>>();
 
         private bool nonGrouped = false;
 
@@ -44,7 +43,7 @@ namespace SmartLyrics
         //! index 0 is the status of the permission (true = arrived, false = didn't arrive)
         //! index 1 is the result (true = granted, false = denied)
         //same on any activity that asks for permissions
-        bool[] permissionGranted = new bool[2] { false, false };
+        private readonly bool[] permissionGranted = new bool[2] { false, false };
 
 
         #region Standard Activity Shit
@@ -90,10 +89,10 @@ namespace SmartLyrics
             };
 
             savedList.ChildClick += delegate (object sender, ExpandableListView.ChildClickEventArgs e) {
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "SavedLyrics.cs: Clicked on item from grouped list");
+                Log.WriteLine(LogPriority.Info, "SavedLyrics", "OnCreate: Clicked on item from grouped list");
                 Intent intent = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
 
-                Common.Song _ = artistSongs.ElementAt(e.GroupPosition).Value[e.ChildPosition];
+                Song _ = artistSongs.ElementAt(e.GroupPosition).Value[e.ChildPosition];
 
                 MainActivity.songInfo = _;
                 MainActivity.fromFile = true;
@@ -103,10 +102,10 @@ namespace SmartLyrics
 
             savedListNonGrouped.ItemClick += delegate (object sender, AdapterView.ItemClickEventArgs e)
             {
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "SavedLyrics.cs: Clicked on item from non-grouped list");
+                Log.WriteLine(LogPriority.Info, "SavedLyrics", "OnCreate: Clicked on item from non-grouped list");
                 Intent intent = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
 
-                Common.Song _ = allSongs[e.Position].Item2;
+                Song _ = allSongs[e.Position].Item2;
 
                 MainActivity.songInfo = _;
                 MainActivity.fromFile = true;
@@ -148,7 +147,7 @@ namespace SmartLyrics
                         while (!permissionGranted[0])
                         {
                             await Task.Delay(200);
-                            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SavedLyrics.cs: Waiting permission status...");
+                            Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "OnResume: Waiting permission status...");
                         }
 
                         //reset permission marker
@@ -169,7 +168,7 @@ namespace SmartLyrics
                         snackbar = Snackbar.Make(layout, Resource.String.readError, Snackbar.LengthLong);
                         snackbar.Show();
 
-                        Log.WriteLine(LogPriority.Error, "SmartLyrics", "LoadSong (MainActivity): An error occured while requesting permission!");
+                        Log.WriteLine(LogPriority.Error, "SavedLyrics", "OnResume: An error occured while requesting permission!");
                         break;
                     }
                 }
@@ -179,7 +178,7 @@ namespace SmartLyrics
 
 
         #region Button Actions
-        void NavigationView_NavigationViewSelected(object sender, NavigationView.NavigationItemSelectedEventArgs e)
+        private void NavigationView_NavigationViewSelected(object sender, NavigationView.NavigationItemSelectedEventArgs e)
         {
             DrawerLayout drawer = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);
 
@@ -220,55 +219,53 @@ namespace SmartLyrics
 
             progressBar.Visibility = ViewStates.Visible;
 
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "SavedLyrics.cs: CheckAndSetPermissions returened true, trying to read directory...");
+            Log.WriteLine(LogPriority.Info, "SavedLyrics", "ShowSavedSongs: CheckAndSetPermissions returened true, trying to read directory...");
             string path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation);
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", $"SavedLyrics.cs: Path is \"{path}\"");
+            Log.WriteLine(LogPriority.Verbose, "SavedLyrics", $"ShowSavedSongs: Path is \"{path}\"");
 
-            await MiscTools.CheckAndCreateAppFolders();
-
-            List<Common.Song> songList = await DatabaseHandling.GetSongList();
+            List<Song> songList = await DatabaseHandling.GetSongList();
             if (songList != null)
             {
                 await GetSavedList(songList);
 
-                artistName = artistList.ConvertAll(e => e.name);
-                allSongs = new List<Tuple<string, Common.Song>>();
-                artistSongs = new Dictionary<string, List<Common.Song>>();
+                artistName = artistList.ConvertAll(e => e.Name);
+                allSongs = new List<Tuple<string, Song>>();
+                artistSongs = new Dictionary<string, List<Song>>();
 
                 foreach (Artist a in artistList)
                 {
-                    artistSongs.Add(a.name, a.songs);
+                    artistSongs.Add(a.Name, a.Songs);
 
-                    foreach (Common.Song s in a.songs)
+                    foreach (Song s in a.Songs)
                     {
-                        allSongs.Add(new Tuple<string, Common.Song>(a.name, s));
+                        allSongs.Add(new Tuple<string, Song>(a.Name, s));
                     }
                 }
 
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SavedLyrics.cs: Setted up adapter data");
+                Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "ShowSavedSongs: Setted up adapter data");
 
                 if (!nonGrouped)
                 {
                     savedList.SetAdapter(new ExpandableListAdapter(this, artistName, artistSongs));
-                    Log.WriteLine(LogPriority.Info, "SmartLyrics", "SavedLyrics.cs: Showing adapter for grouped view");
+                    Log.WriteLine(LogPriority.Info, "SavedLyrics", "ShowSavedSongs: Showing adapter for grouped view");
                     progressBar.Visibility = ViewStates.Gone;
                 }
                 else
                 {
                     savedListNonGrouped.Adapter = new SavedLyricsAdapter(this, allSongs);
-                    Log.WriteLine(LogPriority.Info, "SmartLyrics", "SavedLyrics.cs: Showing adapter for non grouped view");
+                    Log.WriteLine(LogPriority.Info, "SavedLyrics", "ShowSavedSongs: Showing adapter for non grouped view");
                     progressBar.Visibility = ViewStates.Gone;
                 }
             }
             else
             {
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "SavedLyrics.cs: No files found!");
+                Log.WriteLine(LogPriority.Info, "SavedLyrics", "ShowSavedSongs: No files found!");
                 progressBar.Visibility = ViewStates.Gone;
             }
         }
 
         //makes a list with all artists and songs saved
-        private async Task GetSavedList(List<Common.Song> songList)
+        private async Task GetSavedList(List<Song> songList)
         {
             //initializing UI variables
             ExpandableListView savedList = FindViewById<ExpandableListView>(Resource.Id.savedList);
@@ -276,32 +273,32 @@ namespace SmartLyrics
 
             artistList = new List<Artist>();
 
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SavedLyrics.cs: Starting foreach loop");
-            foreach (Common.Song s in songList)
+            Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "GetSavedList: Starting foreach loop");
+            foreach (Song s in songList)
             {
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SavedLyrics.cs: " + s.artist + " - " + s.title);
+                Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "GetSavedList: " + s.Artist + " - " + s.Title);
 
                 //finds the first Artist that matches the artist name from the song
-                Artist existingArtist = artistList?.SingleOrDefault(x => x.name == s.artist);
+                Artist existingArtist = artistList?.SingleOrDefault(x => x.Name == s.Artist);
 
                 //! I think this is from StackOverflow, in a question I asked...
                 //checks if the Artist was found in "artistList", adds them if it wasn't
                 if (existingArtist != null)
                 {
-                    existingArtist.songs.Add(s);
-                    Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SavedLyrics.cs: Artist exists, adding song to list...");
+                    existingArtist.Songs.Add(s);
+                    Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "GetSavedList: Artist exists, adding song to list...");
                 }
                 else
                 {
                     Artist artist = new Artist
                     {
-                        name = s.artist,
-                        songs = new List<Common.Song>()
+                        Name = s.Artist,
+                        Songs = new List<Song>()
                     };
 
-                    artist.songs.Add(s);
+                    artist.Songs.Add(s);
                     artistList.Add(artist);
-                    Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SavedLyrics.cs: Artist doesn't exist, creating artist...");
+                    Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "GetSavedList: Artist doesn't exist, creating artist...");
                 }
             }
         }
@@ -309,7 +306,7 @@ namespace SmartLyrics
         //same on any activity that asks for permissions
         public override async void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
         {
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "SavedLyrics.cs: Permission: " + permissions[0] + " | Result: " + grantResults[0].ToString());
+            Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "OnRequestPermissionsResult: Permission: " + permissions[0] + " | Result: " + grantResults[0].ToString());
 
             if (grantResults[0] == Android.Content.PM.Permission.Granted)
             {

@@ -23,7 +23,8 @@ namespace SmartLyrics.Services
     {
         public bool IsConnected { get; private set; }
         public ProgressBinder Binder { get; private set; }
-        SpotifyDownload mainActivity;
+
+        private readonly SpotifyDownload mainActivity;
 
         public DownloadServiceConnection(SpotifyDownload activity)
         {
