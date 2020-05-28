@@ -4,18 +4,17 @@ using Android.OS;
 using Android.Service.Notification;
 using Android.Support.V4.App;
 using Android.Util;
+using TaskStackBuilder = Android.Support.V4.App.TaskStackBuilder;
 
 using Newtonsoft.Json.Linq;
 using SmartLyrics.Common;
 using SmartLyrics.Toolbox;
 using static SmartLyrics.Globals;
-using TaskStackBuilder = Android.Support.V4.App.TaskStackBuilder;
+using static SmartLyrics.Toolbox.SongParsing;
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System;
 
 namespace SmartLyrics.Services
 {
@@ -44,13 +43,16 @@ namespace SmartLyrics.Services
 
             await CreateNotificationChannel();
         }
+        #endregion
 
+
+        #region Notification Handling
         public async override void OnListenerConnected()
         {
             base.OnListenerConnected();
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnListenerConnected (NLService): Listener connected");
 
-            var notifications = GetActiveNotifications();
+            StatusBarNotification[] notifications = GetActiveNotifications();
             foreach (StatusBarNotification n in notifications)
             {
                 if (n.Notification.Category == "transport")
@@ -59,122 +61,10 @@ namespace SmartLyrics.Services
                     if (!string.IsNullOrEmpty(notificationSong.title))
                     {
                         Log.WriteLine(LogPriority.Info, "SmartLyrics", "file_name_here.cs: Found song, starting search...");
-                        await GetAndCompareResults(notificationSong, n.PackageName);
+                        await GetAndCompareResults(notificationSong);
                     }
                 }
             }
-        }
-        #endregion
-
-
-        //returns as index 0 the title of the notification and as index 1 the artist
-        internal Song GetTitleAndArtistFromExtras(string extras)
-        {
-            string _title = Regex.Match(extras, @"(?<=android\.title=)(.*?)(?=, android\.)").ToString();
-            if (_title.Contains("Remix") || _title.Contains("remix") || _title.Contains("Mix"))
-            {
-                _title = Regex.Replace(_title, @"\(feat\..*?\)", "");
-            }
-            else
-            {
-                _title = Regex.Replace(_title, @"\(.*?\)", "");
-                _title.Trim();
-            }
-
-            string _artist = Regex.Match(extras, @"(?<=android\.text=)(.*?)(?=, android\.)").ToString();
-
-            Song output = new Song() { title = _title, artist = _artist };
-
-            return output;
-        }
-
-        internal async Task<int> CalculateLikeness(Song result, Song notification, int index)
-        {
-            /* This method is supposed to accurately measure how much the detected song
-             * is like the song from a search result. It's based on the Text Distance concept.
-             * 
-             * It's made to work with titles and artists like:
-             * - "Around the World" by "Daft Punk" | Standard title
-             * - "Mine All Day" by "PewDiePie & BoyInABand" | Collabs
-             * - "さまよいよい咽　(Samayoi Yoi Ondo)" by "ずとまよ中でいいのに　(ZUTOMAYO)" | Titles and/or artists with romanization included
-             * 
-             * And any combination of such. Works in conjunction with a search method that includes
-             * StripSongForSearch, so that titles with (Remix), (Club Mix) and such can be
-             * found if they exist and still match if they don't.
-             * 
-             * For example, "Despacito (Remix)" will match exactly with a Genius search since they have a
-             * remixed and non-remixed version. "Daddy Like (Diveo Remix)" will match the standard
-             * song, "Daddy Like", since Genius doesn't have the remixed version.
-            */
-            
-            string title = result.title.ToLowerInvariant();
-            string artist = result.artist.ToLowerInvariant();
-
-            string ntfTitle = notification.title.ToLowerInvariant();
-            ntfTitle.Replace("🅴", ""); //remove "🅴" used by Apple Music for explicit songs
-            //remove anything inside brackets since almost everytime
-            //it's not relevant info
-            ntfTitle = Regex.Replace(ntfTitle, @"\[.*?\]", "").Trim();
-            string ntfArtist = notification.artist.ToLowerInvariant();
-
-            title = await JapaneseTools.StripJapanese(title);
-            artist = await JapaneseTools.StripJapanese(artist);
-
-            int titleDist = Text.Distance(title, ntfTitle);
-            int artistDist = Text.Distance(artist, ntfArtist);
-
-            //add likeness points if title or artist is incomplete.
-            //more points are given to the artist since it's more common to have
-            //something like "pewdiepie" vs. "pewdiepie & boyinaband"
-            if (ntfTitle.Contains(title)) { titleDist -= 3; }
-            if (ntfArtist.Contains(artist)) { artistDist -= 4; }
-
-            int likeness = titleDist + artistDist + index;
-            if (likeness < 0) { likeness = 0; }
-
-            Log.WriteLine(LogPriority.Verbose, $"SmartLyrics", $"Title - {title} vs {ntfTitle}\nArtist - {artist} vs {ntfArtist}\nLikeness - {likeness}");
-            return likeness;
-        }
-
-        //strips artist and title strings for remixes, collabs and edits
-        internal Song StripSongForSearch(Song input)
-        {
-            string strippedTitle = input.title;
-            string strippedArtist = input.artist;
-
-            //removes any Remix, Edit, or Featuring info encapsulated
-            //in parenthesis or brackets
-            if (input.title.Contains("(") || input.title.Contains("["))
-            {
-                List<Match> inside = Regex.Matches(input.title, @"\(.*?\)").ToList();
-                List<Match> insideBrk = Regex.Matches(input.title, @"\[.*?\]").ToList();
-                inside = inside.Concat(insideBrk).ToList();
-
-                Log.WriteLine(LogPriority.Error, "SmartLyrics", $"file_name_here.cs: inside list length: {inside.Count()}");
-
-                foreach (Match s in inside)
-                {
-                    if (s.Value.ToLowerInvariant().ContainsAny("feat", "ft", "featuring", "edit", "mix"))
-                    {
-                        Log.WriteLine(LogPriority.Info, "SmartLyrics", $"file_name_here.cs: s.Value - {s.Value}");
-                        strippedTitle = input.title.Replace(s.Value, "");
-                    }
-                }
-            }
-
-            strippedTitle.Replace("🅴", ""); //remove "🅴" used by Apple Music for explicit songs
-
-            if (input.artist.Contains(" & "))
-            {
-                strippedArtist = Regex.Replace(input.artist, @" & .*$", "");
-            }
-
-            strippedTitle.Trim();
-            strippedArtist.Trim();
-
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "file_name_here.cs: Stripped title");
-            Song output = new Song() { title = strippedTitle, artist = strippedArtist };
-            return output;
         }
 
         public async override void OnNotificationPosted(StatusBarNotification sbn)
@@ -191,16 +81,17 @@ namespace SmartLyrics.Services
                     if (previousSong.title != notificationSong.title && !string.IsNullOrEmpty(notificationSong.title))
                     {
                         Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnNotificationPosted (NLService): Previous song is different and not empty, getting search results...");
-                        await GetAndCompareResults(notificationSong, sbn.PackageName);
+                        await GetAndCompareResults(notificationSong);
                     }
                 }
             }
         }
+        #endregion
 
 
-        private async Task GetAndCompareResults(Song ntfSong, string packageName)
+        private async Task GetAndCompareResults(Song ntfSong)
         {
-            //set previous song variable now so that it won't be called later
+            //set previous song variable now so that it won't be called again in a short period of time
             previousSong = ntfSong;
 
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getAndCompareResults (NLService): Starting async GetSearchResults operation");
@@ -269,24 +160,30 @@ namespace SmartLyrics.Services
                 mostLikely = likenessRanking.First();
             }
 
-            if (mostLikely.likeness >= maxLikeness)
+            //separated this to keep this method shorter
+            HandleChosenSong(mostLikely);
+        }
+
+        private void HandleChosenSong(Song chosen)
+        {
+            if (chosen.likeness >= maxLikeness)
             {
-                Log.WriteLine(LogPriority.Error, "SmartLyrics", $"file_name_here.cs: Selected song {mostLikely.title} by {mostLikely.artist} with likeness {mostLikely.likeness} is too unlikely.\n Song not found.");
+                Log.WriteLine(LogPriority.Error, "SmartLyrics", $"file_name_here.cs: Selected song {chosen.title} by {chosen.artist} with likeness {chosen.likeness} is too unlikely.\n Song not found.");
             }
-            else if (string.IsNullOrEmpty(mostLikely.title))
+            else if (string.IsNullOrEmpty(chosen.title))
             {
                 Log.WriteLine(LogPriority.Error, "SmartLyrics", "file_name_here.cs: Song not found!");
             }
-            else if (mostLikely.likeness <= maxLikeness)
+            else if (chosen.likeness <= maxLikeness)
             {
-                Log.WriteLine(LogPriority.Warn, "SmartLyrics", $"file_name_here.cs: Selected song is {mostLikely.title} by {mostLikely.artist} with likeness {mostLikely.likeness}.");
+                Log.WriteLine(LogPriority.Warn, "SmartLyrics", $"file_name_here.cs: Selected song is {chosen.title} by {chosen.artist} with likeness {chosen.likeness}.");
 
-                MainActivity.notificationSong = mostLikely;
+                MainActivity.notificationSong = chosen;
                 MainActivity.fromNotification = true;
 
                 if (!MiscTools.IsInForeground())
                 {
-                    CreateNotification(mostLikely.title, mostLikely.artist);
+                    CreateNotification(chosen.title, chosen.artist);
                 }
             }
         }
@@ -295,19 +192,19 @@ namespace SmartLyrics.Services
         {
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
-                var name = Resources.GetString(Resource.String.channelName);
-                var description = GetString(Resource.String.channelDescription);
-                var channel = new NotificationChannel(CHANNEL_ID, name, NotificationImportance.Low)
+                string name = Resources.GetString(Resource.String.channelName);
+                string description = GetString(Resource.String.channelDescription);
+                NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, NotificationImportance.Low)
                 {
                     Description = description
                 };
 
-                var notificationManager = (NotificationManager)GetSystemService(NotificationService);
+                NotificationManager notificationManager = (NotificationManager)GetSystemService(NotificationService);
                 notificationManager.CreateNotificationChannel(channel);
             }
         }
 
-        private void CreateNotification(string artist, string title)
+        private void CreateNotification(string title, string artist)
         {
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "file_name_here.cs: Creating notification");
             MainActivity.fromNotification = true;
@@ -316,9 +213,9 @@ namespace SmartLyrics.Services
             stackBuilder.AddParentStack(Java.Lang.Class.FromType(typeof(MainActivity)));
             stackBuilder.AddNextIntent(new Intent(this, typeof(MainActivity)));
 
-            var resultIntent = stackBuilder.GetPendingIntent(0, (int)PendingIntentFlags.UpdateCurrent);
+            PendingIntent resultIntent = stackBuilder.GetPendingIntent(0, (int)PendingIntentFlags.UpdateCurrent);
 
-            var builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .SetAutoCancel(true)
                 .SetContentTitle("SmartLyrics")
                 .SetContentText(artist + " - " + title)
@@ -326,7 +223,7 @@ namespace SmartLyrics.Services
                 .SetContentIntent(resultIntent)
                 .SetPriority(-1);
 
-            var notificationManager = NotificationManagerCompat.From(this);
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.From(this);
             notificationManager.Notify(NOTIFICATION_ID, builder.Build());
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "CreateNotification (NLService): Notification made!");
         }

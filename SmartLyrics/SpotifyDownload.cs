@@ -108,7 +108,7 @@ namespace SmartLyrics
                 timer.Elapsed += updateProgressBar;
                 Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "OnCreate (SpotifyDownload): Setted up timer");
 
-                var intent = new Intent(this, typeof(Services.DownloadService));
+                Intent intent = new Intent(this, typeof(Services.DownloadService));
                 intent.PutExtra("AccessToken", accessToken);
                 Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "OnCreate (SpotifyDownload): Added extra to intent");
                 StartForegroundService(intent);
@@ -170,7 +170,7 @@ namespace SmartLyrics
             DrawerLayout drawer = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);
 
             e.MenuItem.SetCheckable(true);
-            var intent = new Intent(this, typeof(SpotifyDownload)).SetFlags(ActivityFlags.ReorderToFront);
+            Intent intent = new Intent(this, typeof(SpotifyDownload)).SetFlags(ActivityFlags.ReorderToFront);
 
             switch (e.MenuItem.ItemId)
             {

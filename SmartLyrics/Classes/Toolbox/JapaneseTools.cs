@@ -11,7 +11,7 @@ namespace SmartLyrics.Toolbox
     {
         public static async Task<string> StripJapanese(this string input)
         {
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", $"JapaneseTools.cs: Processing string '{input}'");
+            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", $"JapaneseTools.cs: Processing string '{input}'");
 
             if (WanaKana.IsJapanese(input))
             {

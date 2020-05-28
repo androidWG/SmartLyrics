@@ -197,8 +197,8 @@
                                 android:tint="@color/lessWhite"
                                 app:layout_constraintEnd_toEndOf="@+id/songLyrics"
                                 app:layout_constraintTop_toTopOf="@+id/songLyrics"
-                                tools:srcCompat="@drawable/baseline_more_horiz_24"
-                                tools:visibility="gone" />
+                                app:srcCompat="@drawable/baseline_more_horiz_24"
+                                android:visibility="gone" />
 
                         <ImageButton
                                 android:id="@+id/fabSwitch"
@@ -210,8 +210,8 @@
                                 android:tint="@color/lessWhite"
                                 app:layout_constraintEnd_toStartOf="@+id/fabMore"
                                 app:layout_constraintTop_toTopOf="@+id/songLyrics"
-                                tools:srcCompat="@drawable/round_flip_to_front_24"
-                                tools:visibility="gone" />
+                                app:srcCompat="@drawable/round_flip_to_front_24"
+                                android:visibility="gone" />
 
                     </android.support.constraint.ConstraintLayout>
 
@@ -233,7 +233,7 @@
                 android:id="@+id/welcomeScreen"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -305,11 +305,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:fadeScrollbars="true"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/searchLoadingWheel" >
+                app:layout_constraintTop_toBottomOf="@+id/searchLoadingWheel">
 
         </ListView>
         <ProgressBar
@@ -405,7 +405,7 @@
                     app:layout_constraintBottom_toTopOf="@+id/npTxt"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:srcCompat="@drawable/round_search_24" />
+                    app:srcCompat="@drawable/round_search_24" />
 
             <ImageButton
                     android:id="@+id/drawerBtn"
@@ -422,7 +422,7 @@
                     app:layout_constraintBottom_toTopOf="@+id/npTxt"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:src="@drawable/round_menu_24" />
+                    app:srcCompat="@drawable/round_menu_24"/>
 
             <TextView
                     android:id="@+id/npTxt"

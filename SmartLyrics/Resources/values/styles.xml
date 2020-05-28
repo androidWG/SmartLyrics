@@ -112,6 +112,20 @@
         <item name="android:textColor">@color/veryWhite</item>
     </style>
 
+    <style name="textFooterInfo">
+      <item name="android:textSize">10sp</item>
+      <item name="android:fontFamily">@font/open_sans</item>
+      <item name="android:textColor">@color/gray</item>
+      <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="textNoResults">
+      <item name="android:textSize">33sp</item>
+      <item name="android:fontFamily">@font/lato_black</item>
+      <item name="android:textColor">@color/gray</item>
+      <item name="android:textAlignment">center</item>
+    </style>
+  
     <style name="imageButtonNoBackground" parent="@style/Widget.AppCompat.ImageButton">
         <item name="android:background">#00ffffff</item>
     </style>

@@ -1,4 +1,4 @@
-﻿using Org.Apache.Http.Protocol;
+﻿using Microsoft.AppCenter.Crashes;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -35,6 +35,8 @@ namespace SmartLyrics.Toolbox
             }
             catch (HttpRequestException e)
             {
+                Crashes.TrackError(e);
+
                 Android.Util.Log.WriteLine(Android.Util.LogPriority.Error, "SmartLyrics", $"Exception caught while getting URL {url}! \n{e}");
                 return null;
             }
@@ -66,6 +68,8 @@ namespace SmartLyrics.Toolbox
             }
             catch (HttpRequestException e)
             {
+                Crashes.TrackError(e);
+
                 Android.Util.Log.WriteLine(Android.Util.LogPriority.Error, "SmartLyrics", $"Exception caught while getting URL {url}! \n{e}");
                 return null;
             }

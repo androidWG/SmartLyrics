@@ -70,9 +70,9 @@ namespace SmartLyrics.Services
 
         private async Task updateProgress()
         {
-            var nm = NotificationManagerCompat.From(this);
+            NotificationManagerCompat nm = NotificationManagerCompat.From(this);
 
-            var builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .SetContentTitle(GetString(Resource.String.notificationTitle))
                 .SetContentText(GetString(Resource.String.notificationDesc))
                 .SetSmallIcon(Resource.Drawable.ic_stat_name)
@@ -106,14 +106,14 @@ namespace SmartLyrics.Services
         {
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
-                var name = Resources.GetString(Resource.String.notificationChannelName);
-                var description = GetString(Resource.String.notificationChannelDesc);
-                var channel = new NotificationChannel(CHANNEL_ID, name, NotificationImportance.Low)
+                string name = Resources.GetString(Resource.String.notificationChannelName);
+                string description = GetString(Resource.String.notificationChannelDesc);
+                NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, NotificationImportance.Low)
                 {
                     Description = description
                 };
 
-                var notificationManager = (NotificationManager)GetSystemService(NotificationService);
+                NotificationManager notificationManager = (NotificationManager)GetSystemService(NotificationService);
                 notificationManager.CreateNotificationChannel(channel);
             }
         }
@@ -348,9 +348,9 @@ namespace SmartLyrics.Services
 
             HtmlWeb web = new HtmlWeb();
             Log.WriteLine(LogPriority.Debug, "SmartLyrics", "getDetails (DownloadService): Trying to load page");
-            var doc = await web.LoadFromWebAsync("https://genius.com" + song.path);
+            HtmlDocument doc = await web.LoadFromWebAsync("https://genius.com" + song.path);
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getDetails (DownloadService): Loaded Genius page");
-            var lyricsBody = doc.DocumentNode.SelectSingleNode("//div[@class='lyrics']");
+            HtmlNode lyricsBody = doc.DocumentNode.SelectSingleNode("//div[@class='lyrics']");
 
             downloadedLyrics = Regex.Replace(lyricsBody.InnerText, @"^\s*", "");
             downloadedLyrics = Regex.Replace(downloadedLyrics, @"[\s]+$", "");
@@ -373,8 +373,8 @@ namespace SmartLyrics.Services
             try
             {
                 path = Path.Combine(path, song.artist + savedSeparator + song.title + ".txt");
-                var pathHeader = Path.Combine(pathImg, song.artist + savedSeparator + song.title + "-header.jpg");
-                var pathCover = Path.Combine(pathImg, song.artist + savedSeparator + song.title + "-cover.jpg");
+                string pathHeader = Path.Combine(pathImg, song.artist + savedSeparator + song.title + "-header.jpg");
+                string pathCover = Path.Combine(pathImg, song.artist + savedSeparator + song.title + "-cover.jpg");
 
                 if (!File.Exists(path))
                 {
@@ -394,14 +394,14 @@ namespace SmartLyrics.Services
                         await sw.WriteLineAsync(song.path);
                     }
 
-                    using (var fileStream = File.Create(pathHeader))
+                    using (FileStream fileStream = File.Create(pathHeader))
                     {
                         Stream header = await ImageService.Instance.LoadUrl(song.header).AsJPGStreamAsync();
                         header.Seek(0, SeekOrigin.Begin);
                         header.CopyTo(fileStream);
                     }
 
-                    using (var fileStream = File.Create(pathCover))
+                    using (FileStream fileStream = File.Create(pathCover))
                     {
                         Stream cover = await ImageService.Instance.LoadUrl(song.cover).AsJPGStreamAsync();
                         cover.Seek(0, SeekOrigin.Begin);

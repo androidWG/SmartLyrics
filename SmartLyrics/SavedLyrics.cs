@@ -91,7 +91,7 @@ namespace SmartLyrics
 
             savedList.ChildClick += delegate (object sender, ExpandableListView.ChildClickEventArgs e) {
                 Log.WriteLine(LogPriority.Info, "SmartLyrics", "SavedLyrics.cs: Clicked on item from grouped list");
-                var intent = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
+                Intent intent = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
 
                 Common.Song _ = artistSongs.ElementAt(e.GroupPosition).Value[e.ChildPosition];
 
@@ -104,7 +104,7 @@ namespace SmartLyrics
             savedListNonGrouped.ItemClick += delegate (object sender, AdapterView.ItemClickEventArgs e)
             {
                 Log.WriteLine(LogPriority.Info, "SmartLyrics", "SavedLyrics.cs: Clicked on item from non-grouped list");
-                var intent = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
+                Intent intent = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
 
                 Common.Song _ = allSongs[e.Position].Item2;
 
@@ -125,7 +125,7 @@ namespace SmartLyrics
             }
             else
             {
-                var permission = Manifest.Permission.ReadExternalStorage;
+                string permission = Manifest.Permission.ReadExternalStorage;
                 int permissionStatus = await PermissionChecking.CheckAndSetPermissions(permission, this);
 
                 ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
@@ -221,7 +221,7 @@ namespace SmartLyrics
             progressBar.Visibility = ViewStates.Visible;
 
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "SavedLyrics.cs: CheckAndSetPermissions returened true, trying to read directory...");
-            var path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation);
+            string path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation);
             Log.WriteLine(LogPriority.Verbose, "SmartLyrics", $"SavedLyrics.cs: Path is \"{path}\"");
 
             await MiscTools.CheckAndCreateAppFolders();

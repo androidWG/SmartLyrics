@@ -100,7 +100,7 @@ namespace SmartLyrics.Common
             string headerTitle = (string)GetGroup(groupPosition);
 
             convertView = convertView ?? context.LayoutInflater.Inflate(Resource.Layout.list_header, null);
-            var lblListHeader = (TextView)convertView.FindViewById(Resource.Id.listHeader);
+            TextView lblListHeader = (TextView)convertView.FindViewById(Resource.Id.listHeader);
             lblListHeader.Text = headerTitle;
 
             return convertView;
@@ -141,9 +141,9 @@ namespace SmartLyrics.Common
 
         public override View GetView(int position, View convertView, ViewGroup parent)
         {
-            var view = convertView ?? activity.LayoutInflater.Inflate(Resource.Layout.list_non_grouped, parent, false);
-            var titleTxt = view.FindViewById<TextView>(Resource.Id.songTitle);
-            var artistTxt = view.FindViewById<TextView>(Resource.Id.songArtist);
+            View view = convertView ?? activity.LayoutInflater.Inflate(Resource.Layout.list_non_grouped, parent, false);
+            TextView titleTxt = view.FindViewById<TextView>(Resource.Id.songTitle);
+            TextView artistTxt = view.FindViewById<TextView>(Resource.Id.songArtist);
 
             titleTxt.Text = allSongs.ElementAt(position).Item2.title;
             artistTxt.Text = allSongs.ElementAt(position).Item1;
@@ -175,10 +175,10 @@ namespace SmartLyrics.Common
 
         public override View GetView(int position, View convertView, ViewGroup parent)
         {
-            var view = convertView ?? activity.LayoutInflater.Inflate(Resource.Layout.list_item, parent, false);
-            var titleTxt = view.FindViewById<TextView>(Resource.Id.songTitle);
-            var artistTxt = view.FindViewById<TextView>(Resource.Id.songArtist);
-            var coverImg = view.FindViewById<ImageView>(Resource.Id.cover);
+            View view = convertView ?? activity.LayoutInflater.Inflate(Resource.Layout.list_item, parent, false);
+            TextView titleTxt = view.FindViewById<TextView>(Resource.Id.songTitle);
+            TextView artistTxt = view.FindViewById<TextView>(Resource.Id.songArtist);
+            ImageView coverImg = view.FindViewById<ImageView>(Resource.Id.cover);
 
             titleTxt.Text = songs[position].title;
             artistTxt.Text = songs[position].artist;
