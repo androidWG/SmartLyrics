@@ -1,14 +1,11 @@
 ﻿using Android.Util;
-
 using Microsoft.AppCenter.Crashes;
-
+using SmartLyrics.Common;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Threading.Tasks;
 using System.Xml;
-
-using SmartLyrics.Common;
 using static SmartLyrics.Globals;
 
 namespace SmartLyrics.Toolbox
@@ -61,7 +58,7 @@ namespace SmartLyrics.Toolbox
         {
             Log.WriteLine(LogPriority.Info, "DatabaseHandling", "ReadFromDatabaseFile: Reading database from file...");
             DataTable _dt = new DataTable("db"); //name needs to be the same as the "db" variable
-            
+
             //TODO: better error handling
             try
             {
@@ -98,7 +95,7 @@ namespace SmartLyrics.Toolbox
             Log.WriteLine(LogPriority.Verbose, "DatabaseHandling", "WriteLyrics: Preparing to write lyrics to disk...");
             string _filepath = Path.Combine(lyricsPath, songInfo.Id + lyricsExtension);
 
-            try 
+            try
             {
                 File.WriteAllText(_filepath, songInfo.Lyrics);
                 Log.WriteLine(LogPriority.Info, "DatabaseHandling", "WriteLyrics: Wrote lyrics for {songInfo.title} to disk!");

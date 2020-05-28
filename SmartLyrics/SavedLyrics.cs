@@ -1,29 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using System.Threading.Tasks;
-
-using Android;
+﻿using Android;
 using Android.App;
-using Android.OS;
 using Android.Content;
-using Android.Support.Design.Widget;
-using Android.Support.V4.Widget;
-using Android.Support.V7.App;
-using Android.Widget;
+using Android.OS;
 using Android.Runtime;
-using Android.Views;
-using Android.Util;
+using Android.Support.Constraints;
+using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V4.Content;
-
+using Android.Support.V4.Widget;
+using Android.Support.V7.App;
+using Android.Util;
+using Android.Views;
+using Android.Widget;
 using Plugin.CurrentActivity;
-
-using static SmartLyrics.Globals;
-using SmartLyrics.Toolbox;
 using SmartLyrics.Common;
-using Android.Support.Constraints;
+using SmartLyrics.Toolbox;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using static SmartLyrics.Globals;
 
 namespace SmartLyrics
 {
@@ -88,7 +85,8 @@ namespace SmartLyrics
                 }
             };
 
-            savedList.ChildClick += delegate (object sender, ExpandableListView.ChildClickEventArgs e) {
+            savedList.ChildClick += delegate (object sender, ExpandableListView.ChildClickEventArgs e)
+            {
                 Log.WriteLine(LogPriority.Info, "SavedLyrics", "OnCreate: Clicked on item from grouped list");
                 Intent intent = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
 
@@ -147,7 +145,7 @@ namespace SmartLyrics
                         while (!permissionGranted[0])
                         {
                             await Task.Delay(200);
-                            Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "OnResume: Waiting permission status...");
+                            //Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "OnResume: Waiting permission status...");
                         }
 
                         //reset permission marker
@@ -209,6 +207,7 @@ namespace SmartLyrics
         }
         #endregion
 
+
         private async Task ShowSavedSongs()
         {
             //initialize UI variables
@@ -221,6 +220,8 @@ namespace SmartLyrics
 
             Log.WriteLine(LogPriority.Info, "SavedLyrics", "ShowSavedSongs: CheckAndSetPermissions returened true, trying to read directory...");
             string path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation);
+
+            await MiscTools.CheckAndCreateAppFolders();
             Log.WriteLine(LogPriority.Verbose, "SavedLyrics", $"ShowSavedSongs: Path is \"{path}\"");
 
             List<Song> songList = await DatabaseHandling.GetSongList();

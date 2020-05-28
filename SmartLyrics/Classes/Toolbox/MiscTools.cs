@@ -1,4 +1,9 @@
 ﻿using Android.App;
+using Android.Util;
+
+using System.IO;
+using System.Threading.Tasks;
+
 using static Android.App.ActivityManager;
 
 namespace SmartLyrics.Toolbox
@@ -20,6 +25,33 @@ namespace SmartLyrics.Toolbox
             GetMyMemoryState(myProcess);
 
             return myProcess.Importance == Importance.Foreground;
+        }
+
+        public static async Task CheckAndCreateAppFolders()
+        {
+            string path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, Globals.savedLyricsLocation);
+            string pathImg = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, Globals.savedImagesLocation);
+            //TODO: add IOException handling
+
+            if (Directory.Exists(path))
+            {
+                Log.WriteLine(LogPriority.Verbose, "MiscTools", "CheckAndCreateAppFolders: /Saved Lyrics directory exists!");
+            }
+            else
+            {
+                Directory.CreateDirectory(path);
+                Log.WriteLine(LogPriority.Verbose, "MiscTools", "CheckAndCreateAppFolders: /Saved Lyrics directory doesn't exist, creating...");
+            }
+
+            if (Directory.Exists(pathImg))
+            {
+                Log.WriteLine(LogPriority.Verbose, "MiscTools", "CheckAndCreateAppFolders: /Saved Lyrics/ImageCache directory exists!");
+            }
+            else
+            {
+                Directory.CreateDirectory(pathImg);
+                Log.WriteLine(LogPriority.Verbose, "MiscTools", "CheckAndCreateAppFolders: /Saved Lyrics/ImageCache directory doesn't exist, creating...");
+            }
         }
     }
 }

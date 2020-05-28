@@ -4,17 +4,15 @@ using Android.OS;
 using Android.Service.Notification;
 using Android.Support.V4.App;
 using Android.Util;
-using TaskStackBuilder = Android.Support.V4.App.TaskStackBuilder;
-
 using Newtonsoft.Json.Linq;
 using SmartLyrics.Common;
 using SmartLyrics.Toolbox;
-using static SmartLyrics.Globals;
-using static SmartLyrics.Toolbox.SongParsing;
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static SmartLyrics.Globals;
+using static SmartLyrics.Toolbox.SongParsing;
+using TaskStackBuilder = Android.Support.V4.App.TaskStackBuilder;
 
 namespace SmartLyrics.Services
 {
@@ -33,7 +31,7 @@ namespace SmartLyrics.Services
 
 
         #region Standard Activity Shit
-        public async override void OnCreate()
+        public override async void OnCreate()
         {
             base.OnCreate();
             Log.WriteLine(LogPriority.Info, "NLService", "OnCreate (NLService): Service created");
@@ -46,7 +44,7 @@ namespace SmartLyrics.Services
 
 
         #region Notification Handling
-        public async override void OnListenerConnected()
+        public override async void OnListenerConnected()
         {
             base.OnListenerConnected();
             Log.WriteLine(LogPriority.Info, "NLService", "OnListenerConnected (NLService): Listener connected");
@@ -66,7 +64,7 @@ namespace SmartLyrics.Services
             }
         }
 
-        public async override void OnNotificationPosted(StatusBarNotification sbn)
+        public override async void OnNotificationPosted(StatusBarNotification sbn)
         {
             base.OnNotificationPosted(sbn);
 
@@ -163,7 +161,7 @@ namespace SmartLyrics.Services
             HandleChosenSong(mostLikely);
         }
 
-        private void HandleChosenSong(Song chosen)
+        private async void HandleChosenSong(Song chosen)
         {
             if (chosen.Likeness >= maxLikeness)
             {
@@ -178,11 +176,14 @@ namespace SmartLyrics.Services
                 Log.WriteLine(LogPriority.Warn, "NLService", $"HandleChosenSong: Selected song is {chosen.Title} by {chosen.Artist} with likeness {chosen.Likeness}.");
 
                 MainActivity.notificationSong = chosen;
-                MainActivity.fromNotification = true;
 
                 if (!MiscTools.IsInForeground())
                 {
+                    chosen.Title = await JapaneseTools.StripJapanese(chosen.Title);
+                    chosen.Artist = await JapaneseTools.StripJapanese(chosen.Artist);
+
                     CreateNotification(chosen.Title, chosen.Artist);
+                    MainActivity.fromNotification = true;
                 }
             }
         }

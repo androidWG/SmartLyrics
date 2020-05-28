@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Threading.Tasks;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace SmartLyrics.APIRequests
 {
@@ -9,7 +9,7 @@ namespace SmartLyrics.APIRequests
     {
         public static async Task<string> GetSavedSongs(string authHeader, string url)
         {
-            
+
             using (HttpClient client = new HttpClient())
             {
                 try

@@ -1,10 +1,8 @@
-﻿using System;
+﻿using Android.Util;
+using HtmlAgilityPack;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
-using Android.Util;
-using HtmlAgilityPack;
 
 namespace SmartLyrics.Toolbox
 {

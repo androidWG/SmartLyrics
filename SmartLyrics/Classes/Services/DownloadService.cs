@@ -3,22 +3,19 @@ using Android.Content;
 using Android.OS;
 using Android.Support.V4.App;
 using Android.Util;
-
 using FFImageLoading;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
-
+using SmartLyrics.Common;
+using SmartLyrics.Toolbox;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
-using SmartLyrics.Toolbox;
 using static SmartLyrics.Globals;
 using static SmartLyrics.Toolbox.MiscTools;
-using SmartLyrics.Common;
 
 namespace SmartLyrics.Services
 {

@@ -194,6 +194,9 @@
     <PackageReference Include="Microsoft.AppCenter.Crashes">
       <Version>3.2.1</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp">
+      <Version>3.7.0-1.final</Version>
+    </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.3</Version>
     </PackageReference>
@@ -339,11 +342,6 @@
   <ItemGroup>
     <AndroidResource Include="Resources\layout\main_saved.axml">
       <Generator>MSBuild:UpdateGeneratedFiles</Generator>
-      <SubType>Designer</SubType>
-    </AndroidResource>
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\layout\saved_lyrics.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
   </ItemGroup>
