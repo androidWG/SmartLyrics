@@ -53,7 +53,7 @@ namespace SmartLyrics
         private bool nowPlayingMode = false;
         private bool shouldCheck = false;
         private ISharedPreferences prefs;
-        private string lastView;
+        private string lastView = "";
         private string lastSearch = "";
 
         //! this variable keeps track of multiple simultaneous searches
@@ -93,7 +93,7 @@ namespace SmartLyrics
             TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
 
             AppCenter.Start("b07a2f8e-5d02-4516-aadc-2cba2c27fcf8",
-                   typeof(Analytics), typeof(Crashes));
+                   typeof(Analytics), typeof(Crashes)); //TODO: add Event Trackers
 
             #region UI Variables
             NavigationView navigationView = FindViewById<NavigationView>(Resource.Id.nav_view);
@@ -101,7 +101,6 @@ namespace SmartLyrics
             navigationView.NavigationItemSelected += NavigationView_NavigationViewSelected;
 
             ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
-            EditText searchTxt = FindViewById<EditText>(Resource.Id.searchTxt);
             ImageButton searchBtn = FindViewById<ImageButton>(Resource.Id.searchBtn);
             ImageButton drawerBtn = FindViewById<ImageButton>(Resource.Id.drawerBtn);
             ImageButton coverView = FindViewById<ImageButton>(Resource.Id.coverView);
@@ -261,7 +260,9 @@ namespace SmartLyrics
                 refreshLayout.Visibility = ViewStates.Gone;
                 npTxt.Visibility = ViewStates.Gone;
 
+                searchTxt.RequestFocus();
                 imm.ShowSoftInput(searchTxt, ShowFlags.Forced);
+                imm.ToggleSoftInput(ShowFlags.Forced, HideSoftInputFlags.ImplicitOnly);
             }
         }
 
@@ -269,7 +270,6 @@ namespace SmartLyrics
         {
             #region UI Variables
             ProgressBar searchLoadingWheel = FindViewById<ProgressBar>(Resource.Id.searchLoadingWheel);
-            EditText searchTxt = FindViewById<EditText>(Resource.Id.searchTxt);
             ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
             #endregion
 
@@ -358,7 +358,6 @@ namespace SmartLyrics
             #region UI Variables
             ProgressBar lyricsLoadingWheel = FindViewById<ProgressBar>(Resource.Id.lyricsLoadingWheel);
             ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
-            EditText searchTxt = FindViewById<EditText>(Resource.Id.searchTxt);
             #endregion
 
             Log.WriteLine(LogPriority.Info, "MainActivity", $"SearchResuls_ItemClick: Attempting to display song at position {e.Position} with title {songInfo.Title} and ID {songInfo.Id}.");
@@ -661,7 +660,6 @@ namespace SmartLyrics
             ImageView savedView = FindViewById<ImageView>(Resource.Id.savedView);
             ImageView searchView = FindViewById<ImageView>(Resource.Id.searchView);
 
-            EditText searchTxt = FindViewById<EditText>(Resource.Id.searchTxt);
             TextView headerTxt = FindViewById<TextView>(Resource.Id.headerTxt);
 
             refreshLayout.Visibility = ViewStates.Visible;
@@ -940,7 +938,6 @@ namespace SmartLyrics
         public override void OnBackPressed()
         {
             TextView headerTxt = FindViewById<TextView>(Resource.Id.headerTxt);
-            EditText searchTxt = FindViewById<EditText>(Resource.Id.searchTxt);
             ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
 
             if (searchTxt.Visibility == ViewStates.Visible)
@@ -986,6 +983,7 @@ namespace SmartLyrics
                 string errorMessage = string.Format("Time: {0}\r\nError: Unhandled Exception\r\n{1}",
                         DateTime.Now, exception.ToString());
 
+                System.Diagnostics.Debug.WriteLine(errorMessage);
                 Log.WriteLine(LogPriority.Error, "Crash Report", errorMessage);
                 Crashes.TrackError(exception);
             }
