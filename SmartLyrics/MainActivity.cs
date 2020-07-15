@@ -39,7 +39,7 @@ namespace SmartLyrics
     public class MainActivity : AppCompatActivity, ActivityCompat.IOnRequestPermissionsResultCallback
     {
         private List<Song> resultsToView;
-        public static Song songInfo = new Song();
+        public static Song songInfo;
         public static Song notificationSong;
         private Song previousNtfSong;
 
@@ -77,6 +77,7 @@ namespace SmartLyrics
         TextView faceTxt;
         ConstraintLayout welcomeScreen;
         SwipeRefreshLayout refreshLayout;
+        EditText searchTxt;
 
         #region Standard Activity Shit
         protected override async void OnCreate(Bundle savedInstanceState)
@@ -114,6 +115,7 @@ namespace SmartLyrics
             noResultsTxt = FindViewById<TextView>(Resource.Id.noResultsTxt);
             refreshLayout = FindViewById<SwipeRefreshLayout>(Resource.Id.swipeRefreshLayout);
             welcomeScreen = FindViewById<ConstraintLayout>(Resource.Id.welcomeScreen);
+            searchTxt = FindViewById<EditText>(Resource.Id.searchTxt);
 
             noResultsTxt.Visibility = ViewStates.Invisible;
             faceTxt.Visibility = ViewStates.Invisible;
@@ -130,7 +132,7 @@ namespace SmartLyrics
                 Log.WriteLine(LogPriority.Verbose, "MainActivity", "refreshLayout.Refresh: Refreshing song...");
                 if (!nowPlayingMode && notificationSong != previousNtfSong)
                 {
-                    songLyrics.Text = "";
+                    //songLyrics.Text = "";
 
                     songInfo = notificationSong;
                     previousNtfSong = notificationSong;
@@ -187,7 +189,7 @@ namespace SmartLyrics
                 fromFile = false;
                 await LoadSong();
             }
-            else if (fromNotification)
+            else if (fromNotification && songInfo == null)
             {
                 Log.WriteLine(LogPriority.Info, "MainActivity", "OnResume: From notification, attempting to load");
 
@@ -213,7 +215,6 @@ namespace SmartLyrics
         private void SearchButton_Action()
         {
             TextView headerTxt = FindViewById<TextView>(Resource.Id.headerTxt);
-            EditText searchTxt = FindViewById<EditText>(Resource.Id.searchTxt);
             ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
 
             InputMethodManager imm = (InputMethodManager)GetSystemService(InputMethodService);
@@ -236,10 +237,10 @@ namespace SmartLyrics
                 noResultsTxt.Visibility = ViewStates.Invisible;
                 faceTxt.Visibility = ViewStates.Invisible;
 
-                if (nowPlayingMode)
-                {
-                    npTxt.Visibility = ViewStates.Visible;
-                }
+                //if (nowPlayingMode)
+                //{
+                //    npTxt.Visibility = ViewStates.Visible;
+                //}
             }
             else
             {
@@ -367,6 +368,8 @@ namespace SmartLyrics
 
             nowPlayingMode = false;
             UpdateSong(false, true);
+
+            songInfo = new Song(); //clear variable and initialize it incase it's not initialized already
 
             songInfo.Id = resultsToView.ElementAt(e.Position).Id;
             songInfo.Title = resultsToView.ElementAt(e.Position).Title;
@@ -514,11 +517,11 @@ namespace SmartLyrics
                         Log.WriteLine(LogPriority.Info, "MainActivity", "CheckIfSongIsPlaying: Playing animation on shineView");
                     }
                 }
-                else if (notificationSong == songInfo && !nowPlayingMode)
-                {
-                    Log.WriteLine(LogPriority.Verbose, "MainActivity", "CheckIfSongIsPlaying: Song playing is the same as the one being shown");
-                    nowPlayingMode = true;
-                }
+                //else if (notificationSong == songInfo && !nowPlayingMode)
+                //{
+                //    Log.WriteLine(LogPriority.Verbose, "MainActivity", "CheckIfSongIsPlaying: Song playing is the same as the one being shown");
+                //    nowPlayingMode = true;
+                //}
             }
             else
             {
@@ -538,7 +541,7 @@ namespace SmartLyrics
         {
             CheckIfSongIsPlaying();
             
-            if (nowPlayingMode)
+            if (nowPlayingMode && searchTxt.Visibility != ViewStates.Visible)
             {
                 npTxt.Visibility = ViewStates.Visible;
                 Log.WriteLine(LogPriority.Verbose, "MainActivity", $"CheckTimer_Tick: nowPlayingMode is {nowPlayingMode}, setting to Visible");
@@ -636,10 +639,10 @@ namespace SmartLyrics
 
             songLyrics.TextFormatted = Html.FromHtml(songInfo.Lyrics, FromHtmlOptions.ModeCompact);
 
-            Log.WriteLine(LogPriority.Info, "MainActivity", "GetAndShowLyrics: Showing lyrics");
+            shouldCheck = true;
             refreshLayout.Refreshing = false;
 
-            shouldCheck = true;
+            Log.WriteLine(LogPriority.Info, "MainActivity", "GetAndShowLyrics: Showing lyrics");
         }
         #endregion
 
@@ -769,12 +772,10 @@ namespace SmartLyrics
             savedView.Visibility = ViewStates.Visible;
             infoTxt.Visibility = ViewStates.Visible;
 
-            nowPlayingMode = false;
             refreshLayout.Refreshing = false;
-            
-            Log.WriteLine(LogPriority.Info, "MainActivity", "ReadFromFile: Done reading from file!");
-
             shouldCheck = true;
+
+            Log.WriteLine(LogPriority.Info, "MainActivity", "ReadFromFile: Done reading from file!");
         }
 
         private async Task SaveSong()

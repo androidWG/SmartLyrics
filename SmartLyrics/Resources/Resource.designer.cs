@@ -5535,14 +5535,14 @@ namespace SmartLyrics
 			// aapt resource value: 0x7f1000cf
 			public const int checkbox = 2131755215;
 			
-			// aapt resource value: 0x7f10016b
-			public const int @checked = 2131755371;
+			// aapt resource value: 0x7f10016a
+			public const int @checked = 2131755370;
 			
-			// aapt resource value: 0x7f100166
-			public const int chip = 2131755366;
+			// aapt resource value: 0x7f100165
+			public const int chip = 2131755365;
 			
-			// aapt resource value: 0x7f100169
-			public const int chip_group = 2131755369;
+			// aapt resource value: 0x7f100168
+			public const int chip_group = 2131755368;
 			
 			// aapt resource value: 0x7f100159
 			public const int chronometer = 2131755353;
@@ -5688,8 +5688,8 @@ namespace SmartLyrics
 			// aapt resource value: 0x7f100093
 			public const int filled = 2131755155;
 			
-			// aapt resource value: 0x7f10016a
-			public const int filter_chip = 2131755370;
+			// aapt resource value: 0x7f100169
+			public const int filter_chip = 2131755369;
 			
 			// aapt resource value: 0x7f10012e
 			public const int finishedLayout = 2131755310;
@@ -5799,9 +5799,6 @@ namespace SmartLyrics
 			// aapt resource value: 0x7f100041
 			public const int line3 = 2131755073;
 			
-			// aapt resource value: 0x7f100165
-			public const int linearFullscreen2 = 2131755365;
-			
 			// aapt resource value: 0x7f100104
 			public const int linearLayout = 2131755268;
 			
@@ -5823,8 +5820,8 @@ namespace SmartLyrics
 			// aapt resource value: 0x7f10010c
 			public const int lyricsLoadingWheel = 2131755276;
 			
-			// aapt resource value: 0x7f100170
-			public const int masked = 2131755376;
+			// aapt resource value: 0x7f10016f
+			public const int masked = 2131755375;
 			
 			// aapt resource value: 0x7f100153
 			public const int media_actions = 2131755347;
@@ -5919,17 +5916,17 @@ namespace SmartLyrics
 			// aapt resource value: 0x7f10008a
 			public const int multiply = 2131755146;
 			
-			// aapt resource value: 0x7f100172
-			public const int nav_saved = 2131755378;
-			
 			// aapt resource value: 0x7f100171
-			public const int nav_search = 2131755377;
+			public const int nav_saved = 2131755377;
 			
-			// aapt resource value: 0x7f100174
-			public const int nav_settings = 2131755380;
+			// aapt resource value: 0x7f100170
+			public const int nav_search = 2131755376;
 			
 			// aapt resource value: 0x7f100173
-			public const int nav_spotify = 2131755379;
+			public const int nav_settings = 2131755379;
+			
+			// aapt resource value: 0x7f100172
+			public const int nav_spotify = 2131755378;
 			
 			// aapt resource value: 0x7f100120
 			public const int nav_view = 2131755296;
@@ -5964,11 +5961,11 @@ namespace SmartLyrics
 			// aapt resource value: 0x7f10011e
 			public const int npTxt = 2131755294;
 			
-			// aapt resource value: 0x7f10016e
-			public const int off = 2131755374;
-			
 			// aapt resource value: 0x7f10016d
-			public const int on = 2131755373;
+			public const int off = 2131755373;
+			
+			// aapt resource value: 0x7f10016c
+			public const int on = 2131755372;
 			
 			// aapt resource value: 0x7f100094
 			public const int outline = 2131755156;
@@ -6264,11 +6261,11 @@ namespace SmartLyrics
 			// aapt resource value: 0x7f100049
 			public const int tag_unhandled_key_listeners = 2131755081;
 			
-			// aapt resource value: 0x7f100167
-			public const int test_checkbox_android_button_tint = 2131755367;
+			// aapt resource value: 0x7f100166
+			public const int test_checkbox_android_button_tint = 2131755366;
 			
-			// aapt resource value: 0x7f100168
-			public const int test_checkbox_app_button_tint = 2131755368;
+			// aapt resource value: 0x7f100167
+			public const int test_checkbox_app_button_tint = 2131755367;
 			
 			// aapt resource value: 0x7f10004a
 			public const int text = 2131755082;
@@ -6351,8 +6348,8 @@ namespace SmartLyrics
 			// aapt resource value: 0x7f10001b
 			public const int transition_transform = 2131755035;
 			
-			// aapt resource value: 0x7f10016c
-			public const int @unchecked = 2131755372;
+			// aapt resource value: 0x7f10016b
+			public const int @unchecked = 2131755371;
 			
 			// aapt resource value: 0x7f10009d
 			public const int uniform = 2131755165;
@@ -6369,8 +6366,8 @@ namespace SmartLyrics
 			// aapt resource value: 0x7f100008
 			public const int view_offset_helper = 2131755016;
 			
-			// aapt resource value: 0x7f10016f
-			public const int visible = 2131755375;
+			// aapt resource value: 0x7f10016e
+			public const int visible = 2131755374;
 			
 			// aapt resource value: 0x7f10001d
 			public const int visible_removing_fragment_view_tag = 2131755037;
@@ -6877,55 +6874,58 @@ namespace SmartLyrics
 			public const int preference_widget_switch_compat = 2131034227;
 			
 			// aapt resource value: 0x7f050074
-			public const int saved_lyrics = 2131034228;
+			public const int select_dialog_item_material = 2131034228;
 			
 			// aapt resource value: 0x7f050075
-			public const int select_dialog_item_material = 2131034229;
+			public const int select_dialog_multichoice_material = 2131034229;
 			
 			// aapt resource value: 0x7f050076
-			public const int select_dialog_multichoice_material = 2131034230;
+			public const int select_dialog_singlechoice_material = 2131034230;
 			
 			// aapt resource value: 0x7f050077
-			public const int select_dialog_singlechoice_material = 2131034231;
+			public const int sub_main_song = 2131034231;
 			
 			// aapt resource value: 0x7f050078
-			public const int support_simple_spinner_dropdown_item = 2131034232;
+			public const int sub_main_welcome = 2131034232;
 			
 			// aapt resource value: 0x7f050079
-			public const int test_action_chip = 2131034233;
+			public const int support_simple_spinner_dropdown_item = 2131034233;
 			
 			// aapt resource value: 0x7f05007a
-			public const int test_design_checkbox = 2131034234;
+			public const int test_action_chip = 2131034234;
 			
 			// aapt resource value: 0x7f05007b
-			public const int test_reflow_chipgroup = 2131034235;
+			public const int test_design_checkbox = 2131034235;
 			
 			// aapt resource value: 0x7f05007c
-			public const int test_toolbar = 2131034236;
+			public const int test_reflow_chipgroup = 2131034236;
 			
 			// aapt resource value: 0x7f05007d
-			public const int test_toolbar_custom_background = 2131034237;
+			public const int test_toolbar = 2131034237;
 			
 			// aapt resource value: 0x7f05007e
-			public const int test_toolbar_elevation = 2131034238;
+			public const int test_toolbar_custom_background = 2131034238;
 			
 			// aapt resource value: 0x7f05007f
-			public const int test_toolbar_surface = 2131034239;
+			public const int test_toolbar_elevation = 2131034239;
 			
 			// aapt resource value: 0x7f050080
-			public const int text_view_with_line_height_from_appearance = 2131034240;
+			public const int test_toolbar_surface = 2131034240;
 			
 			// aapt resource value: 0x7f050081
-			public const int text_view_with_line_height_from_layout = 2131034241;
+			public const int text_view_with_line_height_from_appearance = 2131034241;
 			
 			// aapt resource value: 0x7f050082
-			public const int text_view_with_line_height_from_style = 2131034242;
+			public const int text_view_with_line_height_from_layout = 2131034242;
 			
 			// aapt resource value: 0x7f050083
-			public const int text_view_with_theme_line_height = 2131034243;
+			public const int text_view_with_line_height_from_style = 2131034243;
 			
 			// aapt resource value: 0x7f050084
-			public const int text_view_without_line_height = 2131034244;
+			public const int text_view_with_theme_line_height = 2131034244;
+			
+			// aapt resource value: 0x7f050085
+			public const int text_view_without_line_height = 2131034245;
 			
 			static Layout()
 			{
@@ -6963,25 +6963,19 @@ namespace SmartLyrics
 			public const int headerTest = 2130903041;
 			
 			// aapt resource value: 0x7f030002
-			public const int ic_bars = 2130903042;
+			public const int ic_download = 2130903042;
 			
 			// aapt resource value: 0x7f030003
-			public const int ic_download = 2130903043;
+			public const int ic_launcher = 2130903043;
 			
 			// aapt resource value: 0x7f030004
-			public const int ic_launcher = 2130903044;
+			public const int ic_launcher_foreground = 2130903044;
 			
 			// aapt resource value: 0x7f030005
-			public const int ic_launcher_foreground = 2130903045;
+			public const int ic_launcher_round = 2130903045;
 			
 			// aapt resource value: 0x7f030006
-			public const int ic_launcher_round = 2130903046;
-			
-			// aapt resource value: 0x7f030007
-			public const int ic_search = 2130903047;
-			
-			// aapt resource value: 0x7f030008
-			public const int logo = 2130903048;
+			public const int logo = 2130903046;
 			
 			static Mipmap()
 			{

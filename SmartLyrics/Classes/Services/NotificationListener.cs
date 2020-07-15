@@ -26,6 +26,8 @@ namespace SmartLyrics.Services
         private ISharedPreferences prefs;
         private Song previousSong = new Song() { Title = "", Artist = "" };
 
+        NotificationManagerCompat ntfManager;
+
         //max string distance
         private readonly int maxLikeness = 12;
 
@@ -166,10 +168,12 @@ namespace SmartLyrics.Services
             if (chosen.Likeness >= maxLikeness)
             {
                 Log.WriteLine(LogPriority.Error, "NLService", $"HandleChosenSong: Selected song {chosen.Title} by {chosen.Artist} with likeness {chosen.Likeness} is too unlikely.\n Song not found.");
+                ntfManager.Cancel(NOTIFICATION_ID);
             }
             else if (string.IsNullOrEmpty(chosen.Title))
             {
                 Log.WriteLine(LogPriority.Error, "NLService", "HandleChosenSong: Song not found!");
+                ntfManager.Cancel(NOTIFICATION_ID);
             }
             else if (chosen.Likeness <= maxLikeness)
             {
@@ -223,8 +227,8 @@ namespace SmartLyrics.Services
                 .SetContentIntent(resultIntent)
                 .SetPriority(-1);
 
-            NotificationManagerCompat notificationManager = NotificationManagerCompat.From(this);
-            notificationManager.Notify(NOTIFICATION_ID, builder.Build());
+            ntfManager = NotificationManagerCompat.From(this);
+            ntfManager.Notify(NOTIFICATION_ID, builder.Build());
             Log.WriteLine(LogPriority.Info, "NLService", "CreateNotification (NLService): Notification made!");
         }
     }
