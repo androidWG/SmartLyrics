@@ -91,6 +91,7 @@
     <Compile Include="Classes\Toolbox\HTMLParsing.cs" />
     <Compile Include="Classes\Services\NotificationListener.cs" />
     <Compile Include="Classes\Toolbox\JapaneseTools.cs" />
+    <Compile Include="Classes\Toolbox\Logging.cs" />
     <Compile Include="Classes\Toolbox\MiscTools.cs" />
     <Compile Include="Classes\Toolbox\PermissionChecking.cs" />
     <Compile Include="Classes\API Requests\SpotifyRequests.cs" />

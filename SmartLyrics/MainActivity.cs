@@ -525,7 +525,7 @@ namespace SmartLyrics
             }
             else
             {
-                Log.WriteLine(LogPriority.Verbose, "MainActivity", $"CheckIfSongIsPlaying: Should check is {shouldCheck}, IsInForeground is {MiscTools.IsInForeground()}, fromNotification is {fromNotification}");
+                Log.WriteLine(LogPriority.Error, "MainActivity", $"CheckIfSongIsPlaying: ShouldCheck is {shouldCheck}, IsInForeground is {MiscTools.IsInForeground()}, fromNotification is {fromNotification}, NPMode is {nowPlayingMode}");
             }
         }
 
@@ -541,7 +541,7 @@ namespace SmartLyrics
         {
             CheckIfSongIsPlaying();
             
-            if (nowPlayingMode && searchTxt.Visibility != ViewStates.Visible)
+            if (nowPlayingMode/* && searchTxt.Visibility != ViewStates.Visible*/)
             {
                 npTxt.Visibility = ViewStates.Visible;
                 Log.WriteLine(LogPriority.Verbose, "MainActivity", $"CheckTimer_Tick: nowPlayingMode is {nowPlayingMode}, setting to Visible");
@@ -916,7 +916,7 @@ namespace SmartLyrics
         #endregion
 
 
-        #region The stuff that's akways on the bottom
+        #region The stuff that's always on the bottom
         //same on any activity that asks for permissions
         public override async void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
         {
