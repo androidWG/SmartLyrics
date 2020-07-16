@@ -191,6 +191,8 @@ namespace SmartLyrics
             else if (fromNotification && songInfo == null)
             {
                 Log.WriteLine(LogPriority.Info, "MainActivity", "OnResume: From notification, attempting to load");
+                NotificationManagerCompat ntfManager = NotificationManagerCompat.From(this);
+                ntfManager.CancelAll();
 
                 RunOnUiThread(() =>
                 {
@@ -360,7 +362,7 @@ namespace SmartLyrics
             ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
             #endregion
 
-            Log.WriteLine(LogPriority.Info, "MainActivity", $"SearchResuls_ItemClick: Attempting to display song at position {e.Position} with title {songInfo.Title} and ID {songInfo.Id}.");
+            Log.WriteLine(LogPriority.Info, "MainActivity", $"SearchResuls_ItemClick: Attempting to display song at position {e.Position}.");
 
             InputMethodManager imm = (InputMethodManager)GetSystemService(InputMethodService);
             imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0);
@@ -433,9 +435,10 @@ namespace SmartLyrics
             IList<JToken> parsedList = parsed["response"]["hits"].Children().ToList();
             Log.WriteLine(LogPriority.Verbose, "MainActivity", "GetAndShowSearchResults: Parsed results into list");
 
+            List<Song> resultsList = new List<Song>();
             if (parsedList.Count != 0)
             {
-                resultsToView = new List<Song>();
+                resultsList = new List<Song>();
                 foreach (JToken result in parsedList)
                 {
                     Song song = new Song()
@@ -449,27 +452,31 @@ namespace SmartLyrics
                         Path = (string)result["result"]["path"]
                     };
 
-                    resultsToView.Add(song);
+                    resultsList.Add(song);
                 }
                 Log.WriteLine(LogPriority.Verbose, "MainActivity", "GetAndShowSearchResults: Created results list for listVew");
 
                 if (index == t.Count)
                 {
-                    SearchResultAdapter adapter = new SearchResultAdapter(this, resultsToView);
+                    SearchResultAdapter adapter = new SearchResultAdapter(this, resultsList);
                     searchResults.Adapter = adapter;
 
-                    Log.WriteLine(LogPriority.Info, "MainActivity", $"GetAndShowSearchResults: Added results of {index}, query {query} to activity view at count {t.Count}");
+                    resultsToView = resultsList;
+
+                    Log.WriteLine(LogPriority.Verbose, "MainActivity", $"GetAndShowSearchResults: Added results of {index}, query {query} to activity view at count {t.Count}");
                 }
                 else
                 {
-                    Log.WriteLine(LogPriority.Warn, "MainActivity", $"GetAndShowSearchResults: Results of index {index}, query {query} is smaller than Task list of size {t.Count}");
+                    Log.WriteLine(LogPriority.Verbose, "MainActivity", $"GetAndShowSearchResults: Results of index {index}, query {query} is smaller than Task list of size {t.Count}");
                 }
             }
             else
             {
-                resultsToView = new List<Song>();
-                SearchResultAdapter adapter = new SearchResultAdapter(this, resultsToView);
+                resultsList = new List<Song>();
+                SearchResultAdapter adapter = new SearchResultAdapter(this, resultsList);
                 searchResults.Adapter = adapter;
+
+                resultsToView = resultsList;
 
                 noResultsTxt.Visibility = ViewStates.Visible;
                 faceTxt.Visibility = ViewStates.Visible;
@@ -524,7 +531,7 @@ namespace SmartLyrics
             }
             else
             {
-                Log.WriteLine(LogPriority.Error, "MainActivity", $"CheckIfSongIsPlaying: ShouldCheck is {shouldCheck}, IsInForeground is {MiscTools.IsInForeground()}, fromNotification is {fromNotification}, NPMode is {nowPlayingMode}");
+                //Log.WriteLine(LogPriority.Error, "MainActivity", $"CheckIfSongIsPlaying: ShouldCheck is {shouldCheck}, IsInForeground is {MiscTools.IsInForeground()}, fromNotification is {fromNotification}, NPMode is {nowPlayingMode}");
             }
         }
 
@@ -543,12 +550,15 @@ namespace SmartLyrics
             if (nowPlayingMode/* && searchTxt.Visibility != ViewStates.Visible*/)
             {
                 npTxt.Visibility = ViewStates.Visible;
-                Log.WriteLine(LogPriority.Verbose, "MainActivity", $"CheckTimer_Tick: nowPlayingMode is {nowPlayingMode}, setting to Visible");
             }
             else
             {
                 npTxt.Visibility = ViewStates.Gone;
-                Log.WriteLine(LogPriority.Verbose, "MainActivity", $"CheckTimer_Tick: nowPlayingMode is {nowPlayingMode}, setting to Gone");
+            }
+
+            if (searchTxt.Visibility == ViewStates.Visible)
+            {
+
             }
         }
 
@@ -834,7 +844,7 @@ namespace SmartLyrics
         #region Tools
         private void UpdateSong(bool updateImages, bool clearLabels, bool imagesOnDisk = false)
         {
-            Log.WriteLine(LogPriority.Info, "MainActivity", $"UpdateSong: Started updating, updateImages is {updateImages}, clearLabels is {clearLabels} and imagesOnDisk is {imagesOnDisk}");
+            //Log.WriteLine(LogPriority.Info, "MainActivity", $"UpdateSong: Started updating, updateImages is {updateImages}, clearLabels is {clearLabels} and imagesOnDisk is {imagesOnDisk}");
             TextView songLyrics = FindViewById<TextView>(Resource.Id.songLyrics);
             TextView songTitle = FindViewById<TextView>(Resource.Id.songTitle);
             TextView songArtist = FindViewById<TextView>(Resource.Id.songArtist);
@@ -860,7 +870,7 @@ namespace SmartLyrics
                 songTitle.Text = songInfo.Title;
                 songArtist.Text = songInfo.Artist;
                 songAlbum.Text = songInfo.Album;
-                if (songInfo.FeaturedArtist == "")
+                if (string.IsNullOrEmpty(songInfo.FeaturedArtist))
                 {
                     songFeat.Visibility = ViewStates.Gone;
                 }
