@@ -7123,6 +7123,9 @@ namespace SmartLyrics
 			// aapt resource value: 0x7f0e0000
 			public const int copy = 2131623936;
 			
+			// aapt resource value: 0x7f0e009b
+			public const int coverSearchDesc = 2131624091;
+			
 			// aapt resource value: 0x7f0e0061
 			public const int descCover = 2131624033;
 			
@@ -7440,6 +7443,9 @@ namespace SmartLyrics
 			
 			// aapt resource value: 0x7f0e0082
 			public const int readError = 2131624066;
+			
+			// aapt resource value: 0x7f0e009a
+			public const int sadFace = 2131624090;
 			
 			// aapt resource value: 0x7f0e0081
 			public const int saveError = 2131624065;

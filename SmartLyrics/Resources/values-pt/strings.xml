@@ -20,9 +20,7 @@
     <string name="descCover">Capa do album da música, toque para salva essa letra no seu dispositivo</string>
     <string name="descHeader">Imagem do cabeçalho de fundo para esta música</string>
     <string name="descDecorationBG">Imagem de fundo de decoração</string>
-    <string name="mainWelcome">Comece a reproduzir qualquer música em seu aplicativo favorito para ver a letra exibida
-        aqui ou use a barra de pesquisa no topo da tela para pesquisar uma música.
-    </string>
+    <string name="mainWelcome">Comece a reproduzir qualquer música em seu aplicativo favorito para ver a letra exibida aqui ou use o bot\'ao de pesquisa no topo da tela para pesquisar uma música.</string>
     <string name="mainWelcomeHeader">BEM-VINDO AO SMARTLYRICS</string>
     <string name="mainGotoSaved">IR PARA LETRAS SALVAS</string>
     <string name="descSeacrhBtn">Mostar barra de pesquisa</string>
@@ -83,4 +81,5 @@
     <string name="noResults">Nenhum resultado</string>
     <string name="prefDetectSummary">Detectar músicas tocando em aplicativos de streaming e mostrar letras quando estiver no aplicativo. Desativar isso também desativa o serviço de detecção de plano de fundo.</string>
     <string name="prefDetect">Detectar músicas tocando em segundo plano</string>
+    <string name="coverSearchDesc">Imagem de capa da música</string>
 </resources>

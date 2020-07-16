@@ -124,6 +124,11 @@ namespace SmartLyrics
             //Load preferences
             prefs = AndroidX.Preference.PreferenceManager.GetDefaultSharedPreferences(this);
 
+            //if (!fromNotification)
+            //{
+
+            //}
+
             InitTimer();
 
             #region Event Subscriptions
