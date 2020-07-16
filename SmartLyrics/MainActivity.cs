@@ -56,20 +56,21 @@ namespace SmartLyrics
         private string lastView = "";
         private string lastSearch = "";
 
-        //! this variable keeps track of multiple simultaneous searches
-        //! that happen while you're typing. this list contains no relevant content
-        //! the GetAndShowSearchResults method just uses it to compare the size of
+        //! This variable keeps track of multiple simultaneous searches
+        //! that happen while you're typing. This list contains no relevant content.
+        //! The GetAndShowSearchResults method just uses it to compare the size of
         //! the list when the method started and when results are ready to show up.
-        //? there's almost definitely a better way of keeping track of the newest
-        //? search then the size of a lize (int variable for example)
+        //? There's almost definitely a better way of keeping track of the newest
+        //? search then the size of a list (int variable for example).
         private readonly List<string> t = new List<string>();
 
-        //! used to alert a method that called PermissionChecking.CheckAndSetPermissions
+        //! Used to alert a method that called PermissionChecking.CheckAndSetPermissions
         //! that the user made their decision
         //----------------------------
-        //! index 0 is the status of the permission (true = arrived, false = didn't arrive)
-        //! index 1 is the result (true = granted, false = denied)
-        //same on any activity that asks for permissions
+        //! Index 0 is the status of the permission (true = arrived, false = didn't arrive)
+        //! Index 1 is the result (true = granted, false = denied)
+        //? There's 100% totally a better way to do this but I'm lazy
+        //  Same on any activity that asks for permissions
         private readonly bool[] permissionGranted = new bool[2] { false, false };
         TextView npTxt;
         ImageView shineView;
@@ -88,7 +89,7 @@ namespace SmartLyrics
             CrossCurrentActivity.Current.Init(this, savedInstanceState);
             Log.WriteLine(LogPriority.Info, "MainActivity", "OnCreate: Loaded view");
 
-            //startup error handling
+            //Startup error handling
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
             TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
 
@@ -120,7 +121,7 @@ namespace SmartLyrics
             faceTxt.Visibility = ViewStates.Invisible;
             #endregion
 
-            //load preferences
+            //Load preferences
             prefs = AndroidX.Preference.PreferenceManager.GetDefaultSharedPreferences(this);
 
             InitTimer();
@@ -131,8 +132,6 @@ namespace SmartLyrics
                 Log.WriteLine(LogPriority.Verbose, "MainActivity", "refreshLayout.Refresh: Refreshing song...");
                 if (!nowPlayingMode && notificationSong != previousNtfSong)
                 {
-                    //songLyrics.Text = "";
-
                     songInfo = notificationSong;
                     previousNtfSong = notificationSong;
                     nowPlayingMode = true;
@@ -292,7 +291,7 @@ namespace SmartLyrics
 
                 Log.WriteLine(LogPriority.Verbose, "MainActivity", "SearchKeybaordButton_Action: Started search...");
 
-                //pass on index property to GetAndShowSearchResults to keep track of most recent query
+                //Pass on index property to GetAndShowSearchResults to keep track of most recent query
                 await GetAndShowSearchResults(searchTxt.Text, index);
 
                 searchLoadingWheel.Visibility = ViewStates.Gone;
@@ -303,7 +302,7 @@ namespace SmartLyrics
         {
             Log.WriteLine(LogPriority.Verbose, "MainActivity", "SaveButton_Action: Clicked on save button");
 
-            //check for write permissions
+            //Check for write permissions
             Log.WriteLine(LogPriority.Verbose, "MainActivity", "SaveButton_Action: Checking write permission...");
             string permission = Manifest.Permission.WriteExternalStorage;
             int permissionStatus = await PermissionChecking.CheckAndSetPermissions(permission, this);
@@ -332,7 +331,7 @@ namespace SmartLyrics
                         Log.WriteLine(LogPriority.Verbose, "MainActivity", "SaveButton_Action: Waiting permission status...");
                     }
 
-                    //reset permission marker
+                    //Reset permission marker
                     permissionGranted[0] = false;
 
                     if (permissionGranted[1])
@@ -370,7 +369,7 @@ namespace SmartLyrics
             nowPlayingMode = false;
             UpdateSong(false, true);
 
-            songInfo = new Song(); //clear variable and initialize it incase it's not initialized already
+            songInfo = new Song(); //Clear variable and initialize it incase it's not initialized already
 
             songInfo.Id = resultsToView.ElementAt(e.Position).Id;
             songInfo.Title = resultsToView.ElementAt(e.Position).Title;
@@ -488,7 +487,7 @@ namespace SmartLyrics
 
         private async void CheckIfSongIsPlaying()
         {
-            if (shouldCheck && MiscTools.IsInForeground() && !fromNotification) //checks for the user coming from outside the app are made on OnResume method
+            if (shouldCheck && MiscTools.IsInForeground() && !fromNotification) //Checks for the user coming from outside the app are made on OnResume method
             {
                 if (notificationSong != previousNtfSong)
                 {
@@ -528,10 +527,6 @@ namespace SmartLyrics
                 //    Log.WriteLine(LogPriority.Verbose, "MainActivity", "CheckIfSongIsPlaying: Song playing is the same as the one being shown");
                 //    nowPlayingMode = true;
                 //}
-            }
-            else
-            {
-                //Log.WriteLine(LogPriority.Error, "MainActivity", $"CheckIfSongIsPlaying: ShouldCheck is {shouldCheck}, IsInForeground is {MiscTools.IsInForeground()}, fromNotification is {fromNotification}, NPMode is {nowPlayingMode}");
             }
         }
 
@@ -578,7 +573,6 @@ namespace SmartLyrics
             songInfo.Cover = (string)parsed["response"]["song"]["song_art_image_url"];
             songInfo.APIPath = (string)parsed["response"]["song"]["api_path"];
             songInfo.Path = (string)parsed["response"]["song"]["path"];
-            //Log.WriteLine(LogPriority.Verbose, "MainActivity", "GetAndShowSongDetails: Updated song values");
 
             if (parsed["response"]["song"]["featured_artists"].HasValues)
             {
@@ -604,7 +598,7 @@ namespace SmartLyrics
                 songInfo.FeaturedArtist = "";
             }
 
-            //exceute all Japanese transliteration tasks at once
+            //Exceute all Japanese transliteration tasks at once
             if (songInfo.Title.ContainsJapanese() || songInfo.Artist.ContainsJapanese())
             {
                 Task<string> awaitTitle = songInfo.Title.StripJapanese();
@@ -657,8 +651,8 @@ namespace SmartLyrics
 
 
         #region Song Loading
-        //handles all song loading by itself. can be called at anytime
-        //if songInfo contains a song path
+        //Handles all song loading by itself.
+        //Can be called at anytime if songInfo contains a song path
         private async Task LoadSong()
         {
             Log.WriteLine(LogPriority.Info, "MainActivity", "LoadSong: Started LoadSong method");
@@ -678,7 +672,7 @@ namespace SmartLyrics
             welcomeScreen.Visibility = ViewStates.Gone;
             #endregion
 
-            //check if song is downloaded
+            //Check if song is downloaded
             if (await DatabaseHandling.GetSongFromTable(songInfo.Id) == null)
             {
                 Log.WriteLine(LogPriority.Info, "MainActivity", "LoadSong: File for song doesn't exist, getting data from APIRequests.Genius...");
@@ -726,7 +720,7 @@ namespace SmartLyrics
                             Log.WriteLine(LogPriority.Verbose, "MainActivity", "SaveButton_Action: Waiting permission status...");
                         }
 
-                        //reset permission marker
+                        //Reset permission marker
                         permissionGranted[0] = false;
 
                         if (permissionGranted[1])
@@ -767,7 +761,7 @@ namespace SmartLyrics
             using (StreamReader sr = File.OpenText(path))
             {
                 //songInfo is already loaded, load lyrics and images from disk
-                //TODO: add error handling
+                //TODO: Add error handling
                 songInfo.Lyrics = await sr.ReadToEndAsync();
 
                 Log.WriteLine(LogPriority.Verbose, "MainActivity", "ReadFromFile: Read lyrics from file");
@@ -792,14 +786,14 @@ namespace SmartLyrics
 
             await MiscTools.CheckAndCreateAppFolders();
 
-            //header and cover images are always saved on a separate folder with
-            //the song's ID to identify it
+            //Header and cover images are always saved on a separate folder with
+            //the song's ID to identify it.
             string pathHeader = Path.Combine(pathImg, songInfo.Id + "-header.jpg");
             string pathCover = Path.Combine(pathImg, songInfo.Id + "-cover.jpg");
 
             if (await DatabaseHandling.WriteInfoAndLyrics(songInfo))
             {
-                //show Snackbar alerting user of success
+                //Show Snackbar alerting user of success
                 ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
                 Snackbar snackbar = Snackbar.Make(layout, Resource.String.savedSuccessfully, Snackbar.LengthLong);
                 snackbar.Show();
@@ -813,7 +807,7 @@ namespace SmartLyrics
                 Log.WriteLine(LogPriority.Warn, "MainActivity", "SaveSong: Song already exists!");
             }
 
-            //save header and cover images based on preferences
+            //Save header and cover images based on preferences
             if (prefs.GetBoolean("save_header", true))
             {
                 using (FileStream fileStream = File.Create(pathHeader))
@@ -844,7 +838,6 @@ namespace SmartLyrics
         #region Tools
         private void UpdateSong(bool updateImages, bool clearLabels, bool imagesOnDisk = false)
         {
-            //Log.WriteLine(LogPriority.Info, "MainActivity", $"UpdateSong: Started updating, updateImages is {updateImages}, clearLabels is {clearLabels} and imagesOnDisk is {imagesOnDisk}");
             TextView songLyrics = FindViewById<TextView>(Resource.Id.songLyrics);
             TextView songTitle = FindViewById<TextView>(Resource.Id.songTitle);
             TextView songArtist = FindViewById<TextView>(Resource.Id.songArtist);
@@ -858,8 +851,6 @@ namespace SmartLyrics
                 songArtist.Text = "";
                 songAlbum.Text = "";
                 songFeat.Text = "";
-
-                Log.WriteLine(LogPriority.Verbose, "MainActivity", "UpdateSong: Cleared labels");
             }
             else
             {
@@ -919,13 +910,13 @@ namespace SmartLyrics
                 }
             }
 
-            Log.WriteLine(LogPriority.Info, "MainActivity", "UpdateSong: Finished updating");
+            Log.WriteLine(LogPriority.Info, "MainActivity", "UpdateSong: Finished updating from songInfo");
         }
         #endregion
 
 
         #region The stuff that's always on the bottom
-        //same on any activity that asks for permissions
+        //Same on any activity that asks for permissions
         public override async void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
         {
             Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -999,10 +990,11 @@ namespace SmartLyrics
             }
             catch
             {
-                // just suppress any error logging exceptions
+                //Just suppress any error logging exceptions
             }
         }
 
+        //TODO: Finish exception handling
         // If there is an unhandled exception, the exception information is diplayed 
         // on screen the next time the app is started (only in debug configuration)
         [Conditional("DEBUG")]
