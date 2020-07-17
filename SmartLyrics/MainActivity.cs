@@ -122,46 +122,11 @@ namespace SmartLyrics
             //Inflate layouts
             if (!fromNotification)
             {
-                welcomeView = LayoutInflater.Inflate(Resource.Layout.sub_main_welcome, dynamicLayout, false);
-                dynamicLayout.AddView(welcomeView);
-                Log.WriteLine(LogPriority.Info, "MainActivity", "OnCreate: Inflated Welcome layout");
-
-                Button gotoLyricsBtn = FindViewById<Button>(Resource.Id.gotoLyricsBtn);
-                gotoLyricsBtn.Click += delegate
-                {
-                    Intent intent = new Intent(this, typeof(SavedLyrics)).SetFlags(ActivityFlags.ReorderToFront);
-                    StartActivity(intent);
-                };
+                InflateWelcome();
             }
             else
             {
-                songView = LayoutInflater.Inflate(Resource.Layout.sub_main_song, dynamicLayout, false);
-                dynamicLayout.AddView(songView);
-                Log.WriteLine(LogPriority.Info, "MainActivity", "OnCreate: Inflated Song layout");
-
-                SwipeRefreshLayout refreshLayout = FindViewById<SwipeRefreshLayout>(Resource.Id.swipeRefreshLayout);
-                ImageButton coverView = FindViewById<ImageButton>(Resource.Id.coverView);
-                
-                coverView.Click += async delegate { await SaveButton_Action(); };
-                refreshLayout.Refresh += async delegate
-                {
-                    Log.WriteLine(LogPriority.Verbose, "MainActivity", "refreshLayout.Refresh: Refreshing song...");
-                    if (!nowPlayingMode && notificationSong != previousNtfSong)
-                    {
-                        songInfo = notificationSong;
-                        previousNtfSong = notificationSong;
-                        nowPlayingMode = true;
-
-                        await LoadSong();
-                    }
-                    else
-                    {
-                        await LoadSong();
-                        refreshLayout.Refreshing = false;
-                    }
-                };
-                
-                shineView = FindViewById<ImageView>(Resource.Id.shineView);
+                InflateSong();
             }
 
             InitTimer();
@@ -202,7 +167,7 @@ namespace SmartLyrics
                 fromFile = false;
                 await LoadSong();
             }
-            else if (fromNotification && songInfo == null)
+            else if (fromNotification)
             {
                 Log.WriteLine(LogPriority.Info, "MainActivity", "OnResume: From notification, attempting to load");
                 NotificationManagerCompat ntfManager = NotificationManagerCompat.From(this);
@@ -211,11 +176,20 @@ namespace SmartLyrics
                 songInfo = notificationSong;
                 previousNtfSong = notificationSong;
 
+                fromNotification = false;
                 shouldCheck = false;
                 nowPlayingMode = true;
-                fromNotification = false;
                 await LoadSong();
             }
+        }
+
+        protected override void OnStop()
+        {
+            base.OnStop();
+
+            Log.WriteLine(LogPriority.Verbose, "MainActivity", "OnStop: OnStop started");
+            notificationSong = new Song();
+            previousNtfSong = notificationSong;
         }
         #endregion
 
@@ -230,29 +204,30 @@ namespace SmartLyrics
 
             if (searchTxt.Visibility == ViewStates.Visible && lastSearch == searchTxt.Text)
             {
-                dynamicLayout.Visibility = ViewStates.Visible;
+                RunOnUiThread(() =>
+                {
+                    dynamicLayout.Visibility = ViewStates.Visible;
 
-                headerTxt.Visibility = ViewStates.Visible;
-                searchTxt.Visibility = ViewStates.Gone;
-                searchResults.Visibility = ViewStates.Gone;
+                    headerTxt.Visibility = ViewStates.Visible;
+                    searchTxt.Visibility = ViewStates.Gone;
+                    searchResults.Visibility = ViewStates.Gone;
 
-                noResultsTxt.Visibility = ViewStates.Invisible;
-                faceTxt.Visibility = ViewStates.Invisible;
-
-                //if (nowPlayingMode)
-                //{
-                //    npTxt.Visibility = ViewStates.Visible;
-                //}
+                    noResultsTxt.Visibility = ViewStates.Invisible;
+                    faceTxt.Visibility = ViewStates.Invisible;
+                });
             }
             else
             {
-                dynamicLayout.Visibility = ViewStates.Gone;
+                RunOnUiThread(() =>
+                {
+                    dynamicLayout.Visibility = ViewStates.Gone;
 
-                searchResults.Visibility = ViewStates.Visible;
-                headerTxt.Visibility = ViewStates.Gone;
-                searchTxt.Visibility = ViewStates.Visible;
+                    searchResults.Visibility = ViewStates.Visible;
+                    headerTxt.Visibility = ViewStates.Gone;
+                    searchTxt.Visibility = ViewStates.Visible;
 
-                npTxt.Visibility = ViewStates.Gone;
+                    npTxt.Visibility = ViewStates.Gone;
+                });
 
                 searchTxt.RequestFocus();
                 imm.ShowSoftInput(searchTxt, ShowFlags.Forced);
@@ -354,9 +329,7 @@ namespace SmartLyrics
                 dynamicLayout.RemoveView(welcomeView);
                 welcomeView = null;
 
-                songView = LayoutInflater.Inflate(Resource.Layout.sub_main_song, dynamicLayout, false);
-                dynamicLayout.AddView(songView);
-                Log.WriteLine(LogPriority.Info, "MainActivity", "SearchResuls_ItemClick: Inflated Song layout");
+                InflateSong();
             }
 
             dynamicLayout.Visibility = ViewStates.Visible;
@@ -374,15 +347,16 @@ namespace SmartLyrics
             nowPlayingMode = false;
             UpdateSong(false, true);
 
-            songInfo = new Song(); //Clear variable and initialize it incase it's not initialized already
-
-            songInfo.Id = resultsToView.ElementAt(e.Position).Id;
-            songInfo.Title = resultsToView.ElementAt(e.Position).Title;
-            songInfo.Artist = resultsToView.ElementAt(e.Position).Artist;
-            songInfo.Header = resultsToView.ElementAt(e.Position).Header;
-            songInfo.Cover = resultsToView.ElementAt(e.Position).Cover;
-            songInfo.APIPath = resultsToView.ElementAt(e.Position).APIPath;
-            songInfo.Path = resultsToView.ElementAt(e.Position).Path;
+            songInfo = new Song
+            {
+                Id = resultsToView.ElementAt(e.Position).Id,
+                Title = resultsToView.ElementAt(e.Position).Title,
+                Artist = resultsToView.ElementAt(e.Position).Artist,
+                Header = resultsToView.ElementAt(e.Position).Header,
+                Cover = resultsToView.ElementAt(e.Position).Cover,
+                APIPath = resultsToView.ElementAt(e.Position).APIPath,
+                Path = resultsToView.ElementAt(e.Position).Path
+            }; //Clear variable and initialize it incase it's not initialized already
             Log.WriteLine(LogPriority.Verbose, "MainActivity", "SearchResuls_ItemClick: Added info to class");
 
             lyricsLoadingWheel.Visibility = ViewStates.Visible;
@@ -494,7 +468,7 @@ namespace SmartLyrics
         {
             if (shouldCheck && MiscTools.IsInForeground() && !fromNotification) //Checks for the user coming from outside the app are made on OnResume method
             {
-                if (notificationSong != previousNtfSong)
+                if (!notificationSong.Equals(previousNtfSong))
                 {
                     Log.WriteLine(LogPriority.Info, "MainActivity", "CheckIfSongIsPlaying: Song playing is different, updating...");
 
@@ -527,11 +501,6 @@ namespace SmartLyrics
                         Log.WriteLine(LogPriority.Info, "MainActivity", "CheckIfSongIsPlaying: Playing animation on shineView");
                     }
                 }
-                //else if (notificationSong == songInfo && !nowPlayingMode)
-                //{
-                //    Log.WriteLine(LogPriority.Verbose, "MainActivity", "CheckIfSongIsPlaying: Song playing is the same as the one being shown");
-                //    nowPlayingMode = true;
-                //}
             }
         }
 
@@ -563,32 +532,30 @@ namespace SmartLyrics
         {
             Log.WriteLine(LogPriority.Info, "MainActivity", "GetAndShowSongDetails: Starting GetSongDetails operation");
             string results = await HTTPRequests.GetRequest(geniusAPIURL + songInfo.APIPath, geniusAuthHeader);
+
             JObject parsed = JObject.Parse(results);
+            parsed = (JObject)parsed["response"]["song"]; //Change root to song
             Log.WriteLine(LogPriority.Verbose, "MainActivity", "GetAndShowSongDetails: Results parsed into JObject");
 
-            songInfo.Title = (string)parsed["response"]["song"]["title"];
-            songInfo.Artist = (string)parsed["response"]["song"]["primary_artist"]["name"];
-            songInfo.Album = (string)parsed["response"]["song"]["album"]["name"];
-            songInfo.Header = (string)parsed["response"]["song"]["header_image_url"];
-            songInfo.Cover = (string)parsed["response"]["song"]["song_art_image_url"];
-            songInfo.APIPath = (string)parsed["response"]["song"]["api_path"];
-            songInfo.Path = (string)parsed["response"]["song"]["path"];
+            songInfo.Title = (string)parsed["title"];
+            songInfo.Artist = (string)parsed["primary_artist"]["name"];
+            if (parsed["album"].HasValues) { songInfo.Album = (string)parsed["album"]["name"]; }
+            songInfo.Header = (string)parsed["header_image_url"];
+            songInfo.Cover = (string)parsed["song_art_image_url"];
+            songInfo.APIPath = (string)parsed["api_path"];
+            songInfo.Path = (string)parsed["path"];
 
-            if (parsed["response"]["song"]["featured_artists"].HasValues)
+            if (parsed["featured_artists"].HasValues)
             {
-                IList<JToken> parsedList = parsed["response"]["song"]["featured_artists"].Children().ToList();
+                IList<JToken> parsedList = parsed["featured_artists"].Children().ToList();
 
                 songInfo.FeaturedArtist = "feat. ";
                 foreach (JToken artist in parsedList)
                 {
                     if (songInfo.FeaturedArtist == "feat. ")
-                    {
-                        songInfo.FeaturedArtist += artist["name"].ToString();
-                    }
+                    { songInfo.FeaturedArtist += artist["name"].ToString(); }
                     else
-                    {
-                        songInfo.FeaturedArtist += ", " + artist["name"].ToString();
-                    }
+                    { songInfo.FeaturedArtist += ", " + artist["name"].ToString(); }
                 }
 
                 Log.WriteLine(LogPriority.Info, "MainActivity", "GetAndShowSongDetails: Added featured artists to songInfo");
@@ -635,16 +602,28 @@ namespace SmartLyrics
             songInfo.Lyrics = await HTMLParsing.ParseHTML(doc);
             Log.WriteLine(LogPriority.Verbose, "MainActivity", "GetAndShowLyrics: Parsed HTML");
 
-            fabMore.Visibility = ViewStates.Visible;
-            savedView.Visibility = ViewStates.Gone;
-            infoTxt.Visibility = ViewStates.Visible;
-            lyricsLoadingWheel.Visibility = ViewStates.Gone;
+            RunOnUiThread(() =>
+            {
+                fabMore.Visibility = ViewStates.Visible;
+                savedView.Visibility = ViewStates.Gone;
+                infoTxt.Visibility = ViewStates.Visible;
+                lyricsLoadingWheel.Visibility = ViewStates.Gone;
 
-            songLyrics.TextFormatted = Html.FromHtml(songInfo.Lyrics, FromHtmlOptions.ModeCompact);
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.N)
+                {
+                    songLyrics.TextFormatted = Html.FromHtml(songInfo.Lyrics, FromHtmlOptions.ModeCompact);
+                }
+                else
+                {
+                    #pragma warning disable CS0618 // Type or member is obsolete
+                    songLyrics.TextFormatted = Html.FromHtml(songInfo.Lyrics);
+                    #pragma warning restore CS0618 // Type or member is obsolete
+                }
+
+                refreshLayout.Refreshing = false;
+            });
 
             shouldCheck = true;
-            refreshLayout.Refreshing = false;
-
             Log.WriteLine(LogPriority.Info, "MainActivity", "GetAndShowLyrics: Showing lyrics");
         }
         #endregion
@@ -662,9 +641,7 @@ namespace SmartLyrics
                 dynamicLayout.RemoveView(welcomeView);
                 welcomeView = null;
 
-                songView = LayoutInflater.Inflate(Resource.Layout.sub_main_song, dynamicLayout, false);
-                dynamicLayout.AddView(songView);
-                Log.WriteLine(LogPriority.Verbose, "MainActivity", "OnCreate: Inflated Song layout");
+                InflateSong();
             }
 
             #region UI Variables
@@ -684,10 +661,11 @@ namespace SmartLyrics
 
                 savedView.Visibility = ViewStates.Gone;
 
-                GetAndShowSongDetails();
                 try //TODO: Change this
                 {
-                    await GetAndShowLyrics();
+                    Task getDetails = GetAndShowSongDetails();
+                    Task getLyrics = GetAndShowLyrics();
+                    await Task.WhenAll(getDetails, getLyrics);
                 }
                 catch (NullReferenceException ex)
                 {
@@ -841,6 +819,41 @@ namespace SmartLyrics
 
 
         #region Tools
+        internal void InflateWelcome()
+        {
+            welcomeView = LayoutInflater.Inflate(Resource.Layout.sub_main_welcome, dynamicLayout, false);
+            dynamicLayout.AddView(welcomeView);
+            Log.WriteLine(LogPriority.Info, "InflateWelcome", "OnCreate: Inflated Welcome layout");
+
+            Button gotoLyricsBtn = FindViewById<Button>(Resource.Id.gotoLyricsBtn);
+            gotoLyricsBtn.Click += delegate
+            {
+                Intent intent = new Intent(this, typeof(SavedLyrics)).SetFlags(ActivityFlags.ReorderToFront);
+                StartActivity(intent);
+            };
+        }
+
+        internal void InflateSong()
+        {
+            songView = LayoutInflater.Inflate(Resource.Layout.sub_main_song, dynamicLayout, false);
+            dynamicLayout.AddView(songView);
+            Log.WriteLine(LogPriority.Info, "MainActivity", "InflateSong: Inflated Song layout");
+
+            SwipeRefreshLayout refreshLayout = FindViewById<SwipeRefreshLayout>(Resource.Id.swipeRefreshLayout);
+            ImageButton coverView = FindViewById<ImageButton>(Resource.Id.coverView);
+
+            coverView.Click += async delegate { await SaveButton_Action(); };
+            refreshLayout.Refresh += async delegate
+            {
+                Log.WriteLine(LogPriority.Verbose, "MainActivity", "refreshLayout.Refresh: Refreshing song...");
+
+                await LoadSong();
+                refreshLayout.Refreshing = false;
+            };
+
+            shineView = FindViewById<ImageView>(Resource.Id.shineView);
+        }
+
         private void UpdateSong(bool updateImages, bool clearLabels, bool imagesOnDisk = false)
         {
             TextView songLyrics = FindViewById<TextView>(Resource.Id.songLyrics);
@@ -849,35 +862,38 @@ namespace SmartLyrics
             TextView songAlbum = FindViewById<TextView>(Resource.Id.songAlbum);
             TextView songFeat = FindViewById<TextView>(Resource.Id.songFeat);
 
-            if (clearLabels)
+            RunOnUiThread(() =>
             {
-                songLyrics.Text = "";
-                songTitle.Text = "";
-                songArtist.Text = "";
-                songAlbum.Text = "";
-                songFeat.Text = "";
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(songInfo.Lyrics))
+                if (clearLabels)
                 {
-                    songLyrics.TextFormatted = Html.FromHtml(songInfo.Lyrics, FromHtmlOptions.ModeCompact);
-                }
-                songTitle.Text = songInfo.Title;
-                songArtist.Text = songInfo.Artist;
-                songAlbum.Text = songInfo.Album;
-                if (string.IsNullOrEmpty(songInfo.FeaturedArtist))
-                {
-                    songFeat.Visibility = ViewStates.Gone;
+                    songLyrics.Text = "";
+                    songTitle.Text = "";
+                    songArtist.Text = "";
+                    songAlbum.Text = "";
+                    songFeat.Text = "";
                 }
                 else
                 {
-                    songFeat.Visibility = ViewStates.Visible;
-                    songFeat.Text = songInfo.FeaturedArtist;
-                }
+                    if (!string.IsNullOrEmpty(songInfo.Lyrics))
+                    {
+                        songLyrics.TextFormatted = Html.FromHtml(songInfo.Lyrics, FromHtmlOptions.ModeCompact);
+                    }
+                    songTitle.Text = songInfo.Title;
+                    songArtist.Text = songInfo.Artist;
+                    songAlbum.Text = songInfo.Album;
+                    if (string.IsNullOrEmpty(songInfo.FeaturedArtist))
+                    {
+                        songFeat.Visibility = ViewStates.Gone;
+                    }
+                    else
+                    {
+                        songFeat.Visibility = ViewStates.Visible;
+                        songFeat.Text = songInfo.FeaturedArtist;
+                    }
 
-                Log.WriteLine(LogPriority.Verbose, "MainActivity", "UpdateSong: Updated labels");
-            }
+                    Log.WriteLine(LogPriority.Verbose, "MainActivity", "UpdateSong: Updated labels");
+                }
+            });
 
             if (updateImages)
             {
