@@ -12,6 +12,7 @@ namespace SmartLyrics.Toolbox
 {
     internal class HTTPRequests
     {
+        //TODO: add network error handling (fix Null Reference errors when these methods catch an Exception)
         public static async Task<string> GetRequest(string url, string authHeader)
         {
             try
@@ -36,7 +37,7 @@ namespace SmartLyrics.Toolbox
                     }
                 }
             }
-            catch (HttpRequestException e)
+            catch (Exception e)
             {
                 Crashes.TrackError(e);
 
@@ -69,7 +70,7 @@ namespace SmartLyrics.Toolbox
                     }
                 }
             }
-            catch (HttpRequestException e)
+            catch (Exception e)
             {
                 Crashes.TrackError(e);
 

@@ -74,7 +74,6 @@ namespace SmartLyrics.Services
             {
                 if (sbn.Notification.Category == "transport")
                 {
-                    Log.WriteLine(LogPriority.Info, "NLService", "OnNotificationPosted: Recieved OnNotificationPosted");
                     Song notificationSong = GetTitleAndArtistFromExtras(sbn.Notification.Extras.ToString());
 
                     if (previousSong.Title != notificationSong.Title && !string.IsNullOrEmpty(notificationSong.Title))

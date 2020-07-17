@@ -26,10 +26,10 @@
         <ListView
                 android:id="@+id/searchResults"
                 style="@android:style/Widget.Holo.ExpandableListView"
-                android:CachingStrategy="RetainElement"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:fadeScrollbars="true"
+                android:scrollingCache="true"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -186,17 +186,6 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.constraintlayout.widget.Barrier
-                android:id="@+id/barrier"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:barrierDirection="left" />
-
-        <androidx.constraintlayout.widget.Barrier
-                android:id="@+id/barrier2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:barrierDirection="left" />
     </androidx.constraintlayout.widget.ConstraintLayout>
     <com.google.android.material.navigation.NavigationView
             android:id="@+id/nav_view"
