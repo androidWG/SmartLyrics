@@ -34,13 +34,13 @@ using Exception = System.Exception;
 
 namespace SmartLyrics
 {
-    [Activity(Label = "@string/app_name", MainLauncher = true, ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenSize | Android.Content.PM.ConfigChanges.Orientation, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
+    [Activity(Label = "@string/app_name", MainLauncher = true, ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenSize | Android.Content.PM.ConfigChanges.Orientation, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, LaunchMode = Android.Content.PM.LaunchMode.SingleTask)]
     public class MainActivity : AppCompatActivity, ActivityCompat.IOnRequestPermissionsResultCallback
     {
         private List<Song> resultsToView;
         public static Song songInfo;
-        public static Song notificationSong;
-        private Song previousNtfSong;
+        public static Song notificationSong = new Song();
+        private Song previousNtfSong = new Song();
 
         View welcomeView;
         View songView;
@@ -176,7 +176,6 @@ namespace SmartLyrics
                 songInfo = notificationSong;
                 previousNtfSong = notificationSong;
 
-                fromNotification = false;
                 shouldCheck = false;
                 nowPlayingMode = true;
                 await LoadSong();
@@ -468,7 +467,7 @@ namespace SmartLyrics
         {
             if (shouldCheck && MiscTools.IsInForeground() && !fromNotification) //Checks for the user coming from outside the app are made on OnResume method
             {
-                if (!notificationSong.Equals(previousNtfSong))
+                if (notificationSong.Id != previousNtfSong.Id)
                 {
                     Log.WriteLine(LogPriority.Info, "MainActivity", "CheckIfSongIsPlaying: Song playing is different, updating...");
 
@@ -659,7 +658,10 @@ namespace SmartLyrics
             {
                 Log.WriteLine(LogPriority.Info, "MainActivity", "LoadSong: File for song doesn't exist, getting data from APIRequests.Genius...");
 
-                savedView.Visibility = ViewStates.Gone;
+                RunOnUiThread(() =>
+                {
+                    savedView.Visibility = ViewStates.Gone;
+                });
 
                 try //TODO: Change this
                 {
@@ -672,6 +674,8 @@ namespace SmartLyrics
                     Crashes.TrackError(ex);
                     Log.WriteLine(LogPriority.Error, "MainActivity", "LoadSong: NullReferenceException while getting lyrics");
                 }
+
+                fromNotification = false;
             }
             else
             {
@@ -906,26 +910,32 @@ namespace SmartLyrics
                     string coverPath = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath + "/" + savedImagesLocation, songInfo.Id + "-cover.jpg");
                     string headerPath = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath + "/" + savedImagesLocation, songInfo.Id + "-header.jpg");
 
-                    ImageService.Instance.LoadFile(coverPath).Transform(new RoundedTransformation(coverRadius)).Into(coverView);
-                    if (File.Exists(headerPath))
+                    RunOnUiThread(() =>
                     {
-                        ImageService.Instance.LoadFile(headerPath).Transform(new BlurredTransformation(headerBlur)).Into(headerView);
-                        ImageService.Instance.LoadFile(headerPath).Transform(new CropTransformation(3, 0, 0)).Transform(new BlurredTransformation(searchBlur)).Transform(new BlurredTransformation(searchBlur)).Into(searchView);
-                    }
-                    else
-                    {
-                        ImageService.Instance.LoadFile(coverPath).Transform(new BlurredTransformation(headerBlur)).Into(headerView);
-                        ImageService.Instance.LoadFile(coverPath).Transform(new CropTransformation(3, 0, 0)).Transform(new BlurredTransformation(searchBlur)).Transform(new BlurredTransformation(searchBlur)).Into(searchView);
-                    }
-
+                        ImageService.Instance.LoadFile(coverPath).Transform(new RoundedTransformation(coverRadius)).Into(coverView);
+                        if (File.Exists(headerPath))
+                        {
+                            ImageService.Instance.LoadFile(headerPath).Transform(new BlurredTransformation(headerBlur)).Into(headerView);
+                            ImageService.Instance.LoadFile(headerPath).Transform(new CropTransformation(3, 0, 0)).Transform(new BlurredTransformation(searchBlur)).Transform(new BlurredTransformation(searchBlur)).Into(searchView);
+                        }
+                        else
+                        {
+                            ImageService.Instance.LoadFile(coverPath).Transform(new BlurredTransformation(headerBlur)).Into(headerView);
+                            ImageService.Instance.LoadFile(coverPath).Transform(new CropTransformation(3, 0, 0)).Transform(new BlurredTransformation(searchBlur)).Transform(new BlurredTransformation(searchBlur)).Into(searchView);
+                        }
+                    });
+                    
                     Log.WriteLine(LogPriority.Verbose, "MainActivity", "UpdateSong: Updated images from disk");
                 }
                 else
                 {
-                    Log.WriteLine(LogPriority.Verbose, "MainActivity", $"UpdateSong: Loading cover from {songInfo.Cover} and header from {songInfo.Header}");
-                    ImageService.Instance.LoadUrl(songInfo.Cover).Transform(new RoundedTransformation(coverRadius)).Into(coverView);
-                    ImageService.Instance.LoadUrl(songInfo.Header).Transform(new BlurredTransformation(headerBlur)).Into(headerView);
-                    ImageService.Instance.LoadUrl(songInfo.Header).Transform(new CropTransformation(3, 0, 0)).Transform(new BlurredTransformation(searchBlur)).Transform(new BlurredTransformation(searchBlur)).Into(searchView);
+                    RunOnUiThread(() =>
+                    {
+                        Log.WriteLine(LogPriority.Verbose, "MainActivity", $"UpdateSong: Loading cover from {songInfo.Cover} and header from {songInfo.Header}");
+                        ImageService.Instance.LoadUrl(songInfo.Cover).Transform(new RoundedTransformation(coverRadius)).Into(coverView);
+                        ImageService.Instance.LoadUrl(songInfo.Header).Transform(new BlurredTransformation(headerBlur)).Into(headerView);
+                        ImageService.Instance.LoadUrl(songInfo.Header).Transform(new CropTransformation(3, 0, 0)).Transform(new BlurredTransformation(searchBlur)).Transform(new BlurredTransformation(searchBlur)).Into(searchView);
+                    });
 
                     Log.WriteLine(LogPriority.Verbose, "MainActivity", "UpdateSong: Updated images from the internet");
                 }

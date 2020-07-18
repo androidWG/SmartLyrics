@@ -25,45 +25,6 @@ namespace SmartLyrics.Common
         public string Lyrics { get; set; } = String.Empty;
         public int Likeness { get; set; } //used by the NLService
         public int Id { get; set; }
-
-        public override bool Equals(object obj)
-        {
-            return this.Equals(obj as Song);
-        }
-
-        public bool Equals(Song s)
-        {
-            // If parameter is null, return false.
-            if (Object.ReferenceEquals(s, null))
-            {
-                return false;
-            }
-
-            // Optimization for a common success case.
-            if (Object.ReferenceEquals(this, s))
-            {
-                return true;
-            }
-
-            // If run-time types are not exactly the same, return false.
-            if (this.GetType() != s.GetType())
-            {
-                return false;
-            }
-
-            // Return true if the fields match.
-            // Note that the base class is not invoked because it is
-            // System.Object, which defines Equals as reference equality.
-            bool isEqual = s.Title == Title
-                && s.Artist == Artist
-                && s.FeaturedArtist == FeaturedArtist
-                && s.Album == Album
-                && s.APIPath == APIPath
-                && s.Path == Path
-                && s.Id == Id;
-
-            return isEqual;
-        }
     }
 
     public class Artist

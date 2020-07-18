@@ -12,6 +12,5 @@
 				<action android:name="android.service.notification.NotificationListenerService"></action>
 			</intent-filter>
 		</service>
-		<activity android:name="MainActivity" android:launchMode="singleTask"></activity>
 	</application>
 </manifest>

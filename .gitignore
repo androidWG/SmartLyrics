@@ -340,3 +340,5 @@ ASALocalRun/
 healthchecksdb
 
 desktop.ini
+/AppCenter.keystore
+/keystore.txt
