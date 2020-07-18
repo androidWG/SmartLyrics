@@ -212,11 +212,15 @@ namespace SmartLyrics.Services
             Log.WriteLine(LogPriority.Verbose, "NLService", "CreateNotification: Creating notification");
             MainActivity.fromNotification = true;
 
-            TaskStackBuilder stackBuilder = TaskStackBuilder.Create(this);
+            TaskStackBuilder stackBuilder = TaskStackBuilder.Create(Application.Context);
             stackBuilder.AddParentStack(Java.Lang.Class.FromType(typeof(MainActivity)));
-            stackBuilder.AddNextIntent(new Intent(this, typeof(MainActivity)));
+            stackBuilder.AddNextIntent(new Intent(Application.Context, typeof(MainActivity)));
 
             PendingIntent resultIntent = stackBuilder.GetPendingIntent(0, (int)PendingIntentFlags.UpdateCurrent);
+
+            //Intent intent = new Intent(this, typeof(MainActivity));
+            //intent.SetFlags(ActivityFlags.Upda);
+            //intent.SetAction(Actions);
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .SetAutoCancel(true)
@@ -226,7 +230,7 @@ namespace SmartLyrics.Services
                 .SetContentIntent(resultIntent)
                 .SetPriority(-1);
 
-            ntfManager = NotificationManagerCompat.From(this);
+            ntfManager = NotificationManagerCompat.From(Application.Context);
             ntfManager.Notify(NOTIFICATION_ID, builder.Build());
             Log.WriteLine(LogPriority.Info, "NLService", "CreateNotification (NLService): Notification made!");
         }
