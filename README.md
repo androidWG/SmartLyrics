@@ -8,13 +8,15 @@ This is a personal project that I ended up making open source simply because I k
 This project started around July 2018, so the code was messy. I picked it up again in 2020 (this year) and rewrote most of it, and now only some features need revamping.
 
 ✔️ - *implemented*
-🟠  - *needs revamp*
+🟠  - *needs revamp or WIP*
 ❌ - *not implemented*
 
  - ✔️ Genius search
  - ✔️ Viewing lyrics
  - ✔️ Saving lyrics
  - ✔️ Detect songs playing on background
+ - 🟠 Japanese romanization of lyrics and titles
  - 🟠 Download from Spotify
  - ❌ Download from Apple Music
  - ❌ Sync with music service
+ - ❌ Floating lyrics window
