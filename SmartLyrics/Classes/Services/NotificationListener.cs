@@ -216,11 +216,9 @@ namespace SmartLyrics.Services
             stackBuilder.AddParentStack(Java.Lang.Class.FromType(typeof(MainActivity)));
             stackBuilder.AddNextIntent(new Intent(Application.Context, typeof(MainActivity)));
 
-            PendingIntent resultIntent = stackBuilder.GetPendingIntent(0, (int)PendingIntentFlags.UpdateCurrent);
+            Intent info = new Intent(Application.Context, typeof(MainActivity));
 
-            //Intent intent = new Intent(this, typeof(MainActivity));
-            //intent.SetFlags(ActivityFlags.Upda);
-            //intent.SetAction(Actions);
+            PendingIntent resultIntent = stackBuilder.GetPendingIntent(0, (int)PendingIntentFlags.UpdateCurrent);
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .SetAutoCancel(true)

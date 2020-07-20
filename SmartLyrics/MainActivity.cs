@@ -34,7 +34,7 @@ using Exception = System.Exception;
 
 namespace SmartLyrics
 {
-    [Activity(Label = "@string/app_name", MainLauncher = true, ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenSize | Android.Content.PM.ConfigChanges.Orientation, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, LaunchMode = Android.Content.PM.LaunchMode.SingleTask)]
+    [Activity(Label = "@string/app_name", MainLauncher = true, ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenSize | Android.Content.PM.ConfigChanges.Orientation, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, LaunchMode = Android.Content.PM.LaunchMode.SingleTop)]
     public class MainActivity : AppCompatActivity, ActivityCompat.IOnRequestPermissionsResultCallback
     {
         private List<Song> resultsToView;
@@ -189,6 +189,14 @@ namespace SmartLyrics
             Log.WriteLine(LogPriority.Verbose, "MainActivity", "OnStop: OnStop started");
             notificationSong = new Song();
             previousNtfSong = notificationSong;
+        }
+
+        protected override void OnNewIntent(Intent intent)
+        {
+            base.OnNewIntent(intent);
+
+            Log.WriteLine(LogPriority.Verbose, "MainActivity", "OnNewIntent: OnNewIntent started");
+            Log.WriteLine(LogPriority.Info, "MainActivity", "OnNewIntent: " + intent.DataString);
         }
         #endregion
 
@@ -536,13 +544,13 @@ namespace SmartLyrics
             parsed = (JObject)parsed["response"]["song"]; //Change root to song
             Log.WriteLine(LogPriority.Verbose, "MainActivity", "GetAndShowSongDetails: Results parsed into JObject");
 
-            songInfo.Title = (string)parsed["title"];
-            songInfo.Artist = (string)parsed["primary_artist"]["name"];
-            if (parsed["album"].HasValues) { songInfo.Album = (string)parsed["album"]["name"]; }
-            songInfo.Header = (string)parsed["header_image_url"];
-            songInfo.Cover = (string)parsed["song_art_image_url"];
-            songInfo.APIPath = (string)parsed["api_path"];
-            songInfo.Path = (string)parsed["path"];
+            songInfo.Title = (string)parsed?.SelectToken("title") ?? "";
+            songInfo.Artist = (string)parsed?.SelectToken("primary_artist.name") ?? "";
+            songInfo.Album = (string)parsed?.SelectToken("album.name") ?? "";
+            songInfo.Header = (string)parsed?.SelectToken("header_image_url") ?? "";
+            songInfo.Cover = (string)parsed?.SelectToken("song_art_image_url") ?? "";
+            songInfo.APIPath = (string)parsed?.SelectToken("api_path") ?? "";
+            songInfo.Path = (string)parsed?.SelectToken("path") ?? "";
 
             if (parsed["featured_artists"].HasValues)
             {
