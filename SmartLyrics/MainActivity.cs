@@ -195,6 +195,8 @@ namespace SmartLyrics
         {
             base.OnNewIntent(intent);
 
+            //This should be called when a notification is opened, but that's not happening
+
             Log.WriteLine(LogPriority.Verbose, "MainActivity", "OnNewIntent: OnNewIntent started");
             Log.WriteLine(LogPriority.Info, "MainActivity", "OnNewIntent: " + intent.DataString);
         }
@@ -471,6 +473,7 @@ namespace SmartLyrics
         #endregion
 
 
+        #region Timer
         private async void CheckIfSongIsPlaying()
         {
             if (shouldCheck && MiscTools.IsInForeground() && !fromNotification) //Checks for the user coming from outside the app are made on OnResume method
@@ -532,9 +535,10 @@ namespace SmartLyrics
                 npTxt.Visibility = ViewStates.Gone;
             }
         }
+        #endregion
 
 
-        #region Load from Internet
+        #region Load from Genius
         private async Task GetAndShowSongDetails()
         {
             Log.WriteLine(LogPriority.Info, "MainActivity", "GetAndShowSongDetails: Starting GetSongDetails operation");
