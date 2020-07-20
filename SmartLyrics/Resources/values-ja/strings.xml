@@ -69,4 +69,5 @@
     <string name="prefDetectSummary">音楽アプリで再生中の曲を検出し、アプリ内に歌詞を表示します。 これを無効にすると、バックグラウンド検出サービスも無効になります。</string>
     <string name="prefDetect">バックグラウンドで再生されている曲を検出する</string>
     <string name="noResults">結果が見つかりません</string>
+    <string name="coverSearchDesc">曲のカバー画像</string>
 </resources>

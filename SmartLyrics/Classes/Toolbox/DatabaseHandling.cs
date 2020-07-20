@@ -1,6 +1,7 @@
 ﻿using Android.Util;
 using Microsoft.AppCenter.Crashes;
 using SmartLyrics.Common;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -79,7 +80,7 @@ namespace SmartLyrics.Toolbox
                     _dt.ReadXml(s);
                 }
             }
-            catch (XmlException ex)
+            catch (Exception ex)
             {
                 Crashes.TrackError(ex);
                 Log.WriteLine(LogPriority.Info, "DatabaseHandling", "ReadFromDatabaseFile: Exception cought while trying reading database!\n" + ex.ToString());

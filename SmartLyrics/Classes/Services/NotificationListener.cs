@@ -74,7 +74,6 @@ namespace SmartLyrics.Services
             {
                 if (sbn.Notification.Category == "transport")
                 {
-                    Log.WriteLine(LogPriority.Info, "NLService", "OnNotificationPosted: Recieved OnNotificationPosted");
                     Song notificationSong = GetTitleAndArtistFromExtras(sbn.Notification.Extras.ToString());
 
                     if (previousSong.Title != notificationSong.Title && !string.IsNullOrEmpty(notificationSong.Title))
@@ -213,9 +212,11 @@ namespace SmartLyrics.Services
             Log.WriteLine(LogPriority.Verbose, "NLService", "CreateNotification: Creating notification");
             MainActivity.fromNotification = true;
 
-            TaskStackBuilder stackBuilder = TaskStackBuilder.Create(this);
+            TaskStackBuilder stackBuilder = TaskStackBuilder.Create(Application.Context);
             stackBuilder.AddParentStack(Java.Lang.Class.FromType(typeof(MainActivity)));
-            stackBuilder.AddNextIntent(new Intent(this, typeof(MainActivity)));
+            stackBuilder.AddNextIntent(new Intent(Application.Context, typeof(MainActivity)));
+
+            Intent info = new Intent(Application.Context, typeof(MainActivity));
 
             PendingIntent resultIntent = stackBuilder.GetPendingIntent(0, (int)PendingIntentFlags.UpdateCurrent);
 
@@ -227,7 +228,7 @@ namespace SmartLyrics.Services
                 .SetContentIntent(resultIntent)
                 .SetPriority(-1);
 
-            ntfManager = NotificationManagerCompat.From(this);
+            ntfManager = NotificationManagerCompat.From(Application.Context);
             ntfManager.Notify(NOTIFICATION_ID, builder.Build());
             Log.WriteLine(LogPriority.Info, "NLService", "CreateNotification (NLService): Notification made!");
         }

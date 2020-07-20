@@ -16,9 +16,7 @@
     <string name="drawerSettings">Settings</string>
     <string name="drawerAbout">About</string>
     <string name="descDecorationBG">Decoration background image</string>
-    <string name="mainWelcome">Start playing any song on your favorite app to see its lyrics displayed here, or use the
-        search bar on the top of the screen to search lyrics.
-    </string>
+    <string name="mainWelcome">Start playing any song on your favorite app to see its lyrics displayed here, or use the search button on the top of the screen to search lyrics.</string>
     <string name="mainWelcomeHeader">WELCOME TO SMARTLYRICS</string>
     <string name="mainGotoSaved">GO TO SAVED LYRICS</string>
     <string name="descSeacrhBtn">Show search bar</string>
@@ -28,10 +26,7 @@
     <string name="mainSpotifyHeader">ALMOST THERE</string>
     <string name="mainSpotify">Press the big green button below to start downloading lyrics to all your songs.</string>
     <string name="downloadLyrics">DOWNLOAD LYRICS</string>
-    <string name="mainSpotifyStarted">There we go! SmartLyrics will download your lyrics on the background so you can go
-        do something else instead of sitting here watching paint dry. You can check the progress by looking at the
-        notification we just created or checking back here on this page of the app.
-    </string>
+    <string name="mainSpotifyStarted">There we go! SmartLyrics will download your lyrics on the background so you can go do something else instead of sitting here watching paint dry. You can check the progress by looking at the notification we just created or checking back here on this page of the app.</string>
     <string name="overallProgress">Overall Progress</string>
     <string name="descSaved">Icon indicating this lyric is already saved</string>
     <string name="alreadySaved">This song is already saved</string>
@@ -39,20 +34,15 @@
     <string name="notificationTitle">Downloading Lyrics</string>
     <string name="notificationDesc">SmartLyrics is downloading all lyrics for your Spotify library in the background</string>
     <string name="notificationChannelName">Lyrics Download Progress</string>
-    <string name="notificationChannelDesc">"Shows the progress when you ask SmartLyrics to download lyrics for all your
-        songs.\n "
-    </string>
-    <string name="mainSpotifyFinished">Lyrics to all of your Spotify tracks have been downloaded to your device. You can
-        go to the Saved Lyrics page on the app drawer to browse all your downloaded songs or start playing from any
-        music app to see its lyrics.
-    </string>
-    <string name="mainSpotifyFinishedHeader">WE ARE DONE!</string>
+    <string name="notificationChannelDesc">Shows the progress when you ask SmartLyrics to download lyrics for all your songs.</string>
+    <string name="mainSpotifyFinished">Lyrics to all of your Spotify tracks have been downloaded to your device. You can go to the Saved Lyrics page on the app drawer to browse all your downloaded songs or start playing from any music app to see its lyrics.</string>
+    <string name="mainSpotifyFinishedHeader">WE\'RE DONE!</string>
     <string name="prefDetectNotification">Show notification for detected songs</string>
     <string name="prefDetectNotificationSummary">Shows a notification when SmartLyrics detects a song playing with matching lyrics.</string>
     <string name="prefHeader">Save header images</string>
     <string name="saveError">An error occurred while saving this song. Please try again.</string>
     <string name="readError">An error occurred while reading a file. Please try again.</string>
-    <string name="prefHeaderSummary">SmartLyrics saves both the background header image and album cover image when saving a song, and for each song the header image takes up a few hundred kilobytes.Disabling this can save some space if you want to save lots of songs. To delete headers for already saved songs, click the button below.</string>
+    <string name="prefHeaderSummary">SmartLyrics saves both the background header image and album cover image when saving a song, and for each song the header image takes up a few hundred kilobytes. Disabling this can save some space if you want to save lots of songs. To delete headers for already saved songs, click the button below.</string>
     <string name="prefAdvanced">Advacned Settings</string>
     <string name="prefDeleteHeader">Delete existing header images</string>
     <string name="prefRomanize">Auto-romanize song lyrics</string>
@@ -75,4 +65,6 @@
     <string name="noResults">No results found</string>
     <string name="prefDetect">Detect songs playing on background</string>
     <string name="prefDetectSummary">Detect songs playing on music apps and shows lyrics when in-app. Disabling this also disables the background detection service.</string>
+    <string name="sadFace" translatable="false">ಥ_ಥ</string>
+    <string name="coverSearchDesc">Song cover image</string>
 </resources>

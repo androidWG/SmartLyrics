@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintMain"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <FrameLayout
+                android:id="@+id/dynamicLayout"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/toolbar">
+
+        </FrameLayout>
+
+        <ListView
+                android:id="@+id/searchResults"
+                style="@android:style/Widget.Holo.ExpandableListView"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:fadeScrollbars="true"
+                android:scrollingCache="true"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/searchLoadingWheel">
+
+        </ListView>
+
+        <ProgressBar
+                android:id="@+id/searchLoadingWheel"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@+id/searchResults"
+                app:layout_constraintEnd_toEndOf="@+id/searchResults"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+        <TextView
+                android:id="@+id/noResultsTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="64dp"
+                android:text="@string/noResults"
+                android:textAppearance="@style/textNoResults"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/searchResults"
+                tools:visibility="gone" />
+
+        <TextView
+                android:id="@+id/faceTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:fontFamily="@font/open_sans"
+                android:text="@string/sadFace"
+                android:textSize="69sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/noResultsTxt"
+                tools:visibility="gone" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/toolbar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/colorBackground"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                    android:id="@+id/searchView"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:contentDescription="@string/descHeader"
+                    android:scaleType="centerCrop"
+                    android:tint="#80000000"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="1.0" />
+
+            <TextView
+                    android:id="@+id/headerTxt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_centerHorizontal="true"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:shadowColor="#00000000"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="0"
+                    android:text="@string/drawerSearch"
+                    android:textAppearance="@style/textHeader"
+                    android:visibility="visible"
+                    app:layout_constraintBottom_toBottomOf="@+id/drawerBtn"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/drawerBtn"
+                    app:layout_constraintVertical_bias="0.0" />
+
+            <ImageButton
+                    android:id="@+id/searchBtn"
+                    style="@style/imageButtonNoBackground"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="10dp"
+                    android:contentDescription="@string/descSeacrhBtn"
+                    android:foregroundGravity="center"
+                    android:scaleType="fitCenter"
+                    android:tint="#FFFFFF"
+                    app:layout_constraintBottom_toTopOf="@+id/npTxt"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/round_search_24" />
+
+            <ImageButton
+                    android:id="@+id/drawerBtn"
+                    style="@style/imageButtonNoBackground"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="10dp"
+                    android:contentDescription="@string/descDrawerBtn"
+                    android:foregroundGravity="center"
+                    android:scaleType="fitCenter"
+                    android:tint="#FFFFFF"
+                    app:layout_constraintBottom_toTopOf="@+id/npTxt"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/round_menu_24" />
+
+            <TextView
+                    android:id="@+id/npTxt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/nowPlaying"
+                    android:textAppearance="@style/textNP"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+            <EditText
+                    android:id="@+id/searchTxt"
+                    style="@style/editText_searchBar"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:ems="10"
+                    android:hint="@string/searchHint"
+                    android:imeOptions="actionSearch"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="@+id/searchBtn"
+                    app:layout_constraintEnd_toStartOf="@+id/searchBtn"
+                    app:layout_constraintStart_toEndOf="@+id/drawerBtn"
+                    app:layout_constraintTop_toTopOf="@+id/searchView" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.navigation.NavigationView
+            android:id="@+id/nav_view"
+            android:layout_width="240dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:fitsSystemWindows="true"
+            app:headerLayout="@layout/nav_header_main"
+            app:menu="@menu/activity_main_drawer"
+            app:itemTextAppearance="@style/textDrawer">
+    </com.google.android.material.navigation.NavigationView>
+</androidx.drawerlayout.widget.DrawerLayout>

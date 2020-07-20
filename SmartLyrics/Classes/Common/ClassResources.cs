@@ -14,15 +14,15 @@ namespace SmartLyrics.Common
     #region Storage Classes or just classes idk what to call this
     public class Song
     {
-        public string Title { get; set; }
-        public string Artist { get; set; }
-        public string Album { get; set; }
-        public string FeaturedArtist { get; set; }
-        public string Cover { get; set; }
-        public string Header { get; set; }
-        public string APIPath { get; set; }
-        public string Path { get; set; }
-        public string Lyrics { get; set; }
+        public string Title { get; set; } = String.Empty;
+        public string Artist { get; set; } = String.Empty;
+        public string Album { get; set; } = String.Empty;
+        public string FeaturedArtist { get; set; } = String.Empty;
+        public string Cover { get; set; } = String.Empty;
+        public string Header { get; set; } = String.Empty;
+        public string APIPath { get; set; } = String.Empty;
+        public string Path { get; set; } = String.Empty;
+        public string Lyrics { get; set; } = String.Empty;
         public int Likeness { get; set; } //used by the NLService
         public int Id { get; set; }
     }
