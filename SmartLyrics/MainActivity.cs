@@ -20,6 +20,7 @@ using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
 using Newtonsoft.Json.Linq;
+using Org.Apache.Http.Impl.Client;
 using Plugin.CurrentActivity;
 using SmartLyrics.Common;
 using SmartLyrics.Toolbox;
@@ -71,6 +72,8 @@ namespace SmartLyrics
         EditText searchTxt;
         FrameLayout dynamicLayout;
 
+        InputMethodManager imm;
+
         #region Standard Activity Shit
         protected override async void OnCreate(Bundle savedInstanceState)
         {
@@ -80,10 +83,9 @@ namespace SmartLyrics
             CrossCurrentActivity.Current.Init(this, savedInstanceState);
             Log.WriteLine(LogPriority.Info, "MainActivity", "OnCreate: Loaded view");
 
-            //Startup error handling
+            // Startup error handling
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
             TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
-
             AppCenter.Start("b07a2f8e-5d02-4516-aadc-2cba2c27fcf8",
                    typeof(Analytics), typeof(Crashes)); //TODO: add Event Trackers
 
@@ -104,29 +106,22 @@ namespace SmartLyrics
 
             noResultsTxt.Visibility = ViewStates.Invisible;
             faceTxt.Visibility = ViewStates.Invisible;
+
+            imm = (InputMethodManager)GetSystemService(InputMethodService);
             #endregion
 
-            //Load preferences into global variable
+            // Load preferences into global variable
             preferences = AndroidX.Preference.PreferenceManager.GetDefaultSharedPreferences(this);
 
-            //Inflate layouts
-            if (!fromNotification)
-            {
-                InflateWelcome();
-            }
-            else
-            {
-                InflateSong();
-            }
+            // Inflate layouts
+            if (!fromNotification) { InflateWelcome(); }
+            else { InflateSong(); }
 
             InitTimer();
 
+            //! Some event subscriptions happen on the InflateWelcome
+            //! and InflateSong methods.
             #region Event Subscriptions
-            drawerBtn.Click += delegate
-            {
-                drawer.OpenDrawer(navigationView);
-            };
-
             searchTxt.TextChanged += async delegate
             {
                 if (string.IsNullOrEmpty(searchTxt.Text))
@@ -139,6 +134,13 @@ namespace SmartLyrics
                 await SearchKeyboardButton_Action(false, t.Count);
             };
 
+            searchResults.Touch += (s, e) =>
+            {
+                imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0);
+                e.Handled = false;
+            };
+
+            drawerBtn.Click += delegate { drawer.OpenDrawer(navigationView); };
             searchBtn.Click += async delegate { SearchButton_Action(); };
             searchResults.ItemClick += SearchResuls_ItemClick;
             #endregion
@@ -199,8 +201,6 @@ namespace SmartLyrics
             TextView headerTxt = FindViewById<TextView>(Resource.Id.headerTxt);
             ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
 
-            InputMethodManager imm = (InputMethodManager)GetSystemService(InputMethodService);
-
             if (searchTxt.Visibility == ViewStates.Visible && lastSearch == searchTxt.Text)
             {
                 RunOnUiThread(() =>
@@ -243,11 +243,7 @@ namespace SmartLyrics
 
             if (searchTxt.Text != "")
             {
-                if (hideKeyboard)
-                {
-                    InputMethodManager imm = (InputMethodManager)GetSystemService(InputMethodService);
-                    imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0);
-                }
+                if (hideKeyboard) { imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0); }
 
                 lastSearch = searchTxt.Text;
                 searchLoadingWheel.Visibility = ViewStates.Visible;
@@ -284,7 +280,6 @@ namespace SmartLyrics
 
             Log.WriteLine(LogPriority.Info, "MainActivity", $"SearchResuls_ItemClick: Attempting to display song at position {e.Position}.");
 
-            InputMethodManager imm = (InputMethodManager)GetSystemService(InputMethodService);
             imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0);
 
             nowPlayingMode = false;

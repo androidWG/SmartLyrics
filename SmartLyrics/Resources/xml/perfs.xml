@@ -37,12 +37,12 @@
                 android:defaultValue="modeSpaced"
                 android:entries="@array/romanization_modes_text"
                 android:entryValues="@array/romanization_modes_values"
-                android:key="list_preference_1"
+                android:key="romanization_mode"
                 android:summary="@string/prefRomanizeModeSummary"
                 android:title="@string/prefRomanizeMode" />
         <SwitchPreference
                 android:defaultValue="false"
-                android:key="switch_preference_1"
+                android:key="auto_romanize"
                 android:title="@string/prefRomanize" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/prefAdvanced">
