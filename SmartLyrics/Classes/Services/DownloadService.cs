@@ -33,8 +33,8 @@ namespace SmartLyrics.Services
         private static readonly string CHANNEL_ID = "download_lyrics_bg_sl";
         private readonly string savedLyricsLocation = "SmartLyrics/Saved Lyrics/Spotify/";
         private readonly string savedImagesLocation = "SmartLyrics/Saved Lyrics/Spotify/Image Cache/";
-        private string path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, "SmartLyrics/Saved Lyrics/Spotify/");
-        private string pathImg = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, "SmartLyrics/Saved Lyrics/Spotify/Image Cache/");
+        private string path = Path.Combine(applicationPath, "SmartLyrics/Saved Lyrics/Spotify/");
+        private string pathImg = Path.Combine(applicationPath, "SmartLyrics/Saved Lyrics/Spotify/Image Cache/");
         private readonly string savedSeparator = @"!@=-@!";
 
         public IBinder Binder { get; private set; }
@@ -212,7 +212,7 @@ namespace SmartLyrics.Services
 
                 if ((Text.Distance(resultTitle, s.Title) <= maxDistance && Text.Distance(resultArtist, s.Artist) <= maxDistance) || resultTitle.Contains(s.Title) && resultArtist.Contains(s.Artist))
                 {
-                    string path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation, (string)result["result"]["primary_artist"]["name"] + savedSeparator + (string)result["result"]["title"] + ".txt");
+                    string path = Path.Combine(applicationPath, savedLyricsLocation, (string)result["result"]["primary_artist"]["name"] + savedSeparator + (string)result["result"]["title"] + ".txt");
 
                     if (!File.Exists(path))
                     {
@@ -363,14 +363,14 @@ namespace SmartLyrics.Services
         {
             Log.WriteLine(LogPriority.Info, "SmartLyrics", "saveSongLyrics (DownloadService): Started saveSongLyrics operation");
 
-            path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation);
-            pathImg = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedImagesLocation);
+            path = Path.Combine(applicationPath, savedLyricsLocation);
+            pathImg = Path.Combine(applicationPath, savedImagesLocation);
 
             try
             {
                 path = Path.Combine(path, song.Artist + savedSeparator + song.Title + ".txt");
-                string pathHeader = Path.Combine(pathImg, song.Artist + savedSeparator + song.Title + "-header.jpg");
-                string pathCover = Path.Combine(pathImg, song.Artist + savedSeparator + song.Title + "-cover.jpg");
+                string pathHeader = Path.Combine(pathImg, song.Artist + savedSeparator + song.Title + headerSuffix);
+                string pathCover = Path.Combine(pathImg, song.Artist + savedSeparator + song.Title + coverSuffix);
 
                 if (!File.Exists(path))
                 {

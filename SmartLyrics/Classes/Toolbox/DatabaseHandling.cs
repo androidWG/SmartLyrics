@@ -1,4 +1,5 @@
 ﻿using Android.Util;
+using FFImageLoading;
 using Microsoft.AppCenter.Crashes;
 using SmartLyrics.Common;
 using System;
@@ -7,6 +8,7 @@ using System.Data;
 using System.IO;
 using System.Threading.Tasks;
 using System.Xml;
+
 using static SmartLyrics.Globals;
 
 namespace SmartLyrics.Toolbox
@@ -14,11 +16,15 @@ namespace SmartLyrics.Toolbox
     internal class DatabaseHandling
     {
         private static DataTable db = new DataTable("db");
-        private static readonly string path = Path.Combine(Android.App.Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation + databaseLocation);
-        private static readonly string lyricsPath = Path.Combine(Android.App.Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation);
+
+        private static readonly string path = Path.Combine(applicationPath, savedLyricsLocation + databaseLocation);
+        private static readonly string pathImg = Path.Combine(applicationPath, savedImagesLocation);
+        private static readonly string lyricsPath = Path.Combine(applicationPath, savedLyricsLocation);
+
+        //! See https://github.com/AndroidWG/SmartLyrics/wiki/Saved-Lyrics-Database for more information on how the database works.
 
         #region Toolbox
-        //clear table and add correct columns
+        //Clear table and add correct columns
         internal static void InitializeTable()
         {
             db.Clear();
@@ -91,54 +97,88 @@ namespace SmartLyrics.Toolbox
             return _dt;
         }
 
-        internal static async Task WriteLyrics(Song songInfo)
+        internal static async Task WriteImages(Song songInfo)
         {
-            Log.WriteLine(LogPriority.Verbose, "DatabaseHandling", "WriteLyrics: Preparing to write lyrics to disk...");
-            string _filepath = Path.Combine(lyricsPath, songInfo.Id + lyricsExtension);
+            await MiscTools.CheckAndCreateAppFolders();
 
-            try
+            //Header and cover images are always saved on a separate folder with
+            //the song's ID to identify it.
+            string pathHeader = Path.Combine(pathImg, songInfo.Id + headerSuffix);
+            string pathCover = Path.Combine(pathImg, songInfo.Id + coverSuffix);
+
+            if (preferences.GetBoolean("save_header", true))
             {
-                File.WriteAllText(_filepath, songInfo.Lyrics);
-                Log.WriteLine(LogPriority.Info, "DatabaseHandling", "WriteLyrics: Wrote lyrics for {songInfo.title} to disk!");
-            }
-            catch (IOException ex)
-            {
-                Crashes.TrackError(ex);
-                Log.WriteLine(LogPriority.Error, "DatabaseHandling", "WriteLyrics: Error while writing lyrics to disk!\n" + ex.ToString());
+                using (FileStream fileStream = File.Create(pathHeader))
+                {
+                    Stream header = await ImageService.Instance.LoadUrl(songInfo.Header).AsJPGStreamAsync();
+                    header.Seek(0, SeekOrigin.Begin);
+                    header.CopyTo(fileStream);
+
+                    Log.WriteLine(LogPriority.Info, "MainActivity", "SaveSong: Saved header image.");
+                }
+                using (FileStream fileStream = File.Create(pathCover))
+                {
+                    Stream cover = await ImageService.Instance.LoadUrl(songInfo.Cover).AsJPGStreamAsync();
+                    cover.Seek(0, SeekOrigin.Begin);
+                    cover.CopyTo(fileStream);
+
+                    Log.WriteLine(LogPriority.Info, "MainActivity", "SaveSong: Saved cover image.");
+                }
             }
         }
         #endregion
 
-        //writes a song to the saved lyrics database
-        //returns true if successful
+        // Writes a song to the saved lyrics database.
+        // Returns true if successful.
         public static async Task<bool> WriteInfoAndLyrics(Song songInfo)
         {
-            Log.WriteLine(LogPriority.Info, "DatabaseHandling", "WriteInfoAndLyrics: Started WriteInfoAndLyrics method");
-
-            InitializeTable();
-            db = await ReadFromDatabaseFile(path);
-
-            if (await GetSongFromTable(songInfo.Id) == null)
+            try
             {
-                db.Rows.Add(
-                    songInfo.Id,
-                    songInfo.Title,
-                    songInfo.Artist,
-                    songInfo.Album,
-                    songInfo.FeaturedArtist,
-                    songInfo.Cover,
-                    songInfo.Header,
-                    songInfo.APIPath,
-                    songInfo.Path);
+                InitializeTable();
+                db = await ReadFromDatabaseFile(path);
 
-                db.WriteXml(path);
+                if (await GetSongFromTable(songInfo.Id) == null)
+                {
+                    db.Rows.Add(
+                        songInfo.Id,
+                        songInfo.Title,
+                        songInfo.Artist,
+                        songInfo.Album,
+                        songInfo.FeaturedArtist,
+                        songInfo.Cover,
+                        songInfo.Header,
+                        songInfo.APIPath,
+                        songInfo.Path);
 
-                await WriteLyrics(songInfo);
+                    db.WriteXml(path);
 
-                return true;
+                    // Write lyrics to file
+                    string _filepath = Path.Combine(lyricsPath, songInfo.Id + lyricsExtension);
+
+                    await WriteImages(songInfo);
+
+                    File.WriteAllText(_filepath, songInfo.Lyrics);
+                    Log.WriteLine(LogPriority.Info, "DatabaseHandling", "WriteLyrics: Wrote lyrics for {songInfo.title} to disk!");
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
-            else
+            catch (IOException ex)
             {
+                Crashes.TrackError(ex);
+                Log.WriteLine(LogPriority.Error, "DatabaseHandling", "WriteSong: Exception while writing lyrics to disk!\n" + ex.ToString());
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Crashes.TrackError(ex);
+                Log.WriteLine(LogPriority.Error, "DatabaseHandling", "WriteSong: Unkown error while writing song to disk!\n" + ex.ToString());
+
                 return false;
             }
         }

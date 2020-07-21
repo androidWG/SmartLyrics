@@ -219,7 +219,7 @@ namespace SmartLyrics
             progressBar.Visibility = ViewStates.Visible;
 
             Log.WriteLine(LogPriority.Info, "SavedLyrics", "ShowSavedSongs: CheckAndSetPermissions returened true, trying to read directory...");
-            string path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation);
+            string path = Path.Combine(applicationPath, savedLyricsLocation);
 
             await MiscTools.CheckAndCreateAppFolders();
             Log.WriteLine(LogPriority.Verbose, "SavedLyrics", $"ShowSavedSongs: Path is \"{path}\"");

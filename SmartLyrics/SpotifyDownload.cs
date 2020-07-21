@@ -19,6 +19,8 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Timers;
 
+using static SmartLyrics.Globals;
+
 namespace SmartLyrics
 {
     [Activity(Label = "SpotifyDownload", ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, ScreenOrientation = ScreenOrientation.Portrait)]
@@ -31,8 +33,8 @@ namespace SmartLyrics
         private ConstraintLayout startedLayout;
         private ConstraintLayout finishedLayout;
         private Services.DownloadServiceConnection serviceConnection;
-        private readonly string path = System.IO.Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, "SmartLyrics/Saved Lyrics/Spotify/");
-        private readonly string pathImg = System.IO.Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, "SmartLyrics/Saved Lyrics/Spotify/Image Cache/");
+        private readonly string path = System.IO.Path.Combine(applicationPath, "SmartLyrics/Saved Lyrics/Spotify/");
+        private readonly string pathImg = System.IO.Path.Combine(applicationPath, "SmartLyrics/Saved Lyrics/Spotify/Image Cache/");
 
         protected override async void OnCreate(Bundle savedInstanceState)
         {

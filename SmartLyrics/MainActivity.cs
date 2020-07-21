@@ -54,7 +54,6 @@ namespace SmartLyrics
         private Timer checkTimer;
         private bool nowPlayingMode = false;
         private bool shouldCheck = false;
-        private ISharedPreferences prefs;
         private string lastSearch = "";
 
         //! This variable keeps track of multiple simultaneous searches
@@ -116,8 +115,8 @@ namespace SmartLyrics
             faceTxt.Visibility = ViewStates.Invisible;
             #endregion
 
-            //Load preferences
-            prefs = AndroidX.Preference.PreferenceManager.GetDefaultSharedPreferences(this);
+            //Load preferences into global variable
+            preferences = AndroidX.Preference.PreferenceManager.GetDefaultSharedPreferences(this);
 
             //Inflate layouts
             if (!fromNotification)
@@ -486,7 +485,7 @@ namespace SmartLyrics
                     songInfo = notificationSong;
                     previousNtfSong = notificationSong;
 
-                    bool autoUpdate = prefs.GetBoolean("auto_update_page", false);
+                    bool autoUpdate = preferences.GetBoolean("auto_update_page", false);
 
                     if (autoUpdate && nowPlayingMode)
                     {
@@ -747,7 +746,7 @@ namespace SmartLyrics
         private async Task ReadFromFile()
         {
             Log.WriteLine(LogPriority.Info, "MainActivity", "ReadFromFile: Started ReadFromFile method");
-            string path = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedLyricsLocation + songInfo.Id + lyricsExtension);
+            string path = Path.Combine(applicationPath, savedLyricsLocation + songInfo.Id + lyricsExtension);
 
             #region UI Variables
             ImageView savedView = FindViewById<ImageView>(Resource.Id.savedView);
@@ -768,12 +767,16 @@ namespace SmartLyrics
 
             UpdateSong(true, false, true);
 
-            lyricsLoadingWheel.Visibility = ViewStates.Gone;
-            fabMore.Visibility = ViewStates.Visible;
-            savedView.Visibility = ViewStates.Visible;
-            infoTxt.Visibility = ViewStates.Visible;
+            RunOnUiThread(() =>
+            {
+                lyricsLoadingWheel.Visibility = ViewStates.Gone;
+                fabMore.Visibility = ViewStates.Visible;
+                savedView.Visibility = ViewStates.Visible;
+                infoTxt.Visibility = ViewStates.Visible;
 
-            refreshLayout.Refreshing = false;
+                refreshLayout.Refreshing = false;
+            });
+
             shouldCheck = true;
 
             Log.WriteLine(LogPriority.Info, "MainActivity", "ReadFromFile: Done reading from file!");
@@ -781,55 +784,35 @@ namespace SmartLyrics
 
         private async Task SaveSong()
         {
-            string pathImg = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, savedImagesLocation);
-
-            await MiscTools.CheckAndCreateAppFolders();
-
-            //Header and cover images are always saved on a separate folder with
-            //the song's ID to identify it.
-            string pathHeader = Path.Combine(pathImg, songInfo.Id + "-header.jpg");
-            string pathCover = Path.Combine(pathImg, songInfo.Id + "-cover.jpg");
-
+            //Show Snackbar alerting user of result
             if (await DatabaseHandling.WriteInfoAndLyrics(songInfo))
             {
-                //Show Snackbar alerting user of success
-                ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
-                Snackbar snackbar = Snackbar.Make(layout, Resource.String.savedSuccessfully, Snackbar.LengthLong);
-                snackbar.Show();
+                RunOnUiThread(() =>
+                {
+                    ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
+                    Snackbar snackbar = Snackbar.Make(layout, Resource.String.savedSuccessfully, Snackbar.LengthLong);
+                    snackbar.Show();
+                });
+
                 Log.WriteLine(LogPriority.Info, "MainActivity", "SaveSong: Song saved successfully! ");
             }
             else
             {
-                ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
-                Snackbar snackbar = Snackbar.Make(layout, Resource.String.alreadySaved, Snackbar.LengthLong);
-                snackbar.Show();
-                Log.WriteLine(LogPriority.Warn, "MainActivity", "SaveSong: Song already exists!");
-            }
-
-            //Save header and cover images based on preferences
-            if (prefs.GetBoolean("save_header", true))
-            {
-                using (FileStream fileStream = File.Create(pathHeader))
+                RunOnUiThread(() =>
                 {
-                    Stream header = await ImageService.Instance.LoadUrl(songInfo.Header).AsJPGStreamAsync();
-                    header.Seek(0, SeekOrigin.Begin);
-                    header.CopyTo(fileStream);
+                    ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
+                    Snackbar snackbar = Snackbar.Make(layout, Resource.String.alreadySaved, Snackbar.LengthLong);
+                    snackbar.Show();
+                });
 
-                    Log.WriteLine(LogPriority.Info, "MainActivity", "SaveSong: Saved header image.");
-                }
+                Log.WriteLine(LogPriority.Warn, "MainActivity", "SaveSong: Song already exists");
             }
 
-            using (FileStream fileStream = File.Create(pathCover))
+            RunOnUiThread(() =>
             {
-                Stream cover = await ImageService.Instance.LoadUrl(songInfo.Cover).AsJPGStreamAsync();
-                cover.Seek(0, SeekOrigin.Begin);
-                cover.CopyTo(fileStream);
-
-                Log.WriteLine(LogPriority.Info, "MainActivity", "SaveSong: Saved cover image.");
-            }
-
-            ImageView savedView = FindViewById<ImageView>(Resource.Id.savedView);
-            savedView.Visibility = ViewStates.Visible;
+                ImageView savedView = FindViewById<ImageView>(Resource.Id.savedView);
+                savedView.Visibility = ViewStates.Visible;
+            });
         }
         #endregion
 
@@ -919,8 +902,8 @@ namespace SmartLyrics
 
                 if (imagesOnDisk)
                 {
-                    string coverPath = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath + "/" + savedImagesLocation, songInfo.Id + "-cover.jpg");
-                    string headerPath = Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath + "/" + savedImagesLocation, songInfo.Id + "-header.jpg");
+                    string coverPath = Path.Combine(applicationPath + "/" + savedImagesLocation, songInfo.Id + coverSuffix);
+                    string headerPath = Path.Combine(applicationPath + "/" + savedImagesLocation, songInfo.Id + headerSuffix);
 
                     RunOnUiThread(() =>
                     {
