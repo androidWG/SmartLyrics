@@ -93,7 +93,6 @@
     <Compile Include="Classes\Toolbox\JapaneseTools.cs" />
     <Compile Include="Classes\Toolbox\Logging.cs" />
     <Compile Include="Classes\Toolbox\MiscTools.cs" />
-    <Compile Include="Classes\Toolbox\PermissionChecking.cs" />
     <Compile Include="Classes\API Requests\SpotifyRequests.cs" />
     <Compile Include="Classes\Toolbox\SongParsing.cs" />
     <Compile Include="Classes\Toolbox\Text.cs" />

@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace SmartLyrics.Common
 {
-    #region Storage Classes or just classes idk what to call this
+    #region Classes
     public class Song
     {
         public string Title { get; set; } = String.Empty;

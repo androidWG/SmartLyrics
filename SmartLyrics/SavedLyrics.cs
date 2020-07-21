@@ -115,62 +115,7 @@ namespace SmartLyrics
         protected override async void OnResume()
         {
             base.OnResume();
-
-            if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReadExternalStorage) == (int)Android.Content.PM.Permission.Granted)
-            {
-                await ShowSavedSongs();
-            }
-            else
-            {
-                string permission = Manifest.Permission.ReadExternalStorage;
-                int permissionStatus = await PermissionChecking.CheckAndSetPermissions(permission, this);
-
-                ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
-                Snackbar snackbar;
-
-                switch (permissionStatus)
-                {
-                    case 0:
-                        await ShowSavedSongs();
-                        break;
-                    case 1:
-                        string[] p = { permission };
-                        snackbar = Snackbar.Make(layout, Resource.String.needStoragePermission, Snackbar.LengthIndefinite)
-                            .SetAction(Android.Resource.String.Ok, new Action<View>(delegate (View obj)
-                            {
-                                ActivityCompat.RequestPermissions(this, p, 1);
-                            }));
-                        snackbar.Show();
-
-                        while (!permissionGranted[0])
-                        {
-                            await Task.Delay(200);
-                            //Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "OnResume: Waiting permission status...");
-                        }
-
-                        //reset permission marker
-                        permissionGranted[0] = false;
-
-                        if (permissionGranted[1])
-                        {
-                            await ShowSavedSongs();
-                        }
-                        else
-                        {
-                            snackbar = Snackbar.Make(layout, Resource.String.permissionDenied, Snackbar.LengthLong);
-                            snackbar.Show();
-                        }
-                        break;
-                    case 2:
-                    {
-                        snackbar = Snackbar.Make(layout, Resource.String.readError, Snackbar.LengthLong);
-                        snackbar.Show();
-
-                        Log.WriteLine(LogPriority.Error, "SavedLyrics", "OnResume: An error occured while requesting permission!");
-                        break;
-                    }
-                }
-            }
+            await ShowSavedSongs();
         }
         #endregion
 

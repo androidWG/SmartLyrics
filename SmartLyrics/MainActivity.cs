@@ -64,15 +64,6 @@ namespace SmartLyrics
         //? search then the size of a list (int variable for example).
         private readonly List<string> t = new List<string>();
 
-        //! Used to alert a method that called PermissionChecking.CheckAndSetPermissions
-        //! that the user made their decision
-        //----------------------------
-        //! Index 0 is the status of the permission (true = arrived, false = didn't arrive)
-        //! Index 1 is the result (true = granted, false = denied)
-        //? There's 100% totally a better way to do this but I'm lazy
-        //  Same on any activity that asks for permissions
-        private readonly bool[] permissionGranted = new bool[2] { false, false };
-
         TextView npTxt;
         ImageView shineView;
         TextView noResultsTxt;
@@ -271,62 +262,6 @@ namespace SmartLyrics
                 await GetAndShowSearchResults(searchTxt.Text, index);
 
                 searchLoadingWheel.Visibility = ViewStates.Gone;
-            }
-        }
-
-        private async Task SaveButton_Action()
-        {
-            Log.WriteLine(LogPriority.Verbose, "MainActivity", "SaveButton_Action: Clicked on save button");
-
-            //Check for write permissions
-            Log.WriteLine(LogPriority.Verbose, "MainActivity", "SaveButton_Action: Checking write permission...");
-            string permission = Manifest.Permission.WriteExternalStorage;
-            int permissionStatus = await PermissionChecking.CheckAndSetPermissions(permission, this);
-
-            ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
-            Snackbar snackbar;
-
-            switch (permissionStatus)
-            {
-                case 0:
-                    await SaveSong();
-                    break;
-
-                case 1:
-                    string[] p = { permission };
-                    snackbar = Snackbar.Make(layout, Resource.String.needStoragePermission, Snackbar.LengthIndefinite)
-                        .SetAction(Android.Resource.String.Ok, new Action<View>(delegate (View obj)
-                        {
-                            ActivityCompat.RequestPermissions(this, p, 1);
-                        }));
-                    snackbar.Show();
-
-                    while (!permissionGranted[0])
-                    {
-                        await Task.Delay(200);
-                        Log.WriteLine(LogPriority.Verbose, "MainActivity", "SaveButton_Action: Waiting permission status...");
-                    }
-
-                    //Reset permission marker
-                    permissionGranted[0] = false;
-
-                    if (permissionGranted[1])
-                    {
-                        await SaveSong();
-                    }
-                    else
-                    {
-                        snackbar = Snackbar.Make(layout, Resource.String.permissionDenied, Snackbar.LengthLong);
-                        snackbar.Show();
-                    }
-                    break;
-
-                case 2:
-                    snackbar = Snackbar.Make(layout, Resource.String.saveError, Snackbar.LengthLong);
-                    snackbar.Show();
-
-                    Log.WriteLine(LogPriority.Error, "MainActivity", "SaveButton_Action: An error occured while getting permission!");
-                    break;
             }
         }
 
@@ -690,56 +625,8 @@ namespace SmartLyrics
             }
             else
             {
-                Log.WriteLine(LogPriority.Info, "MainActivity", "LoadSong: File for song exists, starting CheckAndSetPermissions...");
-
-                string permission = Manifest.Permission.ReadExternalStorage;
-                int permissionStatus = await PermissionChecking.CheckAndSetPermissions(permission, this);
-
-                ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
-                Snackbar snackbar;
-
-                switch (permissionStatus)
-                {
-                    case 0:
-                        await ReadFromFile();
-                        break;
-                    case 1:
-                        string[] p = { permission };
-                        snackbar = Snackbar.Make(layout, Resource.String.needStoragePermission, Snackbar.LengthIndefinite)
-                            .SetAction(Android.Resource.String.Ok, new Action<View>(delegate (View obj)
-                            {
-                                ActivityCompat.RequestPermissions(this, p, 1);
-                            }));
-                        snackbar.Show();
-
-                        while (!permissionGranted[0])
-                        {
-                            await Task.Delay(200);
-                            Log.WriteLine(LogPriority.Verbose, "MainActivity", "SaveButton_Action: Waiting permission status...");
-                        }
-
-                        //Reset permission marker
-                        permissionGranted[0] = false;
-
-                        if (permissionGranted[1])
-                        {
-                            await ReadFromFile();
-                        }
-                        else
-                        {
-                            snackbar = Snackbar.Make(layout, Resource.String.permissionDenied, Snackbar.LengthLong);
-                            snackbar.Show();
-                        }
-                        break;
-                    case 2:
-                    {
-                        snackbar = Snackbar.Make(layout, Resource.String.readError, Snackbar.LengthLong);
-                        snackbar.Show();
-
-                        Log.WriteLine(LogPriority.Error, "MainActivity", "LoadSong: An error occured while requesting permission!");
-                        break;
-                    }
-                }
+                Log.WriteLine(LogPriority.Info, "MainActivity", "LoadSong: File for song exists, loading...");
+                await ReadFromFile();
             }
         }
 
@@ -841,7 +728,7 @@ namespace SmartLyrics
             SwipeRefreshLayout refreshLayout = FindViewById<SwipeRefreshLayout>(Resource.Id.swipeRefreshLayout);
             ImageButton coverView = FindViewById<ImageButton>(Resource.Id.coverView);
 
-            coverView.Click += async delegate { await SaveButton_Action(); };
+            coverView.Click += async delegate { await SaveSong(); };
             refreshLayout.Refresh += async delegate
             {
                 Log.WriteLine(LogPriority.Verbose, "MainActivity", "refreshLayout.Refresh: Refreshing song...");
@@ -935,33 +822,11 @@ namespace SmartLyrics
                     Log.WriteLine(LogPriority.Verbose, "MainActivity", "UpdateSong: Updated images from the internet");
                 }
             }
-
-            Log.WriteLine(LogPriority.Info, "MainActivity", "UpdateSong: Finished updating from songInfo");
         }
         #endregion
 
 
         #region The stuff that's always on the bottom
-        //Same on any activity that asks for permissions
-        public override async void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
-        {
-            Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
-            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
-
-            Log.WriteLine(LogPriority.Verbose, "MainActivity", "OnRequestPermissionsResult: Permission: " + permissions[0] + " | Result: " + grantResults[0].ToString());
-
-            if (grantResults[0] == Android.Content.PM.Permission.Granted)
-            {
-                permissionGranted[0] = true;
-                permissionGranted[1] = true;
-            }
-            else if (grantResults[0] == Android.Content.PM.Permission.Denied || grantResults[1] == Android.Content.PM.Permission.Denied)
-            {
-                permissionGranted[0] = true;
-                permissionGranted[1] = false;
-            }
-        }
-
         public override void OnBackPressed()
         {
             TextView headerTxt = FindViewById<TextView>(Resource.Id.headerTxt);
