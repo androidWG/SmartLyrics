@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Threading.Tasks;
-using System.Xml;
 
 using static SmartLyrics.Globals;
 
@@ -154,12 +153,11 @@ namespace SmartLyrics.Toolbox
 
                     // Write lyrics to file
                     string _filepath = Path.Combine(lyricsPath, songInfo.Id + lyricsExtension);
-
+                    File.WriteAllText(_filepath, songInfo.Lyrics);
+                    
                     await WriteImages(songInfo);
 
-                    File.WriteAllText(_filepath, songInfo.Lyrics);
-                    Log.WriteLine(LogPriority.Info, "DatabaseHandling", "WriteLyrics: Wrote lyrics for {songInfo.title} to disk!");
-
+                    Log.WriteLine(LogPriority.Info, "DatabaseHandling", $"WriteLyrics: Wrote song {songInfo.Title} to disk");
                     return true;
                 }
                 else

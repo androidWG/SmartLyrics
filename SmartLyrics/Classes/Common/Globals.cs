@@ -10,6 +10,7 @@ namespace SmartLyrics
         public const string savedImagesLocation = "saved/imagecache/";
         public const string databaseLocation = "/.lyricsdatabase";
         public const string lyricsExtension = ".lyrics";
+        public const string romanizedExtension = ".romanized";
 
         public const string headerSuffix = "-header.jpg";
         public const string coverSuffix = "-cover.jpg";

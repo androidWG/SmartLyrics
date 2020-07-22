@@ -82,4 +82,8 @@
     <string name="prefDetectSummary">Detectar músicas tocando em aplicativos de streaming e mostrar letras quando estiver no aplicativo. Desativar isso também desativa o serviço de detecção de plano de fundo.</string>
     <string name="prefDetect">Detectar músicas tocando em segundo plano</string>
     <string name="coverSearchDesc">Imagem de capa da música</string>
+    <string name="prefRomanizeDetailsSummary">Romanizar automaticamente o título, álbum, artista e o artista em destaque (feat.).</string>
+    <string name="prefRomanizeDetails">Romanize automaticamente informações da música</string>
+    <string name="prefRomanizeSearchSummary">Isso manterá apenas os títulos romanizados quando você pesquisar. Isso pode dificultar a identificação de músicas em japonês, se você não puder convertê-las em romaji e vice-versa.</string>
+    <string name="prefRomanizeSearch">Romanizar os resultados da pesquisa</string>
 </resources>

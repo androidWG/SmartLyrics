@@ -42,6 +42,7 @@ namespace SmartLyrics
         public static Song songInfo;
         public static Song notificationSong = new Song();
         private Song previousNtfSong = new Song();
+        private Song romanized;
 
         View welcomeView;
         View songView;
@@ -84,8 +85,8 @@ namespace SmartLyrics
             Log.WriteLine(LogPriority.Info, "MainActivity", "OnCreate: Loaded view");
 
             // Startup error handling
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
-            TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
+            //AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+            //TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
             AppCenter.Start("b07a2f8e-5d02-4516-aadc-2cba2c27fcf8",
                    typeof(Analytics), typeof(Crashes)); //TODO: add Event Trackers
 
@@ -283,7 +284,7 @@ namespace SmartLyrics
             imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0);
 
             nowPlayingMode = false;
-            UpdateSong(false, true);
+            UpdateSong(songInfo, false, true);
 
             songInfo = new Song
             {
@@ -367,6 +368,15 @@ namespace SmartLyrics
                         APIPath = (string)result["result"]["api_path"],
                         Path = (string)result["result"]["path"]
                     };
+
+                    if (song.Title.ContainsJapanese() && preferences.GetBoolean("romanize_search", false))
+                    {
+                        song.Title = await JapaneseTools.StripJapanese(song.Title);
+                    }
+                    if (song.Artist.ContainsJapanese() && preferences.GetBoolean("romanize_search", false))
+                    {
+                        song.Artist = await JapaneseTools.StripJapanese(song.Artist);
+                    }
 
                     resultsList.Add(song);
                 }
@@ -506,7 +516,7 @@ namespace SmartLyrics
             }
 
             //Exceute all Japanese transliteration tasks at once
-            if (songInfo.Title.ContainsJapanese() || songInfo.Artist.ContainsJapanese())
+            if (preferences.GetBoolean("auto_romanize_details", true) && songInfo.Title.ContainsJapanese() || songInfo.Artist.ContainsJapanese())
             {
                 Task<string> awaitTitle = songInfo.Title.StripJapanese();
                 Task<string> awaitArtist = songInfo.Artist.StripJapanese();
@@ -514,12 +524,20 @@ namespace SmartLyrics
 
                 await Task.WhenAll(awaitTitle, awaitArtist, awaitAlbum);
 
-                songInfo.Title = await awaitTitle;
-                songInfo.Artist = await awaitArtist;
-                songInfo.Album = await awaitAlbum;
-            }
+                // This snippet is the same in GetAndShowLyrics
+                if (romanized == null) { romanized = new Song(); }
 
-            UpdateSong(true, false);
+                romanized.Title = await awaitTitle;
+                romanized.Artist = await awaitArtist;
+                romanized.Album = await awaitAlbum;
+
+                UpdateSong(romanized, true, false);
+            }
+            else 
+            {
+                romanized = null;
+                UpdateSong(songInfo, true, false);
+            }
         }
 
         private async Task GetAndShowLyrics()
@@ -542,6 +560,22 @@ namespace SmartLyrics
             songInfo.Lyrics = await HTMLParsing.ParseHTML(doc);
             Log.WriteLine(LogPriority.Verbose, "MainActivity", "GetAndShowLyrics: Parsed HTML");
 
+            // Auto-romanize based on preferences
+            string lyricsToShow = "An error ocurred, please reload song";
+            if (songInfo.Lyrics.ContainsJapanese() && preferences.GetBoolean("auto_romanize", false))
+            {
+                string romanizedLyrics = await JapaneseTools.GetTransliteration(songInfo.Lyrics, true, JapaneseTools.TargetSyllabary.Romaji);
+
+                if (romanized == null) { romanized = new Song(); } // This snippet is the same in GetAndShowSongDetails
+                romanized.Lyrics = romanizedLyrics;
+                lyricsToShow = romanizedLyrics;
+            }
+            else 
+            { 
+                romanized = null;
+                lyricsToShow = songInfo.Lyrics;
+            }
+
             RunOnUiThread(() =>
             {
                 fabMore.Visibility = ViewStates.Visible;
@@ -551,12 +585,12 @@ namespace SmartLyrics
 
                 if (Build.VERSION.SdkInt >= BuildVersionCodes.N)
                 {
-                    songLyrics.TextFormatted = Html.FromHtml(songInfo.Lyrics, FromHtmlOptions.ModeCompact);
+                    songLyrics.TextFormatted = Html.FromHtml(lyricsToShow, FromHtmlOptions.ModeCompact);
                 }
                 else
                 {
                     #pragma warning disable CS0618 // Type or member is obsolete
-                    songLyrics.TextFormatted = Html.FromHtml(songInfo.Lyrics);
+                    songLyrics.TextFormatted = Html.FromHtml(lyricsToShow);
                     #pragma warning restore CS0618 // Type or member is obsolete
                 }
 
@@ -647,7 +681,7 @@ namespace SmartLyrics
                 Log.WriteLine(LogPriority.Verbose, "MainActivity", "ReadFromFile: Read lyrics from file");
             }
 
-            UpdateSong(true, false, true);
+            UpdateSong(songInfo, true, false, true);
 
             RunOnUiThread(() =>
             {
@@ -735,7 +769,7 @@ namespace SmartLyrics
             shineView = FindViewById<ImageView>(Resource.Id.shineView);
         }
 
-        private void UpdateSong(bool updateImages, bool clearLabels, bool imagesOnDisk = false)
+        private void UpdateSong(Song song, bool updateImages, bool clearLabels, bool imagesOnDisk = false)
         {
             TextView songLyrics = FindViewById<TextView>(Resource.Id.songLyrics);
             TextView songTitle = FindViewById<TextView>(Resource.Id.songTitle);
@@ -755,21 +789,21 @@ namespace SmartLyrics
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(songInfo.Lyrics))
+                    if (!string.IsNullOrEmpty(song.Lyrics))
                     {
-                        songLyrics.TextFormatted = Html.FromHtml(songInfo.Lyrics, FromHtmlOptions.ModeCompact);
+                        songLyrics.TextFormatted = Html.FromHtml(song.Lyrics, FromHtmlOptions.ModeCompact);
                     }
-                    songTitle.Text = songInfo.Title;
-                    songArtist.Text = songInfo.Artist;
-                    songAlbum.Text = songInfo.Album;
-                    if (string.IsNullOrEmpty(songInfo.FeaturedArtist))
+                    songTitle.Text = song.Title;
+                    songArtist.Text = song.Artist;
+                    songAlbum.Text = song.Album;
+                    if (string.IsNullOrEmpty(song.FeaturedArtist))
                     {
                         songFeat.Visibility = ViewStates.Gone;
                     }
                     else
                     {
                         songFeat.Visibility = ViewStates.Visible;
-                        songFeat.Text = songInfo.FeaturedArtist;
+                        songFeat.Text = song.FeaturedArtist;
                     }
 
                     Log.WriteLine(LogPriority.Verbose, "MainActivity", "UpdateSong: Updated labels");
@@ -784,8 +818,8 @@ namespace SmartLyrics
 
                 if (imagesOnDisk)
                 {
-                    string coverPath = Path.Combine(applicationPath + "/" + savedImagesLocation, songInfo.Id + coverSuffix);
-                    string headerPath = Path.Combine(applicationPath + "/" + savedImagesLocation, songInfo.Id + headerSuffix);
+                    string coverPath = Path.Combine(applicationPath + "/" + savedImagesLocation, song.Id + coverSuffix);
+                    string headerPath = Path.Combine(applicationPath + "/" + savedImagesLocation, song.Id + headerSuffix);
 
                     RunOnUiThread(() =>
                     {
@@ -808,10 +842,10 @@ namespace SmartLyrics
                 {
                     RunOnUiThread(() =>
                     {
-                        Log.WriteLine(LogPriority.Verbose, "MainActivity", $"UpdateSong: Loading cover from {songInfo.Cover} and header from {songInfo.Header}");
-                        ImageService.Instance.LoadUrl(songInfo.Cover).Transform(new RoundedTransformation(coverRadius)).Into(coverView);
-                        ImageService.Instance.LoadUrl(songInfo.Header).Transform(new BlurredTransformation(headerBlur)).Into(headerView);
-                        ImageService.Instance.LoadUrl(songInfo.Header).Transform(new CropTransformation(3, 0, 0)).Transform(new BlurredTransformation(searchBlur)).Transform(new BlurredTransformation(searchBlur)).Into(searchView);
+                        Log.WriteLine(LogPriority.Verbose, "MainActivity", $"UpdateSong: Loading cover from {song.Cover} and header from {song.Header}");
+                        ImageService.Instance.LoadUrl(song.Cover).Transform(new RoundedTransformation(coverRadius)).Into(coverView);
+                        ImageService.Instance.LoadUrl(song.Header).Transform(new BlurredTransformation(headerBlur)).Into(headerView);
+                        ImageService.Instance.LoadUrl(song.Header).Transform(new CropTransformation(3, 0, 0)).Transform(new BlurredTransformation(searchBlur)).Transform(new BlurredTransformation(searchBlur)).Into(searchView);
                     });
 
                     Log.WriteLine(LogPriority.Verbose, "MainActivity", "UpdateSong: Updated images from the internet");

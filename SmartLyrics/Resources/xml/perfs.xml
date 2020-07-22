@@ -4,6 +4,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android">
     <SwitchPreference
             android:defaultValue="true"
+            android:fontFamily="@font/open_sans"
             android:key="detect_song"
             android:summary="@string/prefDetectSummary"
             android:title="@string/prefDetect" />
@@ -23,7 +24,6 @@
             android:summary="@string/prefSyncSummary"
             android:title="@string/prefSync" />
     <PreferenceCategory android:title="@string/prefBackupRestore">
-
         <Preference
                 android:key="backup"
                 android:title="@string/prefBackup" />
@@ -32,7 +32,6 @@
                 android:title="@string/prefRestore" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/prefJapaneseLang">
-
         <ListPreference
                 android:defaultValue="modeSpaced"
                 android:entries="@array/romanization_modes_text"
@@ -44,9 +43,18 @@
                 android:defaultValue="false"
                 android:key="auto_romanize"
                 android:title="@string/prefRomanize" />
+        <SwitchPreference
+                android:defaultValue="true"
+                android:key="auto_romanize_details"
+                android:summary="@string/prefRomanizeDetailsSummary"
+                android:title="@string/prefRomanizeDetails" />
+        <SwitchPreference
+                android:defaultValue="false"
+                android:key="romanize_search"
+                android:summary="@string/prefRomanizeSearchSummary"
+                android:title="@string/prefRomanizeSearch" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/prefAdvanced">
-
         <SwitchPreference
                 android:defaultValue="true"
                 android:key="save_header"

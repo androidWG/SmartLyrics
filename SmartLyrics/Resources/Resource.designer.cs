@@ -6048,6 +6048,12 @@ namespace SmartLyrics
 			// aapt resource value: 0x7f0e005f
 			public const int prefRomanize = 2131624031;
 			
+			// aapt resource value: 0x7f0e0075
+			public const int prefRomanizeDetails = 2131624053;
+			
+			// aapt resource value: 0x7f0e0076
+			public const int prefRomanizeDetailsSummary = 2131624054;
+			
 			// aapt resource value: 0x7f0e0061
 			public const int prefRomanizeMode = 2131624033;
 			
@@ -6059,6 +6065,12 @@ namespace SmartLyrics
 			
 			// aapt resource value: 0x7f0e0063
 			public const int prefRomanizeMode_spaced = 2131624035;
+			
+			// aapt resource value: 0x7f0e0077
+			public const int prefRomanizeSearch = 2131624055;
+			
+			// aapt resource value: 0x7f0e0078
+			public const int prefRomanizeSearchSummary = 2131624056;
 			
 			// aapt resource value: 0x7f0e0069
 			public const int prefSync = 2131624041;
