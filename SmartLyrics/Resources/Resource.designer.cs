@@ -858,9 +858,6 @@ namespace SmartLyrics
 			// aapt resource value: 0x7f0100a7
 			public const int behavior_skipCollapsed = 2130772135;
 			
-			// aapt resource value: 0x7f01025e
-			public const int blurOverlayColor = 2130772574;
-			
 			// aapt resource value: 0x7f0100de
 			public const int borderWidth = 2130772190;
 			
@@ -8815,12 +8812,6 @@ namespace SmartLyrics
 			
 			// aapt resource value: 1
 			public const int BackgroundStyle_selectableItemBackground = 1;
-			
-			public static int[] BlurView = new int[] {
-					2130772574};
-			
-			// aapt resource value: 0
-			public const int BlurView_blurOverlayColor = 0;
 			
 			public static int[] BottomAppBar = new int[] {
 					2130772123,

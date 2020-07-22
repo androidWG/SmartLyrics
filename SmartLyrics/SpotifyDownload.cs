@@ -3,7 +3,6 @@ using Android.Content;
 using Android.Content.PM;
 using Android.Graphics;
 using Android.OS;
-using Android.Support.Constraints;
 using Android.Support.Design.Widget;
 using Android.Support.V4.Widget;
 using Android.Support.V7.App;
@@ -11,7 +10,7 @@ using Android.Util;
 using Android.Views;
 using Android.Webkit;
 using Android.Widget;
-
+using AndroidX.ConstraintLayout.Widget;
 using Plugin.CurrentActivity;
 
 using System;

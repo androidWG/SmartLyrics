@@ -3,7 +3,6 @@ using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Runtime;
-using Android.Support.Constraints;
 using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V4.Widget;
@@ -13,6 +12,7 @@ using Android.Util;
 using Android.Views;
 using Android.Views.InputMethods;
 using Android.Widget;
+using AndroidX.ConstraintLayout.Widget;
 using FFImageLoading;
 using FFImageLoading.Transformations;
 using HtmlAgilityPack;
@@ -705,7 +705,8 @@ namespace SmartLyrics
             {
                 RunOnUiThread(() =>
                 {
-                    ConstraintLayout layout = FindViewById<ConstraintLayout>(Resource.Id.constraintMain);
+                    ConstraintLayout layout = FindViewById<
+                        ConstraintLayout>(Resource.Id.constraintMain);
                     Snackbar snackbar = Snackbar.Make(layout, Resource.String.savedSuccessfully, Snackbar.LengthLong);
                     snackbar.Show();
                 });
