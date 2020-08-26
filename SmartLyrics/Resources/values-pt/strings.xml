@@ -86,4 +86,5 @@
     <string name="prefRomanizeDetails">Romanize automaticamente informações da música</string>
     <string name="prefRomanizeSearchSummary">Isso manterá apenas os títulos romanizados quando você pesquisar. Isso pode dificultar a identificação de músicas em japonês, se você não puder convertê-las em romaji e vice-versa.</string>
     <string name="prefRomanizeSearch">Romanizar os resultados da pesquisa</string>
+    <string name="lyricsErrorOcurred">Ocorreu um erro, por favor recarregue a página</string>
 </resources>

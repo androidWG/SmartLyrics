@@ -70,4 +70,5 @@
     <string name="prefRomanizeDetails">كتابة كلمات الأغنية بالحروف اللاتينية تلقائيًا</string>
     <string name="prefRomanizeSearchSummary">سيؤدي ذلك إلى الاحتفاظ بالعناوين اللاتينية فقط عند البحث. يمكن أن يجعل هذا تحديد الأغاني باللغة اليابانية أمرًا صعبًا إذا لم تتمكن من تحويلها إلى romaji والعكس صحيح.</string>
     <string name="prefRomanizeSearch">ترقيم نتائج البحث</string>
+    <string name="lyricsErrorOcurred">حدث خطأ ، يرجى إعادة تحميل الأغنية</string>
 </resources>

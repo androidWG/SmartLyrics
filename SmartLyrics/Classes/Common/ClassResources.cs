@@ -23,6 +23,7 @@ namespace SmartLyrics.Common
         public string APIPath { get; set; } = String.Empty;
         public string Path { get; set; } = String.Empty;
         public string Lyrics { get; set; } = String.Empty;
+        public Song Romanized { get; set; } //used when saving to a file
         public int Likeness { get; set; } //used by the NLService
         public int Id { get; set; }
     }

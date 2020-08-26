@@ -21,6 +21,6 @@ namespace SmartLyrics
 
         public const string romanizeConvertURL = "https://romanization-service.herokuapp.com/convert";
 
-        public static ISharedPreferences preferences;
+        public static ISharedPreferences prefs;
     }
 }

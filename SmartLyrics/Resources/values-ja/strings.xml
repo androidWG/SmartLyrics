@@ -74,4 +74,5 @@
     <string name="prefRomanizeDetails">曲情報の自動ロマ化</string>
     <string name="prefRomanizeSearchSummary">これにより、検索時にローマ字のタイトルのみが保持されます。 このため、ローマ字に変換できない場合は日本語で曲を識別するのが難しくなり、逆も同様です。</string>
     <string name="prefRomanizeSearch">検索結果のローマ字化</string>
+    <string name="lyricsErrorOcurred">エラーが発生しました。曲をリロードしてください</string>
 </resources>

@@ -5922,6 +5922,9 @@ namespace SmartLyrics
 			// aapt resource value: 0x7f0e006f
 			public const int infoScreenFooter = 2131624047;
 			
+			// aapt resource value: 0x7f0e0079
+			public const int lyricsErrorOcurred = 2131624057;
+			
 			// aapt resource value: 0x7f0e0044
 			public const int mainGotoSaved = 2131624004;
 			
