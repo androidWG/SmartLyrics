@@ -214,6 +214,8 @@ namespace SmartLyrics
                     noResultsTxt.Visibility = ViewStates.Invisible;
                     faceTxt.Visibility = ViewStates.Invisible;
                 });
+
+                imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0);
             }
             else
             {
@@ -710,7 +712,7 @@ namespace SmartLyrics
         private async Task SaveSong()
         {
             //Simply pass current song info to WriteInfoAndLyrics method and it handles everything
-            bool saveSuccessful = await DatabaseHandling.WriteInfoAndLyrics(songInfo, romanized);
+            bool saveSuccessful = await DatabaseHandling.WriteInfoAndLyrics(new SongBundle(songInfo, romanized));
 
             //Show Snackbar alerting user of result
             if (saveSuccessful)
@@ -770,7 +772,15 @@ namespace SmartLyrics
             SwipeRefreshLayout refreshLayout = FindViewById<SwipeRefreshLayout>(Resource.Id.swipeRefreshLayout);
             ImageButton coverView = FindViewById<ImageButton>(Resource.Id.coverView);
 
-            coverView.Click += async delegate { await SaveSong(); };
+            coverView.Click += async delegate
+            {
+                //Make sure that the song has finished loading before attempting to save
+                ProgressBar lyricsLoadingWheel = FindViewById<ProgressBar>(Resource.Id.lyricsLoadingWheel);
+                if (!refreshLayout.Refreshing && lyricsLoadingWheel.Visibility != ViewStates.Visible)
+                {
+                    await SaveSong();
+                }
+            };
             refreshLayout.Refresh += async delegate
             {
                 Log.WriteLine(LogPriority.Verbose, "MainActivity", "refreshLayout.Refresh: Refreshing song...");

@@ -192,7 +192,8 @@ namespace SmartLyrics.Toolbox
 
         // Writes a song to the saved lyrics database.
         // Returns true if successful.
-        public static async Task<bool> WriteInfoAndLyrics(Song songInfo, RomanizedSong romanizedSong)
+        //TODO: Add ability to return an error, song already saved or saved successfully messages
+        public static async Task<bool> WriteInfoAndLyrics(SongBundle song)
         {
             await MiscTools.CheckAndCreateAppFolders();
 
@@ -202,48 +203,44 @@ namespace SmartLyrics.Toolbox
 
             try
             {
-                if (await GetSongFromTable(songInfo.Id) == null)
+                if (await GetSongFromTable(song.Normal.Id) == null)
                 {
                     // Write lyrics to file
-                    string _filepath = Path.Combine(lyricsPath, songInfo.Id + lyricsExtension);
-                    File.WriteAllText(_filepath, songInfo.Lyrics);
+                    string _filepath = Path.Combine(lyricsPath, song.Normal.Id + lyricsExtension);
+                    File.WriteAllText(_filepath, song.Normal.Lyrics);
 
-                    if (romanizedSong != null)
+                    if (song.Romanized != null)
                     {
-                        string _romanizedFilepath = Path.Combine(lyricsPath, songInfo.Id + romanizedExtension);
-                        File.WriteAllText(_romanizedFilepath, romanizedSong.Lyrics);
+                        string _romanizedFilepath = Path.Combine(lyricsPath, song.Normal.Id + romanizedExtension);
+                        File.WriteAllText(_romanizedFilepath, song.Romanized.Lyrics);
 
-                        songInfo.Romanized = true;
+                        song.Normal.Romanized = true;
 
                         rdb.Rows.Add(
-                            romanizedSong.Id,
-                            romanizedSong.Title,
-                            romanizedSong.Artist,
-                            romanizedSong.Album,
-                            romanizedSong.FeaturedArtist);
+                            song.Romanized.Id,
+                            song.Romanized.Title,
+                            song.Romanized.Artist,
+                            song.Romanized.Album,
+                            song.Romanized.FeaturedArtist);
                         rdb.WriteXml(romanizedDBPath);
                     }
                     
-                    await WriteImages(songInfo);
-
-                    //Purge romanized lyrics after being saved in a separate file
-                    //TODO: remove this later
-                    romanizedSong.Lyrics = "";
+                    await WriteImages(song.Normal);
 
                     db.Rows.Add(
-                        songInfo.Id,
-                        songInfo.Title,
-                        songInfo.Artist,
-                        songInfo.Album,
-                        songInfo.FeaturedArtist,
-                        songInfo.Cover,
-                        songInfo.Header,
-                        songInfo.Romanized,
-                        songInfo.APIPath,
-                        songInfo.Path);
+                        song.Normal.Id,
+                        song.Normal.Title,
+                        song.Normal.Artist,
+                        song.Normal.Album,
+                        song.Normal.FeaturedArtist,
+                        song.Normal.Cover,
+                        song.Normal.Header,
+                        song.Normal.Romanized,
+                        song.Normal.APIPath,
+                        song.Normal.Path);
                     db.WriteXml(DBPath);
 
-                    Log.WriteLine(LogPriority.Info, "DatabaseHandling", $"WriteLyrics: Wrote song {songInfo.Title} to disk");
+                    Log.WriteLine(LogPriority.Info, "DatabaseHandling", $"WriteLyrics: Wrote song {song.Normal.Title} to disk");
                     return true;
                 }
                 else { return false; }
@@ -252,6 +249,13 @@ namespace SmartLyrics.Toolbox
             {
                 Crashes.TrackError(ex);
                 Log.WriteLine(LogPriority.Error, "DatabaseHandling", "WriteSong: Exception while writing lyrics to disk!\n" + ex.ToString());
+
+                return false;
+            }
+            catch (NullReferenceException ex)
+            {
+                Crashes.TrackError(ex);
+                Log.WriteLine(LogPriority.Error, "DatabaseHandling", "WriteSong: NullReferenceException while writing lyrics to disk! Reload song and try again.\n" + ex.ToString());
 
                 return false;
             }
