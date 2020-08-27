@@ -41,6 +41,7 @@ namespace SmartLyrics
     {
         private List<Song> resultsToView;
         public static Song songInfo;
+        public static RomanizedSong romanized;
         public static Song notificationSong = new Song();
         private Song previousNtfSong = new Song();
 
@@ -282,7 +283,7 @@ namespace SmartLyrics
             imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0);
 
             nowPlayingMode = false;
-            UpdateSong(songInfo, false, true);
+            UpdateSong(songInfo, romanized, false, false, true);
 
             songInfo = new Song
             {
@@ -514,7 +515,7 @@ namespace SmartLyrics
             }
 
             //Exceute all Japanese transliteration tasks at once
-            if (prefs.GetBoolean("auto_romanize_details", true) && songInfo.Title.ContainsJapanese() || songInfo.Artist.ContainsJapanese())
+            if (prefs.GetBoolean("auto_romanize_details", true) && songInfo.Title.ContainsJapanese() || songInfo.Artist.ContainsJapanese() || songInfo.Album.ContainsJapanese())
             {
                 Task<string> awaitTitle = songInfo.Title.StripJapanese();
                 Task<string> awaitArtist = songInfo.Artist.StripJapanese();
@@ -523,19 +524,20 @@ namespace SmartLyrics
                 await Task.WhenAll(awaitTitle, awaitArtist, awaitAlbum);
 
                 // This snippet is the same in GetAndShowLyrics
-                if (songInfo.Romanized == null) { songInfo.Romanized = new Song(); }
+                if (romanized == null) { romanized = new RomanizedSong(); }
 
-                songInfo.Romanized.Title = await awaitTitle;
-                songInfo.Romanized.Artist = await awaitArtist;
-                songInfo.Romanized.Album = await awaitAlbum;
+                romanized.Title = await awaitTitle;
+                romanized.Artist = await awaitArtist;
+                romanized.Album = await awaitAlbum;
 
-                UpdateSong(songInfo.Romanized, true, false);
+                songInfo.Romanized = true;
             }
             else 
             {
-                songInfo.Romanized = null;
-                UpdateSong(songInfo, true, false);
+                romanized = null;
             }
+
+            UpdateSong(songInfo, romanized, true, true);
         }
 
         private async Task GetAndShowLyrics()
@@ -561,15 +563,20 @@ namespace SmartLyrics
             // Auto-romanize based on preferences
             if (songInfo.Lyrics.ContainsJapanese() && prefs.GetBoolean("auto_romanize", false))
             {
-                string romanizedLyrics = await JapaneseTools.GetTransliteration(songInfo.Lyrics, true, JapaneseTools.TargetSyllabary.Romaji);
+                //TODO: Add furigana/okurigana support across app
+                string romanizedLyrics = await JapaneseTools.GetTransliteration(songInfo.Lyrics, true);
 
-                if (songInfo.Romanized == null) { songInfo.Romanized = new Song(); } // This snippet is the same in GetAndShowSongDetails
-                songInfo.Romanized.Lyrics = romanizedLyrics;
+                if (romanized == null) { romanized = new RomanizedSong(); } // This snippet is the same in GetAndShowSongDetails
+                romanized.Lyrics = romanizedLyrics;
+
+                songInfo.Romanized = true;
             }
             else 
             { 
-                if (songInfo.Romanized != null) { songInfo.Romanized.Lyrics = ""; }
+                if (romanized != null) { romanized.Lyrics = ""; }
             }
+
+            UpdateSong(songInfo, romanized, false, false);
 
             RunOnUiThread(() =>
             {
@@ -622,7 +629,7 @@ namespace SmartLyrics
                     savedView.Visibility = ViewStates.Gone;
                 });
 
-                try //TODO: Change this //why?
+                try //TODO: Change this //why? //I think to add error handling for both methods?
                 {
                     Task getDetails = GetAndShowSongDetails();
                     Task getLyrics = GetAndShowLyrics();
@@ -658,23 +665,22 @@ namespace SmartLyrics
             string path = Path.Combine(applicationPath, savedLyricsLocation + songInfo.Id);
 
             //songInfo is already loaded (from SavedLyrics activity), load lyrics and images from disk
-            //Load songInfo.Romanized lyrics if songInfo.Romanized lyrics were saved
+            //Load romanized lyrics if romanized lyrics were saved
             StreamReader sr = File.OpenText(path + lyricsExtension);
             songInfo.Lyrics = await sr.ReadToEndAsync();
 
-            if (songInfo.Romanized != null)
+            if (romanized != null)
             {
-                sr.Dispose(); //Not sure this helps but idk
+                sr.Dispose();
                 sr = File.OpenText(path + romanizedExtension);
 
-                songInfo.Romanized = songInfo.Romanized;
-                songInfo.Romanized.Lyrics = await sr.ReadToEndAsync();
+                romanized.Lyrics = await sr.ReadToEndAsync();
             }
 
-            Log.WriteLine(LogPriority.Verbose, "MainActivity", "ReadFromFile: Read lyrics from file");
+            Log.WriteLine(LogPriority.Verbose, "MainActivity", "ReadFromFile: Read lyrics from file(s)");
             sr.Dispose(); //Dispose/close manually since we're not using "using"
 
-            UpdateSong(songInfo, true, false, true);
+            UpdateSong(songInfo, romanized, true, true, imagesOnDisk:true);
 
             RunOnUiThread(() =>
             {
@@ -687,14 +693,16 @@ namespace SmartLyrics
             });
 
             shouldCheck = true;
-
-            Log.WriteLine(LogPriority.Info, "MainActivity", "ReadFromFile: Done reading from file!");
+            Log.WriteLine(LogPriority.Info, "MainActivity", "ReadFromFile: Done reading from file(s)!");
         }
 
         private async Task SaveSong()
-        {            
+        {
+            //Simply pass current song info to WriteInfoAndLyrics method and it handles everything
+            bool saveSuccessful = await DatabaseHandling.WriteInfoAndLyrics(songInfo, romanized);
+
             //Show Snackbar alerting user of result
-            if (await DatabaseHandling.WriteInfoAndLyrics(songInfo))
+            if (saveSuccessful)
             {
                 RunOnUiThread(() =>
                 {
@@ -763,13 +771,15 @@ namespace SmartLyrics
             shineView = FindViewById<ImageView>(Resource.Id.shineView);
         }
 
-        private void UpdateSong(Song song, bool updateImages, bool clearLabels, bool imagesOnDisk = false)
+        private void UpdateSong(Song song, RomanizedSong rSong, bool updateImages, bool updateDetails, bool clearLabels = false, bool imagesOnDisk = false)
         {
+            #region UI Variables
             TextView songLyrics = FindViewById<TextView>(Resource.Id.songLyrics);
             TextView songTitle = FindViewById<TextView>(Resource.Id.songTitle);
             TextView songArtist = FindViewById<TextView>(Resource.Id.songArtist);
             TextView songAlbum = FindViewById<TextView>(Resource.Id.songAlbum);
             TextView songFeat = FindViewById<TextView>(Resource.Id.songFeat);
+            #endregion
 
             RunOnUiThread(() =>
             {
@@ -783,22 +793,26 @@ namespace SmartLyrics
                 }
                 else
                 {
-                    Song toShow = new Song();
+                    Song toShow = song;
+                    if (rSong != null && prefs.GetBoolean("auto_romanize_details", false))
+                    {
+                        toShow = (Song)rSong;
+                    }
+
                     if (!string.IsNullOrEmpty(song.Lyrics))
                     {
                         //Make sure to alert user if for some reason the lyrics aren't loaded
                         string lyricsToShow = Resources.GetString(Resource.String.lyricsErrorOcurred);
 
-                        if (songInfo.Romanized == null)
+                        if (romanized == null)
                         {
                             lyricsToShow = songInfo.Lyrics; 
                         }
-                        else if (songInfo.Romanized != null)
+                        else if (romanized != null)
                         {
-                            toShow = song.Romanized;
-                            if (!string.IsNullOrEmpty(songInfo.Romanized.Lyrics) && prefs.GetBoolean("auto_romanize", false))
+                            if (!string.IsNullOrEmpty(romanized.Lyrics) && prefs.GetBoolean("auto_romanize", false))
                             {
-                                lyricsToShow = songInfo.Romanized.Lyrics;
+                                lyricsToShow = romanized.Lyrics;
                             }
                         }
                         
@@ -814,18 +828,21 @@ namespace SmartLyrics
                         }
                     }
 
-                    songTitle.Text = toShow.Title;
-                    songArtist.Text = toShow.Artist;
-                    songAlbum.Text = toShow.Album;
+                    if (updateDetails)
+                    {
+                        songTitle.Text = toShow.Title;
+                        songArtist.Text = toShow.Artist;
+                        songAlbum.Text = toShow.Album;
 
-                    if (string.IsNullOrEmpty(toShow.FeaturedArtist) || string.IsNullOrWhiteSpace(toShow.FeaturedArtist))
-                    {
-                        songFeat.Visibility = ViewStates.Gone;
-                    }
-                    else
-                    {
-                        songFeat.Visibility = ViewStates.Visible;
-                        songFeat.Text = toShow.FeaturedArtist;
+                        if (string.IsNullOrEmpty(toShow.FeaturedArtist) || string.IsNullOrWhiteSpace(toShow.FeaturedArtist))
+                        {
+                            songFeat.Visibility = ViewStates.Gone;
+                        }
+                        else
+                        {
+                            songFeat.Visibility = ViewStates.Visible;
+                            songFeat.Text = toShow.FeaturedArtist;
+                        }
                     }
 
                     Log.WriteLine(LogPriority.Verbose, "MainActivity", "UpdateSong: Updated labels");

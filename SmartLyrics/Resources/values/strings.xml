@@ -70,6 +70,6 @@
     <string name="prefRomanizeDetails">Auto-romanize song info</string>
     <string name="prefRomanizeDetailsSummary">Automatically romanize song title, album, artist and featured artist.</string>
     <string name="prefRomanizeSearch">Romanize search results</string>
-    <string name="prefRomanizeSearchSummary">This will only keep the romanized titles when you search. This can make identifying songs in Japanese hard if you can\'t convert it to romaji, and vice-versa.</string>
+    <string name="prefRomanizeSearchSummary">This will only keep the romanized titles in search results and hide the original Japanese text. Gives a cleaner look.</string>
     <string name="lyricsErrorOcurred">An error occurred, please reload the song</string>
 </resources>

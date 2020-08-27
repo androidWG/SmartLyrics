@@ -1,7 +1,10 @@
 ﻿using Android.Util;
+
 using FFImageLoading;
 using Microsoft.AppCenter.Crashes;
+
 using SmartLyrics.Common;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -15,8 +18,10 @@ namespace SmartLyrics.Toolbox
     internal class DatabaseHandling
     {
         private static DataTable db = new DataTable("db");
+        private static DataTable rdb = new DataTable("rdb");
 
-        private static readonly string path = Path.Combine(applicationPath, savedLyricsLocation + databaseLocation);
+        private static readonly string DBPath = Path.Combine(applicationPath, savedLyricsLocation + DBLocation);
+        private static readonly string romanizedDBPath = Path.Combine(applicationPath, savedLyricsLocation + romanizedDBLocation);
         private static readonly string pathImg = Path.Combine(applicationPath, savedImagesLocation);
         private static readonly string lyricsPath = Path.Combine(applicationPath, savedLyricsLocation);
 
@@ -24,11 +29,14 @@ namespace SmartLyrics.Toolbox
 
         #region Toolbox
         //Clear table and add correct columns
-        internal static void InitializeTable()
+        internal static void InitializeTables()
         {
             //TODO: Add error handling
             db.Clear();
             db.Columns.Clear();
+
+            rdb.Clear();
+            rdb.Columns.Clear();
 
             db.Columns.Add("id", typeof(int));
             db.Columns.Add("title", typeof(string));
@@ -37,9 +45,15 @@ namespace SmartLyrics.Toolbox
             db.Columns.Add("featuredArtist", typeof(string));
             db.Columns.Add("cover", typeof(string));
             db.Columns.Add("header", typeof(string));
-            db.Columns.Add("romanized", typeof(Song));
+            db.Columns.Add("romanized", typeof(bool));
             db.Columns.Add("APIPath", typeof(string));
             db.Columns.Add("path", typeof(string));
+
+            rdb.Columns.Add("id", typeof(int));
+            rdb.Columns.Add("title", typeof(string));
+            rdb.Columns.Add("artist", typeof(string));
+            rdb.Columns.Add("album", typeof(string));
+            rdb.Columns.Add("featuredArtist", typeof(string));
 
             Log.WriteLine(LogPriority.Info, "DatabaseHandling", "InitializeTable: Finished initializing datatable!");
         }
@@ -55,9 +69,23 @@ namespace SmartLyrics.Toolbox
                 FeaturedArtist = (string)dr["featuredArtist"],
                 Cover = (string)dr["cover"],
                 Header = (string)dr["header"],
-                Romanized = (Song)dr["romanized"],
+                Romanized = (bool)dr["romanized"],
                 APIPath = (string)dr["APIPath"],
                 Path = (string)dr["path"]
+            };
+
+            return song;
+        }
+
+        internal static RomanizedSong DataRowToRomanizedSong(DataRow dr)
+        {
+            RomanizedSong song = new RomanizedSong
+            {
+                Id = (int)dr["id"],
+                Title = (string)dr["title"],
+                Artist = (string)dr["artist"],
+                Album = (string)dr["album"],
+                FeaturedArtist = (string)dr["featuredArtist"]
             };
 
             return song;
@@ -79,7 +107,7 @@ namespace SmartLyrics.Toolbox
                 _dt.Columns.Add("featuredArtist", typeof(string));
                 _dt.Columns.Add("cover", typeof(string));
                 _dt.Columns.Add("header", typeof(string));
-                _dt.Columns.Add("romanized", typeof(Song));
+                _dt.Columns.Add("romanized", typeof(bool));
                 _dt.Columns.Add("APIPath", typeof(string));
                 _dt.Columns.Add("path", typeof(string));
 
@@ -98,6 +126,38 @@ namespace SmartLyrics.Toolbox
             }
 
             return _dt;
+        }
+
+        internal static async Task<DataTable> ReadFromRomanizedDatabaseFile(string path)
+        {
+            Log.WriteLine(LogPriority.Info, "DatabaseHandling", "ReadFromDatabaseFile: Reading database from file...");
+            DataTable _rdt = new DataTable("db"); //name needs to be the same as the "db" variable
+
+            //TODO: better error handling
+            try
+            {
+                //initialize temp DataTable to import XML
+                _rdt.Columns.Add("id", typeof(int));
+                _rdt.Columns.Add("title", typeof(string));
+                _rdt.Columns.Add("artist", typeof(string));
+                _rdt.Columns.Add("album", typeof(string));
+                _rdt.Columns.Add("featuredArtist", typeof(string));
+
+                if (File.Exists(path))
+                {
+                    using Stream s = new FileStream(path, FileMode.Open, FileAccess.Read);
+                    _rdt.ReadXml(s);
+                }
+            }
+            catch (Exception ex)
+            {
+                Crashes.TrackError(ex);
+                Log.WriteLine(LogPriority.Info, "DatabaseHandling", "ReadFromDatabaseFile: Exception cought while trying reading database!\n" + ex.ToString());
+
+                return null;
+            }
+
+            return _rdt;
         }
 
         internal static async Task WriteImages(Song songInfo)
@@ -132,12 +192,13 @@ namespace SmartLyrics.Toolbox
 
         // Writes a song to the saved lyrics database.
         // Returns true if successful.
-        public static async Task<bool> WriteInfoAndLyrics(Song songInfo)
+        public static async Task<bool> WriteInfoAndLyrics(Song songInfo, RomanizedSong romanizedSong)
         {
             await MiscTools.CheckAndCreateAppFolders();
 
-            InitializeTable();
-            db = await ReadFromDatabaseFile(path);
+            InitializeTables();
+            db = await ReadFromDatabaseFile(DBPath);
+            rdb = await ReadFromDatabaseFile(romanizedDBPath);
 
             try
             {
@@ -147,16 +208,27 @@ namespace SmartLyrics.Toolbox
                     string _filepath = Path.Combine(lyricsPath, songInfo.Id + lyricsExtension);
                     File.WriteAllText(_filepath, songInfo.Lyrics);
 
-                    if (songInfo.Romanized != null)
+                    if (romanizedSong != null)
                     {
                         string _romanizedFilepath = Path.Combine(lyricsPath, songInfo.Id + romanizedExtension);
-                        File.WriteAllText(_romanizedFilepath, songInfo.Romanized.Lyrics);
+                        File.WriteAllText(_romanizedFilepath, romanizedSong.Lyrics);
+
+                        songInfo.Romanized = true;
+
+                        rdb.Rows.Add(
+                            romanizedSong.Id,
+                            romanizedSong.Title,
+                            romanizedSong.Artist,
+                            romanizedSong.Album,
+                            romanizedSong.FeaturedArtist);
+                        rdb.WriteXml(romanizedDBPath);
                     }
                     
                     await WriteImages(songInfo);
 
                     //Purge romanized lyrics after being saved in a separate file
-                    songInfo.Romanized.Lyrics = "";
+                    //TODO: remove this later
+                    romanizedSong.Lyrics = "";
 
                     db.Rows.Add(
                         songInfo.Id,
@@ -169,8 +241,7 @@ namespace SmartLyrics.Toolbox
                         songInfo.Romanized,
                         songInfo.APIPath,
                         songInfo.Path);
-
-                    db.WriteXml(path);
+                    db.WriteXml(DBPath);
 
                     Log.WriteLine(LogPriority.Info, "DatabaseHandling", $"WriteLyrics: Wrote song {songInfo.Title} to disk");
                     return true;
@@ -193,19 +264,26 @@ namespace SmartLyrics.Toolbox
             }
         }
 
-        public static async Task<List<Song>> GetSongList()
+        public static async Task<List<SongBundle>> GetSongList()
         {
-            if (File.Exists(path))
+            if (File.Exists(DBPath))
             {
-                InitializeTable();
-                db = await ReadFromDatabaseFile(path);
+                InitializeTables();
+                db = await ReadFromDatabaseFile(DBPath);
 
-                List<Song> _songs = new List<Song>();
+                List<SongBundle> _songs = new List<SongBundle>();
 
                 foreach (DataRow dr in db.Rows)
                 {
-                    Song _ = DataRowToSong(dr);
-                    _songs.Add(_);
+                    Song song = DataRowToSong(dr);
+                    RomanizedSong rSong = null;
+
+                    if (song.Romanized)
+                    {
+                        rSong = await GetRomanizedSongFromTable(song.Id);
+                    }
+
+                    _songs.Add(new SongBundle(song, rSong));
                 }
 
                 return _songs;
@@ -216,7 +294,7 @@ namespace SmartLyrics.Toolbox
             }
         }
 
-        public static async Task<Song> GetSongFromTable(int id)
+        public static async Task<SongBundle> GetSongFromTable(int id)
         {
             //Genius does not have a song with ID 0, if we recieve a request with
             //ID 0, immediately return null
@@ -232,16 +310,47 @@ namespace SmartLyrics.Toolbox
                 try
                 {
                     _ = db.Select("id = " + id);
+
+                    if (_ != null && _.Length != 0)
+                    {
+                        DataRow dr = _[0];
+                        Song song = DataRowToSong(dr);
+                        RomanizedSong romanized = null;
+
+                        if (song.Romanized)
+                        {
+                            romanized = await GetRomanizedSongFromTable(id);
+                        }
+
+                        return new SongBundle(song, romanized);
+                    }
+                    else
+                    {
+                        Log.WriteLine(LogPriority.Info, "DatabaseHandling", "GetSongFromTable: Did not find song, returning null...");
+                        return null;
+                    }
                 }
                 catch (EvaluateException)
                 {
+                    //TODO: Error hadnling
                     return null;
                 }
+            }
+        }
+
+        public static async Task<RomanizedSong> GetRomanizedSongFromTable(int id)
+        {
+            Log.WriteLine(LogPriority.Verbose, "DatabaseHandling", $"GetSongFromTable: Attempting to find romanized song with ID {id} on table...");
+
+            DataRow[] _;
+            try
+            {
+                _ = rdb.Select("id = " + id);
 
                 if (_ != null && _.Length != 0)
                 {
                     DataRow dr = _[0];
-                    Song song = DataRowToSong(dr);
+                    RomanizedSong song = DataRowToRomanizedSong(dr);
 
                     return song;
                 }
@@ -250,6 +359,11 @@ namespace SmartLyrics.Toolbox
                     Log.WriteLine(LogPriority.Info, "DatabaseHandling", "GetSongFromTable: Did not find song, returning null...");
                     return null;
                 }
+            }
+            catch (EvaluateException)
+            {
+                //TODO: Error hadnling
+                return null;
             }
         }
     }

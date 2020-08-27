@@ -4,6 +4,7 @@ using Android.Widget;
 
 using FFImageLoading;
 using FFImageLoading.Transformations;
+using static SmartLyrics.Globals;
 
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,18 @@ using System.Linq;
 namespace SmartLyrics.Common
 {
     #region Classes
+    public class SongBundle
+    {
+        public Song Normal { get; set; }
+        public RomanizedSong Romanized { get; set; }
+
+        public SongBundle(Song song, RomanizedSong romanized)
+        {
+            Normal = song;
+            Romanized = romanized;
+        }
+    }
+
     public class Song
     {
         public string Title { get; set; } = String.Empty;
@@ -23,16 +36,70 @@ namespace SmartLyrics.Common
         public string APIPath { get; set; } = String.Empty;
         public string Path { get; set; } = String.Empty;
         public string Lyrics { get; set; } = String.Empty;
-        public Song Romanized { get; set; } //used when saving to a file
+        public bool Romanized { get; set; } //used when saving to a file
         public int Likeness { get; set; } //used by the NLService
         public int Id { get; set; }
+
+        private static RomanizedSong ToRomanizedSong(Song song)
+        {
+            RomanizedSong s = new RomanizedSong
+            {
+                Title = song.Title,
+                Artist = song.Artist,
+                Album = song.Album,
+                FeaturedArtist = song.FeaturedArtist,
+                Id = song.Id
+            };
+
+            return s;
+        }
+
+        //Conversions here are explicit to make sure a RomanizedSong,
+        //which has incomplete Genius data, accidentally gets auto-converted
+        //and starts causing problems.
+        public static implicit operator RomanizedSong(Song s)
+        {
+            return ToRomanizedSong(s);
+        }
+    }
+
+    public class RomanizedSong
+    {
+        public string Title { get; set; } = String.Empty;
+        public string Artist { get; set; } = String.Empty;
+        public string Album { get; set; } = String.Empty;
+        public string FeaturedArtist { get; set; } = String.Empty;
+        public string Lyrics { get; set; } = String.Empty;
+        public int Id { get; set; }
+
+        private static Song ToSong(RomanizedSong song)
+        {
+            Song s = new Song
+            {
+                Title = song.Title,
+                Artist = song.Artist,
+                Album = song.Album,
+                FeaturedArtist = song.FeaturedArtist,
+                Id = song.Id
+            };
+
+            return s;
+        }
+
+        //Conversions here are explicit to make sure a RomanizedSong,
+        //which has incomplete Genius data, accidentally gets auto-converted
+        //and starts causing problems.
+        public static explicit operator Song(RomanizedSong rs)
+        {
+            return ToSong(rs);
+        }
     }
 
     public class Artist
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public List<Song> Songs { get; set; }
+        public List<SongBundle> Songs { get; set; }
     }
 
     public class Lyrics
@@ -47,11 +114,11 @@ namespace SmartLyrics.Common
     {
         private readonly Activity context;
         private readonly List<string> listDataHeader;
-        private readonly Dictionary<string, List<Song>> listDataChild;
+        private readonly Dictionary<string, List<SongBundle>> listDataChild;
         //private readonly List<string> filteredHeader;
         //private readonly Dictionary<string, List<string>> filteredChild;
 
-        public ExpandableListAdapter(Activity context, List<string> listDataHeader, Dictionary<string, List<Common.Song>> listChildData)
+        public ExpandableListAdapter(Activity context, List<string> listDataHeader, Dictionary<string, List<SongBundle>> listChildData)
         {
             this.listDataChild = listChildData;
             this.listDataHeader = listDataHeader;
@@ -60,7 +127,16 @@ namespace SmartLyrics.Common
         //for child item view
         public override Java.Lang.Object GetChild(int groupPosition, int childPosition)
         {
-            return listDataChild[listDataHeader[groupPosition]][childPosition].Title;
+            SongBundle song = listDataChild[listDataHeader[groupPosition]][childPosition];
+
+            if (prefs.GetBoolean("auto_romanize_details", true) && song.Romanized != null)
+            {
+                return song.Romanized.Title;
+            }
+            else
+            {
+                return song.Normal.Title;
+            }
         }
         public override long GetChildId(int groupPosition, int childPosition)
         {
@@ -121,11 +197,11 @@ namespace SmartLyrics.Common
     public class SavedLyricsAdapter : BaseAdapter<Artist>
     {
         private readonly Activity activity;
-        private readonly List<Tuple<string, Song>> allSongs;
+        private readonly List<SongBundle> allSongs;
 
         public override Artist this[int position] => throw new NotImplementedException();
 
-        public SavedLyricsAdapter(Activity activity, List<Tuple<string, Common.Song>> allSongs)
+        public SavedLyricsAdapter(Activity activity, List<SongBundle> allSongs)
         {
             this.activity = activity;
             this.allSongs = allSongs;
@@ -146,8 +222,19 @@ namespace SmartLyrics.Common
             TextView titleTxt = view.FindViewById<TextView>(Resource.Id.songTitle);
             TextView artistTxt = view.FindViewById<TextView>(Resource.Id.songArtist);
 
-            titleTxt.Text = allSongs.ElementAt(position).Item2.Title;
-            artistTxt.Text = allSongs.ElementAt(position).Item1;
+            SongBundle song = allSongs.ElementAt(position);
+
+            if (prefs.GetBoolean("auto_romanize_details", true) && song.Romanized != null)
+            {
+                artistTxt.Text = song.Romanized.Artist;
+                titleTxt.Text = song.Romanized.Title;
+            }
+            else
+            {
+                artistTxt.Text = song.Normal.Artist;
+                titleTxt.Text = song.Normal.Title;
+            }
+
             return view;
         }
     }

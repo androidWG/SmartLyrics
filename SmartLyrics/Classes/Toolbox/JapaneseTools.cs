@@ -33,15 +33,14 @@ namespace SmartLyrics.Toolbox
         }
         #endregion
 
+        //TODO: Add clearing up of romanized text, to eliminate spaces before and after
         public static async Task<string> GetTransliteration(string text,
             bool useHtml,
-            TargetSyllabary to,
+            TargetSyllabary to = TargetSyllabary.Romaji,
             Mode mode = Mode.Spaced,
             RomajiSystem system = RomajiSystem.Hepburn)
         {
-            // I'd say it's arguable that there's a better way
-            // of doing this. If anyone wants to make this better
-            // feel free to do so.
+            //Maybe there's a better way of doing this? This is a tad long
             string _to = "";
             switch (to)
             {
@@ -97,6 +96,8 @@ namespace SmartLyrics.Toolbox
         {
             Log.WriteLine(LogPriority.Verbose, "JapaneseTools", $"StripJapanese: Processing string '{input}'");
 
+            //TODO: Add support for titles like Bakamitai ばかみたい (Romanized)
+
             if (WanaKana.IsJapanese(input))
             {
                 string converted = await GetTransliteration(input, false, TargetSyllabary.Romaji);
@@ -104,7 +105,8 @@ namespace SmartLyrics.Toolbox
 
                 input = converted;
             }
-            else if (WanaKana.IsMixed(input))
+            //TODO: Fix romanization issues, like with the string "潜潜話 (Hisohiso Banashi)", which only contains kanji and is not detected as mixed
+            else if (WanaKana.IsMixed(input) || WanaKana.IsKanji(input))
             {
                 //checks if title follows "romaji (japanese)" format
                 //and keeps only romaji.
