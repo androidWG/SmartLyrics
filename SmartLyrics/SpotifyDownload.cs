@@ -3,7 +3,6 @@ using Android.Content;
 using Android.Content.PM;
 using Android.Graphics;
 using Android.OS;
-using Android.Support.Constraints;
 using Android.Support.Design.Widget;
 using Android.Support.V4.Widget;
 using Android.Support.V7.App;
@@ -11,13 +10,15 @@ using Android.Util;
 using Android.Views;
 using Android.Webkit;
 using Android.Widget;
-
+using AndroidX.ConstraintLayout.Widget;
 using Plugin.CurrentActivity;
 
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Timers;
+
+using static SmartLyrics.Globals;
 
 namespace SmartLyrics
 {
@@ -31,8 +32,8 @@ namespace SmartLyrics
         private ConstraintLayout startedLayout;
         private ConstraintLayout finishedLayout;
         private Services.DownloadServiceConnection serviceConnection;
-        private readonly string path = System.IO.Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, "SmartLyrics/Saved Lyrics/Spotify/");
-        private readonly string pathImg = System.IO.Path.Combine(Application.Context.GetExternalFilesDir(null).AbsolutePath, "SmartLyrics/Saved Lyrics/Spotify/Image Cache/");
+        private readonly string path = System.IO.Path.Combine(applicationPath, "SmartLyrics/Saved Lyrics/Spotify/");
+        private readonly string pathImg = System.IO.Path.Combine(applicationPath, "SmartLyrics/Saved Lyrics/Spotify/Image Cache/");
 
         protected override async void OnCreate(Bundle savedInstanceState)
         {

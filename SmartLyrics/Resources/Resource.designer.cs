@@ -858,9 +858,6 @@ namespace SmartLyrics
 			// aapt resource value: 0x7f0100a7
 			public const int behavior_skipCollapsed = 2130772135;
 			
-			// aapt resource value: 0x7f01025e
-			public const int blurOverlayColor = 2130772574;
-			
 			// aapt resource value: 0x7f0100de
 			public const int borderWidth = 2130772190;
 			
@@ -5925,6 +5922,9 @@ namespace SmartLyrics
 			// aapt resource value: 0x7f0e006f
 			public const int infoScreenFooter = 2131624047;
 			
+			// aapt resource value: 0x7f0e0079
+			public const int lyricsErrorOcurred = 2131624057;
+			
 			// aapt resource value: 0x7f0e0044
 			public const int mainGotoSaved = 2131624004;
 			
@@ -6048,6 +6048,12 @@ namespace SmartLyrics
 			// aapt resource value: 0x7f0e005f
 			public const int prefRomanize = 2131624031;
 			
+			// aapt resource value: 0x7f0e0075
+			public const int prefRomanizeDetails = 2131624053;
+			
+			// aapt resource value: 0x7f0e0076
+			public const int prefRomanizeDetailsSummary = 2131624054;
+			
 			// aapt resource value: 0x7f0e0061
 			public const int prefRomanizeMode = 2131624033;
 			
@@ -6059,6 +6065,12 @@ namespace SmartLyrics
 			
 			// aapt resource value: 0x7f0e0063
 			public const int prefRomanizeMode_spaced = 2131624035;
+			
+			// aapt resource value: 0x7f0e0077
+			public const int prefRomanizeSearch = 2131624055;
+			
+			// aapt resource value: 0x7f0e0078
+			public const int prefRomanizeSearchSummary = 2131624056;
 			
 			// aapt resource value: 0x7f0e0069
 			public const int prefSync = 2131624041;
@@ -8803,12 +8815,6 @@ namespace SmartLyrics
 			
 			// aapt resource value: 1
 			public const int BackgroundStyle_selectableItemBackground = 1;
-			
-			public static int[] BlurView = new int[] {
-					2130772574};
-			
-			// aapt resource value: 0
-			public const int BlurView_blurOverlayColor = 0;
 			
 			public static int[] BottomAppBar = new int[] {
 					2130772123,

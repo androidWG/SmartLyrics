@@ -66,4 +66,9 @@
     <string name="prefDetect">كشف الأغاني التي تعمل في الخلفية</string>
     <string name="prefDetectSummary">اكتشف الأغاني التي يتم تشغيلها على تطبيقات الموسيقى ويعرض كلمات الأغاني داخل التطبيق. يؤدي تعطيل هذا أيضًا إلى تعطيل خدمة الكشف عن الخلفية.</string>
     <string name="coverSearchDesc">صورة غلاف الأغنية</string>
+    <string name="prefRomanizeDetailsSummary">الكتابة بالحروف اللاتينية تلقائيًا على عنوان الأغنية والألبوم والفنان والفنان المميز.</string>
+    <string name="prefRomanizeDetails">كتابة كلمات الأغنية بالحروف اللاتينية تلقائيًا</string>
+    <string name="prefRomanizeSearchSummary">سيؤدي هذا إلى الاحتفاظ بالعناوين بالأحرف اللاتينية في نتائج البحث وإخفاء النص الياباني الأصلي. يعطي نظرة أنظف.</string>
+    <string name="prefRomanizeSearch">ترقيم نتائج البحث</string>
+    <string name="lyricsErrorOcurred">حدث خطأ ، يرجى إعادة تحميل الأغنية</string>
 </resources>

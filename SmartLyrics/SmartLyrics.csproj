@@ -44,6 +44,7 @@
     <AndroidUseAapt2>false</AndroidUseAapt2>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AndroidSupportedAbis />
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -69,6 +70,7 @@
     <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
     <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -93,7 +95,6 @@
     <Compile Include="Classes\Toolbox\JapaneseTools.cs" />
     <Compile Include="Classes\Toolbox\Logging.cs" />
     <Compile Include="Classes\Toolbox\MiscTools.cs" />
-    <Compile Include="Classes\Toolbox\PermissionChecking.cs" />
     <Compile Include="Classes\API Requests\SpotifyRequests.cs" />
     <Compile Include="Classes\Toolbox\SongParsing.cs" />
     <Compile Include="Classes\Toolbox\Text.cs" />
@@ -216,9 +217,6 @@
     <PackageReference Include="Xamarin.Android.Support.Compat">
       <Version>28.0.0.3</Version>
     </PackageReference>
-    <PackageReference Include="Xamarin.Android.Support.Constraint.Layout">
-      <Version>1.1.2</Version>
-    </PackageReference>
     <PackageReference Include="Xamarin.Android.Support.Core.Utils">
       <Version>28.0.0.3</Version>
     </PackageReference>
@@ -255,9 +253,6 @@
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Preference">
       <Version>1.1.1.1</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.BlurView">
-      <Version>1.6.3</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Essentials">
       <Version>1.5.3.2</Version>
