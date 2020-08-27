@@ -575,11 +575,11 @@ namespace SmartLyrics
                 if (string.IsNullOrEmpty(romanized.Title) && !string.IsNullOrEmpty(songInfo.Title))
                 { romanized.Title = songInfo.Title; }
                 if (string.IsNullOrEmpty(romanized.Artist) && !string.IsNullOrEmpty(songInfo.Artist))
-                { romanized.Title = songInfo.Title; }
+                { romanized.Artist = songInfo.Artist; }
                 if (string.IsNullOrEmpty(romanized.Album) && !string.IsNullOrEmpty(songInfo.Album))
-                { romanized.Title = songInfo.Title; }
+                { romanized.Album = songInfo.Album; }
                 if (string.IsNullOrEmpty(romanized.FeaturedArtist) && !string.IsNullOrEmpty(songInfo.FeaturedArtist))
-                { romanized.Title = songInfo.Title; }
+                { romanized.FeaturedArtist = songInfo.FeaturedArtist; }
 
                 romanized.Id = songInfo.Id;
                 songInfo.Romanized = true;
@@ -774,6 +774,7 @@ namespace SmartLyrics
 
             coverView.Click += async delegate
             {
+                //TODO: Clicking on the cover an already saved song allows you to delete it
                 //Make sure that the song has finished loading before attempting to save
                 ProgressBar lyricsLoadingWheel = FindViewById<ProgressBar>(Resource.Id.lyricsLoadingWheel);
                 if (!refreshLayout.Refreshing && lyricsLoadingWheel.Visibility != ViewStates.Visible)

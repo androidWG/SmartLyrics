@@ -25,9 +25,8 @@ namespace SmartLyrics
     public class SavedLyrics : AppCompatActivity, ActivityCompat.IOnRequestPermissionsResultCallback
     {
         private List<Artist> artistList = new List<Artist>();
-        private List<string> artistName;
         private List<SongBundle> allSongs = new List<SongBundle>();
-        private Dictionary<string, List<SongBundle>> artistSongs = new Dictionary<string, List<SongBundle>>();
+        private Dictionary<Artist, List<SongBundle>> artistSongs = new Dictionary<Artist, List<SongBundle>>();
 
         private bool nonGrouped = false;
 
@@ -174,13 +173,12 @@ namespace SmartLyrics
             {
                 await GetSavedList(songList);
 
-                artistName = artistList.ConvertAll(e => e.Name);
                 allSongs = new List<SongBundle>();
-                artistSongs = new Dictionary<string, List<SongBundle>>();
+                artistSongs = new Dictionary<Artist, List<SongBundle>>();
 
                 foreach (Artist a in artistList)
                 {
-                    artistSongs.Add(a.Name, a.Songs);
+                    artistSongs.Add(a, a.Songs);
 
                     foreach (SongBundle s in a.Songs)
                     {
@@ -198,7 +196,7 @@ namespace SmartLyrics
                 }
                 else
                 {
-                    savedList.SetAdapter(new ExpandableListAdapter(this, artistName, artistSongs));
+                    savedList.SetAdapter(new ExpandableListAdapter(this, artistList, artistSongs));
                     Log.WriteLine(LogPriority.Info, "SavedLyrics", "ShowSavedSongs: Showing adapter for grouped view");
                     progressBar.Visibility = ViewStates.Gone;
                 }
@@ -230,7 +228,8 @@ namespace SmartLyrics
                 if (existingArtist != null)
                 {
                     existingArtist.Songs.Add(s);
-                    Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "GetSavedList: Artist exists, adding song to list...");
+                    if (s.Normal.Romanized && s.Romanized != null && string.IsNullOrEmpty(s.Romanized.Artist))
+                    { existingArtist.RomanizedName = s.Romanized.Artist; }
                 }
                 else
                 {
@@ -240,9 +239,11 @@ namespace SmartLyrics
                         Songs = new List<SongBundle>()
                     };
 
+                    if (s.Normal.Romanized && s.Romanized != null && !string.IsNullOrEmpty(s.Romanized.Artist))
+                    { artist.RomanizedName = s.Romanized.Artist; }
+
                     artist.Songs.Add(s);
                     artistList.Add(artist);
-                    Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "GetSavedList: Artist doesn't exist, creating artist...");
                 }
             }
         }

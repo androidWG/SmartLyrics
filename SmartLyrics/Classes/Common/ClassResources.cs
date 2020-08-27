@@ -28,7 +28,7 @@ namespace SmartLyrics.Common
     public class Song
     {
         public string Title { get; set; } = String.Empty;
-        public string Artist { get; set; } = String.Empty;
+        public string Artist { get; set; } = String.Empty; //TODO: Change Song class "artist" property to the Artist class
         public string Album { get; set; } = String.Empty;
         public string FeaturedArtist { get; set; } = String.Empty;
         public string Cover { get; set; } = String.Empty;
@@ -99,6 +99,7 @@ namespace SmartLyrics.Common
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string RomanizedName { get; set; }
         public List<SongBundle> Songs { get; set; }
     }
 
@@ -113,18 +114,22 @@ namespace SmartLyrics.Common
     public class ExpandableListAdapter : BaseExpandableListAdapter
     {
         private readonly Activity context;
-        private readonly List<string> listDataHeader;
-        private readonly Dictionary<string, List<SongBundle>> listDataChild;
+        private readonly List<Artist> listDataHeader;
+        private readonly Dictionary<Artist, List<SongBundle>> listDataChild;
         //private readonly List<string> filteredHeader;
         //private readonly Dictionary<string, List<string>> filteredChild;
 
-        public ExpandableListAdapter(Activity context, List<string> listDataHeader, Dictionary<string, List<SongBundle>> listChildData)
+        public ExpandableListAdapter(Activity context, List<Artist> listDataHeader, Dictionary<Artist, List<SongBundle>> listChildData)
         {
             this.listDataChild = listChildData;
             this.listDataHeader = listDataHeader;
             this.context = context;
         }
         //for child item view
+        public override Java.Lang.Object GetGroup(int groupPosition)
+        {
+            return null;
+        }
         public override Java.Lang.Object GetChild(int groupPosition, int childPosition)
         {
             SongBundle song = listDataChild[listDataHeader[groupPosition]][childPosition];
@@ -159,10 +164,6 @@ namespace SmartLyrics.Common
             return listDataChild[listDataHeader[groupPosition]].Count;
         }
         //For header view
-        public override Java.Lang.Object GetGroup(int groupPosition)
-        {
-            return listDataHeader[groupPosition];
-        }
         public override int GroupCount {
             get {
                 return listDataHeader.Count;
@@ -174,9 +175,12 @@ namespace SmartLyrics.Common
         }
         public override View GetGroupView(int groupPosition, bool isExpanded, View convertView, ViewGroup parent)
         {
-            string headerTitle = (string)GetGroup(groupPosition);
+            Artist artist = listDataHeader[groupPosition];
+            string headerTitle = prefs.GetBoolean("auto_romanize_details", false) && !string.IsNullOrEmpty(artist.RomanizedName)
+                ? artist.RomanizedName
+                : artist.Name;
 
-            convertView = convertView ?? context.LayoutInflater.Inflate(Resource.Layout.list_header, null);
+            convertView ??= context.LayoutInflater.Inflate(Resource.Layout.list_header, null);
             TextView lblListHeader = (TextView)convertView.FindViewById(Resource.Id.listHeader);
             lblListHeader.Text = headerTitle;
 

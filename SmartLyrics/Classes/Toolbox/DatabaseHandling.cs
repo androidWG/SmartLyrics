@@ -96,7 +96,7 @@ namespace SmartLyrics.Toolbox
             Log.WriteLine(LogPriority.Info, "DatabaseHandling", "ReadFromDatabaseFile: Reading database from file...");
             DataTable _dt = new DataTable("db"); //name needs to be the same as the "db" variable
 
-            //TODO: better error handling
+            //TODO: Better error handling
             try
             {
                 //initialize temp DataTable to import XML
@@ -133,7 +133,7 @@ namespace SmartLyrics.Toolbox
             Log.WriteLine(LogPriority.Info, "DatabaseHandling", "ReadFromDatabaseFile: Reading database from file...");
             DataTable _rdt = new DataTable("db"); //name needs to be the same as the "db" variable
 
-            //TODO: better error handling
+            //TODO: Better error handling
             try
             {
                 //initialize temp DataTable to import XML

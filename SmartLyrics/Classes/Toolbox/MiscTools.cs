@@ -32,7 +32,7 @@ namespace SmartLyrics.Toolbox
         {
             string path = Path.Combine(applicationPath, Globals.savedLyricsLocation);
             string pathImg = Path.Combine(applicationPath, Globals.savedImagesLocation);
-            //TODO: add IOException handling
+            //TODO: Add IOException handling
 
             if (Directory.Exists(path))
             {
