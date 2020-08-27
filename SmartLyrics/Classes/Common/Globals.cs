@@ -8,8 +8,8 @@ namespace SmartLyrics
 
         public const string savedLyricsLocation = "saved/";
         public const string savedImagesLocation = "saved/imagecache/";
-        public const string DBLocation = "/.lyricsdatabase";
-        public const string romanizedDBLocation = "/.romanizeddatabase";
+        public const string DBLocation = ".lyricsdatabase";
+        public const string romanizedDBLocation = ".romanizeddatabase";
         public const string lyricsExtension = ".lyrics";
         public const string romanizedExtension = ".romanized";
 

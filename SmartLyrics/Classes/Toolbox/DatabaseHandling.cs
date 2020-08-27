@@ -198,7 +198,7 @@ namespace SmartLyrics.Toolbox
 
             InitializeTables();
             db = await ReadFromDatabaseFile(DBPath);
-            rdb = await ReadFromDatabaseFile(romanizedDBPath);
+            rdb = await ReadFromRomanizedDatabaseFile(romanizedDBPath);
 
             try
             {
@@ -270,6 +270,7 @@ namespace SmartLyrics.Toolbox
             {
                 InitializeTables();
                 db = await ReadFromDatabaseFile(DBPath);
+                rdb = await ReadFromRomanizedDatabaseFile(romanizedDBPath);
 
                 List<SongBundle> _songs = new List<SongBundle>();
 

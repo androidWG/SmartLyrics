@@ -530,6 +530,7 @@ namespace SmartLyrics
                 romanized.Artist = await awaitArtist;
                 romanized.Album = await awaitAlbum;
 
+                romanized.Id = songInfo.Id;
                 songInfo.Romanized = true;
             }
             else 
@@ -569,6 +570,16 @@ namespace SmartLyrics
                 if (romanized == null) { romanized = new RomanizedSong(); } // This snippet is the same in GetAndShowSongDetails
                 romanized.Lyrics = romanizedLyrics;
 
+                if (string.IsNullOrEmpty(romanized.Title) && !string.IsNullOrEmpty(songInfo.Title))
+                { romanized.Title = songInfo.Title; }
+                if (string.IsNullOrEmpty(romanized.Artist) && !string.IsNullOrEmpty(songInfo.Artist))
+                { romanized.Title = songInfo.Title; }
+                if (string.IsNullOrEmpty(romanized.Album) && !string.IsNullOrEmpty(songInfo.Album))
+                { romanized.Title = songInfo.Title; }
+                if (string.IsNullOrEmpty(romanized.FeaturedArtist) && !string.IsNullOrEmpty(songInfo.FeaturedArtist))
+                { romanized.Title = songInfo.Title; }
+
+                romanized.Id = songInfo.Id;
                 songInfo.Romanized = true;
             }
             else 
