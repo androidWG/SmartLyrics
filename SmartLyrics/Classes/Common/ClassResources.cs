@@ -25,6 +25,7 @@ namespace SmartLyrics.Common
         }
     }
 
+    //TODO: Split into different classes used when displaying, saving, and comparing to notification song
     public class Song
     {
         public string Title { get; set; } = String.Empty;
@@ -101,12 +102,6 @@ namespace SmartLyrics.Common
         public string Name { get; set; }
         public string RomanizedName { get; set; }
         public List<SongBundle> Songs { get; set; }
-    }
-
-    public class Lyrics
-    {
-        public int Id { get; set; }
-        public string Lyric { get; set; }
     }
     #endregion
 

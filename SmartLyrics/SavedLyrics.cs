@@ -9,6 +9,7 @@ using Android.Support.V7.App;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using Newtonsoft.Json;
 using Plugin.CurrentActivity;
 using SmartLyrics.Common;
 using SmartLyrics.Toolbox;
@@ -46,16 +47,18 @@ namespace SmartLyrics
             SetContentView(Resource.Layout.main_saved);
             CrossCurrentActivity.Current.Activity = this; //don't remove this, permission stuff needs it
 
+            #region UI Variables
             DrawerLayout drawer = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);
             ImageButton drawerBtn = FindViewById<ImageButton>(Resource.Id.drawerBtn);
 
             NavigationView navigationView = FindViewById<NavigationView>(Resource.Id.nav_view);
-            navigationView.NavigationItemSelected += NavigationView_NavigationViewSelected;
 
             ExpandableListView savedList = FindViewById<ExpandableListView>(Resource.Id.savedList);
             ImageButton selectGroupingBtn = FindViewById<ImageButton>(Resource.Id.selectGroupingBtn);
             ListView savedListNonGrouped = FindViewById<ListView>(Resource.Id.savedListNonGrouped);
+            #endregion
 
+            navigationView.NavigationItemSelected += NavigationView_NavigationViewSelected;
             drawerBtn.Click += delegate
             {
                 drawer.OpenDrawer(navigationView);
@@ -81,34 +84,16 @@ namespace SmartLyrics
                 }
             };
 
-            savedList.ChildClick += delegate (object sender, ExpandableListView.ChildClickEventArgs e)
+            savedList.ChildClick += async delegate (object sender, ExpandableListView.ChildClickEventArgs e)
             {
                 Log.WriteLine(LogPriority.Info, "SavedLyrics", "OnCreate: Clicked on item from grouped list");
-                Intent intent = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
-
-                Song toSend = artistSongs.ElementAt(e.GroupPosition).Value[e.ChildPosition].Normal;
-                RomanizedSong romanizedToSend = artistSongs.ElementAt(e.GroupPosition).Value[e.ChildPosition].Romanized;
-
-                MainActivity.songInfo = toSend;
-                MainActivity.romanized = romanizedToSend;
-                MainActivity.fromFile = true;
-
-                StartActivityForResult(intent, 1);
+                await OpenInMainActivity(artistSongs.ElementAt(e.GroupPosition).Value[e.ChildPosition]);
             };
 
-            savedListNonGrouped.ItemClick += delegate (object sender, AdapterView.ItemClickEventArgs e)
+            savedListNonGrouped.ItemClick += async delegate (object sender, AdapterView.ItemClickEventArgs e)
             {
                 Log.WriteLine(LogPriority.Info, "SavedLyrics", "OnCreate: Clicked on item from non-grouped list");
-                Intent intent = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
-
-                Song toSend = allSongs[e.Position].Normal;
-                RomanizedSong romanizedToSend = allSongs[e.Position].Romanized;
-
-                MainActivity.songInfo = toSend;
-                MainActivity.romanized = romanizedToSend;
-                MainActivity.fromFile = true;
-
-                StartActivityForResult(intent, 1);
+                await OpenInMainActivity(allSongs[e.Position]);
             };
         }
 
@@ -121,6 +106,31 @@ namespace SmartLyrics
 
 
         #region Button Actions
+        private async Task OpenInMainActivity(SongBundle song)
+        {
+            string path = Path.Combine(applicationPath, savedLyricsLocation + song.Normal.Id);
+
+            //song.Normal is already loaded (from SavedLyrics activity), load lyrics and images from disk
+            //Load romanized lyrics if romanized lyrics were saved
+            StreamReader sr = File.OpenText(path + lyricsExtension);
+            song.Normal.Lyrics = await sr.ReadToEndAsync();
+
+            if (song.Romanized != null)
+            {
+                sr.Dispose();
+                sr = File.OpenText(path + romanizedExtension);
+
+                song.Romanized.Lyrics = await sr.ReadToEndAsync();
+            }
+
+            Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "OpenInMainActivity: Read lyrics from file(s)");
+            sr.Dispose(); //Dispose/close manually since we're not using "using"
+
+            Intent intent = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
+            intent.PutExtra("SavedSong", JsonConvert.SerializeObject(song));
+            StartActivityForResult(intent, 1);
+        }
+
         private void NavigationView_NavigationViewSelected(object sender, NavigationView.NavigationItemSelectedEventArgs e)
         {
             DrawerLayout drawer = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);

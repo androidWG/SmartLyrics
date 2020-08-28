@@ -19,6 +19,7 @@ using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using SmartLyrics.Common;
@@ -48,7 +49,6 @@ namespace SmartLyrics
         View welcomeView;
         View songView;
 
-        public static bool fromFile = false;
         public static bool fromNotification = false;
         private readonly int coverRadius = 16;
         private readonly int headerBlur = 25;
@@ -151,15 +151,7 @@ namespace SmartLyrics
             base.OnResume();
             Log.WriteLine(LogPriority.Verbose, "MainActivity", "OnResume: OnResume started");
 
-            if (fromFile)
-            {
-                Log.WriteLine(LogPriority.Info, "MainActivity", "OnResume: Trying to load song from file");
-
-                nowPlayingMode = false;
-                fromFile = false;
-                await LoadSong();
-            }
-            else if (fromNotification)
+            if (fromNotification)
             {
                 Log.WriteLine(LogPriority.Info, "MainActivity", "OnResume: From notification, attempting to load");
                 NotificationManagerCompat ntfManager = NotificationManagerCompat.From(this);
@@ -183,14 +175,55 @@ namespace SmartLyrics
             previousNtfSong = notificationSong;
         }
 
-        protected override void OnNewIntent(Intent intent)
+        protected override async void OnNewIntent(Intent intent)
         {
             base.OnNewIntent(intent);
 
             //This should be called when a notification is opened, but that's not happening
 
+            if (intent.HasExtra("SavedSong"))
+            {
+                Log.WriteLine(LogPriority.Info, "MainActivity", "OnNewIntent: Trying to load song from file");
+
+                SongBundle saved = JsonConvert.DeserializeObject<SongBundle>(intent.GetStringExtra("SavedSong"));
+                songInfo = saved.Normal;
+                romanized = saved.Romanized;
+
+                nowPlayingMode = false;
+
+                if (welcomeView != null)
+                {
+                    dynamicLayout.RemoveView(welcomeView);
+                    welcomeView = null;
+
+                    InflateSong();
+                }
+
+                #region UI Variables
+                ImageView savedView = FindViewById<ImageView>(Resource.Id.savedView);
+                TextView infoTxt = FindViewById<TextView>(Resource.Id.infoTxt);
+                ProgressBar lyricsLoadingWheel = FindViewById<ProgressBar>(Resource.Id.lyricsLoadingWheel);
+                ImageButton fabMore = FindViewById<ImageButton>(Resource.Id.fabMore);
+                SwipeRefreshLayout refreshLayout = FindViewById<SwipeRefreshLayout>(Resource.Id.swipeRefreshLayout);
+                #endregion
+
+                await UpdateSong(songInfo, romanized, true, true, imagesOnDisk: true);
+
+                RunOnUiThread(() =>
+                {
+                    lyricsLoadingWheel.Visibility = ViewStates.Gone;
+                    fabMore.Visibility = ViewStates.Visible;
+                    savedView.Visibility = ViewStates.Visible;
+                    infoTxt.Visibility = ViewStates.Visible;
+
+                    refreshLayout.Refreshing = false;
+                });
+
+                shouldCheck = true;
+                Log.WriteLine(LogPriority.Info, "MainActivity", "OnNewIntent: Done updating song from disk!");
+            }
+
             Log.WriteLine(LogPriority.Verbose, "MainActivity", "OnNewIntent: OnNewIntent started");
-            Log.WriteLine(LogPriority.Info, "MainActivity", "OnNewIntent: " + intent.DataString);
         }
         #endregion
 
@@ -283,7 +316,7 @@ namespace SmartLyrics
             imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0);
 
             nowPlayingMode = false;
-            UpdateSong(songInfo, romanized, false, false, true);
+            ClearLabels();
 
             songInfo = new Song
             {
@@ -539,7 +572,7 @@ namespace SmartLyrics
                 romanized = null;
             }
 
-            UpdateSong(songInfo, romanized, true, true);
+           await  UpdateSong(songInfo, romanized, true, true);
         }
 
         private async Task GetAndShowLyrics()
@@ -588,15 +621,18 @@ namespace SmartLyrics
                 if (romanized != null) { romanized.Lyrics = ""; }
             }
 
-            UpdateSong(songInfo, romanized, false, false);
-
             RunOnUiThread(() =>
             {
                 fabMore.Visibility = ViewStates.Visible;
                 savedView.Visibility = ViewStates.Gone;
                 infoTxt.Visibility = ViewStates.Visible;
-                lyricsLoadingWheel.Visibility = ViewStates.Gone;
+            });
 
+            await UpdateSong(songInfo, romanized, false, false);
+
+            RunOnUiThread(() =>
+            {
+                lyricsLoadingWheel.Visibility = ViewStates.Gone;
                 refreshLayout.Refreshing = false;
             });
 
@@ -664,48 +700,13 @@ namespace SmartLyrics
 
         private async Task ReadFromFile()
         {
-            Log.WriteLine(LogPriority.Info, "MainActivity", "ReadFromFile: Started ReadFromFile method");
+            //TODO: Change from songInfo and romanized to a SongBundle, take the code from OnNewIntent and 
+            //TODO: create a method that can load from a SongBundle. Also re-write the ReadFromFile in another file to be called when a song from Search has a local copy.
+        }
 
-            #region UI Variables
-            ImageView savedView = FindViewById<ImageView>(Resource.Id.savedView);
-            TextView infoTxt = FindViewById<TextView>(Resource.Id.infoTxt);
-            ProgressBar lyricsLoadingWheel = FindViewById<ProgressBar>(Resource.Id.lyricsLoadingWheel);
-            ImageButton fabMore = FindViewById<ImageButton>(Resource.Id.fabMore);
-            SwipeRefreshLayout refreshLayout = FindViewById<SwipeRefreshLayout>(Resource.Id.swipeRefreshLayout);
-            #endregion
+        private async Task UpdateFromIntent()
+        {
 
-            string path = Path.Combine(applicationPath, savedLyricsLocation + songInfo.Id);
-
-            //songInfo is already loaded (from SavedLyrics activity), load lyrics and images from disk
-            //Load romanized lyrics if romanized lyrics were saved
-            StreamReader sr = File.OpenText(path + lyricsExtension);
-            songInfo.Lyrics = await sr.ReadToEndAsync();
-
-            if (romanized != null)
-            {
-                sr.Dispose();
-                sr = File.OpenText(path + romanizedExtension);
-
-                romanized.Lyrics = await sr.ReadToEndAsync();
-            }
-
-            Log.WriteLine(LogPriority.Verbose, "MainActivity", "ReadFromFile: Read lyrics from file(s)");
-            sr.Dispose(); //Dispose/close manually since we're not using "using"
-
-            UpdateSong(songInfo, romanized, true, true, imagesOnDisk:true);
-
-            RunOnUiThread(() =>
-            {
-                lyricsLoadingWheel.Visibility = ViewStates.Gone;
-                fabMore.Visibility = ViewStates.Visible;
-                savedView.Visibility = ViewStates.Visible;
-                infoTxt.Visibility = ViewStates.Visible;
-
-                refreshLayout.Refreshing = false;
-            });
-
-            shouldCheck = true;
-            Log.WriteLine(LogPriority.Info, "MainActivity", "ReadFromFile: Done reading from file(s)!");
         }
 
         private async Task SaveSong()
@@ -792,7 +793,7 @@ namespace SmartLyrics
             shineView = FindViewById<ImageView>(Resource.Id.shineView);
         }
 
-        private void UpdateSong(Song song, RomanizedSong rSong, bool updateImages, bool updateDetails, bool clearLabels = false, bool imagesOnDisk = false)
+        private void ClearLabels()
         {
             #region UI Variables
             TextView songLyrics = FindViewById<TextView>(Resource.Id.songLyrics);
@@ -804,73 +805,82 @@ namespace SmartLyrics
 
             RunOnUiThread(() =>
             {
-                if (clearLabels)
+                songLyrics.Text = "";
+                songTitle.Text = "";
+                songArtist.Text = "";
+                songAlbum.Text = "";
+                songFeat.Text = "";
+            });
+        }
+
+        private async Task UpdateSong(Song song, RomanizedSong rSong, bool updateImages, bool updateDetails, bool clearLabels = false, bool imagesOnDisk = false)
+        {
+            #region UI Variables
+            TextView songLyrics = FindViewById<TextView>(Resource.Id.songLyrics);
+            TextView songTitle = FindViewById<TextView>(Resource.Id.songTitle);
+            TextView songArtist = FindViewById<TextView>(Resource.Id.songArtist);
+            TextView songAlbum = FindViewById<TextView>(Resource.Id.songAlbum);
+            TextView songFeat = FindViewById<TextView>(Resource.Id.songFeat);
+            #endregion
+
+            RunOnUiThread(() =>
+            {
+                Song toShow = song;
+                if (rSong != null && prefs.GetBoolean("auto_romanize_details", false))
                 {
-                    songLyrics.Text = "";
-                    songTitle.Text = "";
-                    songArtist.Text = "";
-                    songAlbum.Text = "";
-                    songFeat.Text = "";
+                    toShow = (Song)rSong;
                 }
-                else
+
+                if (!string.IsNullOrEmpty(song.Lyrics))
                 {
-                    Song toShow = song;
-                    if (rSong != null && prefs.GetBoolean("auto_romanize_details", false))
+                    //Make sure to alert user if for some reason the lyrics aren't loaded
+                    string lyricsToShow = Resources.GetString(Resource.String.lyricsErrorOcurred);
+
+                    if (romanized == null)
                     {
-                        toShow = (Song)rSong;
+                        lyricsToShow = songInfo.Lyrics;
                     }
-
-                    if (!string.IsNullOrEmpty(song.Lyrics))
+                    else if (romanized != null)
                     {
-                        //Make sure to alert user if for some reason the lyrics aren't loaded
-                        string lyricsToShow = Resources.GetString(Resource.String.lyricsErrorOcurred);
-
-                        if (romanized == null)
+                        if (!string.IsNullOrEmpty(romanized.Lyrics) && prefs.GetBoolean("auto_romanize", false))
                         {
-                            lyricsToShow = songInfo.Lyrics; 
-                        }
-                        else if (romanized != null)
-                        {
-                            if (!string.IsNullOrEmpty(romanized.Lyrics) && prefs.GetBoolean("auto_romanize", false))
-                            {
-                                lyricsToShow = romanized.Lyrics;
-                            }
-                        }
-                        
-                        if (Build.VERSION.SdkInt >= BuildVersionCodes.N)
-                        {
-                            songLyrics.TextFormatted = Html.FromHtml(lyricsToShow, FromHtmlOptions.ModeCompact);
-                        }
-                        else
-                        {
-                            #pragma warning disable CS0618 // Type or member is obsolete
-                            songLyrics.TextFormatted = Html.FromHtml(lyricsToShow);
-                            #pragma warning restore CS0618 // Type or member is obsolete
+                            lyricsToShow = romanized.Lyrics;
                         }
                     }
 
-                    if (updateDetails)
+                    if (Build.VERSION.SdkInt >= BuildVersionCodes.N)
                     {
-                        songTitle.Text = toShow.Title;
-                        songArtist.Text = toShow.Artist;
-                        songAlbum.Text = toShow.Album;
-
-                        if (string.IsNullOrEmpty(toShow.FeaturedArtist) || string.IsNullOrWhiteSpace(toShow.FeaturedArtist))
-                        {
-                            songFeat.Visibility = ViewStates.Gone;
-                        }
-                        else
-                        {
-                            songFeat.Visibility = ViewStates.Visible;
-                            songFeat.Text = toShow.FeaturedArtist;
-                        }
+                        songLyrics.TextFormatted = Html.FromHtml(lyricsToShow, FromHtmlOptions.ModeCompact);
                     }
-
-                    Log.WriteLine(LogPriority.Verbose, "MainActivity", "UpdateSong: Updated labels");
+                    else
+                    {
+                        #pragma warning disable CS0618 // Type or member is obsolete
+                        songLyrics.TextFormatted = Html.FromHtml(lyricsToShow);
+                        #pragma warning restore CS0618 // Type or member is obsolete
+                    }
                 }
+
+                if (updateDetails)
+                {
+                    songTitle.Text = toShow.Title;
+                    songArtist.Text = toShow.Artist;
+                    songAlbum.Text = toShow.Album;
+
+                    if (string.IsNullOrEmpty(toShow.FeaturedArtist) || string.IsNullOrWhiteSpace(toShow.FeaturedArtist))
+                    {
+                        songFeat.Visibility = ViewStates.Gone;
+                    }
+                    else
+                    {
+                        songFeat.Visibility = ViewStates.Visible;
+                        songFeat.Text = toShow.FeaturedArtist;
+                    }
+                }
+
+                Log.WriteLine(LogPriority.Verbose, "MainActivity", "UpdateSong: Updated labels");
             });
 
-            if (updateImages)
+            if (updateImages) //TODO: Add timer to retry after enough time with images not updated
             {
                 ImageButton coverView = FindViewById<ImageButton>(Resource.Id.coverView);
                 ImageView headerView = FindViewById<ImageView>(Resource.Id.headerView);
