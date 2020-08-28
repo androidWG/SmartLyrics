@@ -1,7 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V4.Widget;
@@ -9,16 +8,19 @@ using Android.Support.V7.App;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+
 using Newtonsoft.Json;
 using Plugin.CurrentActivity;
+
 using SmartLyrics.Common;
 using SmartLyrics.Toolbox;
-using System;
+using SmartLyrics.IO;
+using static SmartLyrics.Globals;
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using static SmartLyrics.Globals;
 
 namespace SmartLyrics
 {
@@ -108,24 +110,6 @@ namespace SmartLyrics
         #region Button Actions
         private async Task OpenInMainActivity(SongBundle song)
         {
-            string path = Path.Combine(applicationPath, savedLyricsLocation + song.Normal.Id);
-
-            //song.Normal is already loaded (from SavedLyrics activity), load lyrics and images from disk
-            //Load romanized lyrics if romanized lyrics were saved
-            StreamReader sr = File.OpenText(path + lyricsExtension);
-            song.Normal.Lyrics = await sr.ReadToEndAsync();
-
-            if (song.Romanized != null)
-            {
-                sr.Dispose();
-                sr = File.OpenText(path + romanizedExtension);
-
-                song.Romanized.Lyrics = await sr.ReadToEndAsync();
-            }
-
-            Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "OpenInMainActivity: Read lyrics from file(s)");
-            sr.Dispose(); //Dispose/close manually since we're not using "using"
-
             Intent intent = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
             intent.PutExtra("SavedSong", JsonConvert.SerializeObject(song));
             StartActivityForResult(intent, 1);
@@ -178,7 +162,7 @@ namespace SmartLyrics
             await MiscTools.CheckAndCreateAppFolders();
             Log.WriteLine(LogPriority.Verbose, "SavedLyrics", $"ShowSavedSongs: Path is \"{path}\"");
 
-            List<SongBundle> songList = await DatabaseHandling.GetSongList();
+            List<SongBundle> songList = await Database.GetSongList();
             if (songList != null)
             {
                 await GetSavedList(songList);
