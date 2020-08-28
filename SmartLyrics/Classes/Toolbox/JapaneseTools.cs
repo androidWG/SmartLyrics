@@ -33,7 +33,7 @@ namespace SmartLyrics.Toolbox
         }
         #endregion
 
-        //TODO: Add clearing up of romanized text, to eliminate spaces before and after
+        //TODO: Add clearing up of romanized text, to eliminate spaces before and after //will be done on RomanizationService
         public static async Task<string> GetTransliteration(string text,
             bool useHtml,
             TargetSyllabary to = TargetSyllabary.Romaji,

@@ -87,7 +87,7 @@ namespace SmartLyrics
             //AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
             //TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
             AppCenter.Start("b07a2f8e-5d02-4516-aadc-2cba2c27fcf8",
-                   typeof(Analytics), typeof(Crashes)); //TODO: add Event Trackers
+                   typeof(Analytics), typeof(Crashes)); //TODO: Add Event Trackers
 
             #region UI Variables
             NavigationView navigationView = FindViewById<NavigationView>(Resource.Id.nav_view);
@@ -258,8 +258,6 @@ namespace SmartLyrics
 
                 //Pass on index property to GetAndShowSearchResults to keep track of most recent query
                 await GetAndShowSearchResults(searchTxt.Text, index);
-
-                searchLoadingWheel.Visibility = ViewStates.Gone;
             }
         }
 
@@ -342,11 +340,11 @@ namespace SmartLyrics
         {
             #region UI Variables
             ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
+            ProgressBar searchLoadingWheel = FindViewById<ProgressBar>(Resource.Id.searchLoadingWheel);
             #endregion
 
             Log.WriteLine(LogPriority.Info, "MainActivity", $"GetAndShowSearchResults: Started GetAndShowSearchResults method of index {index}, query {query}");
 
-            Log.WriteLine(LogPriority.Verbose, "MainActivity", "GetAndShowSearchResults: Starting GetSearchResults operation");
             string results = await HTTPRequests.GetRequest(geniusSearchURL + Uri.EscapeUriString(query), geniusAuthHeader);
             JObject parsed = JObject.Parse(results);
 
@@ -389,6 +387,7 @@ namespace SmartLyrics
                     searchResults.Adapter = adapter;
 
                     resultsToView = resultsList;
+                    searchLoadingWheel.Visibility = ViewStates.Gone;
 
                     Log.WriteLine(LogPriority.Verbose, "MainActivity", $"GetAndShowSearchResults: Added results of {index}, query {query} to activity view at count {t.Count}");
                 }
@@ -992,7 +991,7 @@ namespace SmartLyrics
             }
         }
 
-        //TODO: Finish exception handling
+        //EX: Finish exception handling
         // If there is an unhandled exception, the exception information is diplayed 
         // on screen the next time the app is started (only in debug configuration)
         private void DisplayCrashReport()

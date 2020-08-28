@@ -31,7 +31,7 @@ namespace SmartLyrics.Toolbox
         //Clear table and add correct columns
         internal static void InitializeTables()
         {
-            //TODO: Add error handling
+            //EX: Add error handling
             db.Clear();
             db.Columns.Clear();
 
@@ -96,7 +96,7 @@ namespace SmartLyrics.Toolbox
             Log.WriteLine(LogPriority.Info, "DatabaseHandling", "ReadFromDatabaseFile: Reading database from file...");
             DataTable _dt = new DataTable("db"); //name needs to be the same as the "db" variable
 
-            //TODO: Better error handling
+            //EX: Better error hadnling
             try
             {
                 //initialize temp DataTable to import XML
@@ -133,7 +133,7 @@ namespace SmartLyrics.Toolbox
             Log.WriteLine(LogPriority.Info, "DatabaseHandling", "ReadFromDatabaseFile: Reading database from file...");
             DataTable _rdt = new DataTable("db"); //name needs to be the same as the "db" variable
 
-            //TODO: Better error handling
+            //EX: Better error hadnling
             try
             {
                 //initialize temp DataTable to import XML
@@ -301,6 +301,10 @@ namespace SmartLyrics.Toolbox
 
         public static async Task<SongBundle> GetSongFromTable(int id)
         {
+            InitializeTables();
+            db = await ReadFromDatabaseFile(DBPath);
+            rdb = await ReadFromRomanizedDatabaseFile(romanizedDBPath);
+
             //Genius does not have a song with ID 0, if we recieve a request with
             //ID 0, immediately return null
             if (id == 0)
@@ -337,7 +341,7 @@ namespace SmartLyrics.Toolbox
                 }
                 catch (EvaluateException)
                 {
-                    //TODO: Error hadnling
+                    //EX: Add error hadnling
                     return null;
                 }
             }
@@ -367,7 +371,7 @@ namespace SmartLyrics.Toolbox
             }
             catch (EvaluateException)
             {
-                //TODO: Error hadnling
+                //EX: Add error hadnling
                 return null;
             }
         }
