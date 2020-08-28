@@ -282,6 +282,7 @@ namespace SmartLyrics
             nowPlayingMode = false;
             ClearLabels();
 
+            if (songInfo == null) { songInfo = new SongBundle(new Song(), new RomanizedSong()); }
             songInfo.Normal = resultsToView.ElementAt(e.Position);
 
             lyricsLoadingWheel.Visibility = ViewStates.Visible;
