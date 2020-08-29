@@ -324,7 +324,7 @@ namespace SmartLyrics
 
 
         #region Search
-        private async Task GetAndShowSearchResults(string query, int index) //TODO: Make sure loading wheel is only disabled when all searching is done
+        private async Task GetAndShowSearchResults(string query, int index)
         {
             #region UI Variables
             ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
@@ -560,11 +560,10 @@ namespace SmartLyrics
             {
                 //TODO: Add furigana/okurigana support across app
                 string romanizedLyrics = await JapaneseTools.GetTransliteration(songInfo.Normal.Lyrics, true);
+                RomanizedSong romanized = songInfo.Romanized;
 
                 if (songInfo.Romanized == null) { songInfo.Romanized = new RomanizedSong(); } // This snippet is the same in GetAndShowSongDetails
-                songInfo.Romanized.Lyrics = romanizedLyrics;
-
-                RomanizedSong romanized = songInfo.Romanized;
+                romanized.Lyrics = romanizedLyrics;
 
                 //Fill empty info for songs with romanized lyrics and non-romanized details
                 if (string.IsNullOrEmpty(romanized.Title) && !string.IsNullOrEmpty(songInfo.Normal.Title))
@@ -818,17 +817,10 @@ namespace SmartLyrics
                     //Make sure to alert user if for some reason the lyrics aren't loaded
                     string lyricsToShow = Resources.GetString(Resource.String.lyricsErrorOcurred);
 
-                    if (songInfo.Romanized == null)
-                    {
-                        lyricsToShow = songInfo.Normal.Lyrics;
-                    }
-                    else if (songInfo.Romanized != null)
-                    {
-                        if (!string.IsNullOrEmpty(songInfo.Romanized.Lyrics) && prefs.GetBoolean("auto_romanize", false))
-                        {
-                            lyricsToShow = songInfo.Romanized.Lyrics;
-                        }
-                    }
+                    bool romanizedIsValid = songInfo.Romanized != null && !string.IsNullOrEmpty(songInfo.Romanized.Lyrics) && prefs.GetBoolean("auto_romanize", false);
+                    lyricsToShow = romanizedIsValid
+                        ? songInfo.Romanized.Lyrics
+                        : songInfo.Normal.Lyrics;
 
                     if (Build.VERSION.SdkInt >= BuildVersionCodes.N)
                     {

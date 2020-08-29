@@ -4,7 +4,6 @@
         xmlns:android="http://schemas.android.com/apk/res/android">
     <SwitchPreference
             android:defaultValue="true"
-            android:fontFamily="@font/open_sans"
             android:key="detect_song"
             android:summary="@string/prefDetectSummary"
             android:title="@string/prefDetect" />

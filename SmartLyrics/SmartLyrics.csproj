@@ -108,6 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Animations.cs" />
+    <Compile Include="Classes\Common\Logging.cs" />
     <Compile Include="Classes\Toolbox\HTTPRequests.cs" />
     <Compile Include="Classes\Services\Binders.cs" />
     <Compile Include="Classes\Common\ClassResources.cs" />
@@ -939,6 +940,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values-ar\strings.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\ic_header_repeat.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

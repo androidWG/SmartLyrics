@@ -4,7 +4,7 @@
         android:shape="oval">
 
     <solid
-            android:color="@color/colorBackground"/>
+            android:color="?android:attr/windowBackground"/>
 
     <size
             android:width="@dimen/fab_button_size"
