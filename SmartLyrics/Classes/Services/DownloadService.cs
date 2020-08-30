@@ -2,7 +2,6 @@
 using Android.Content;
 using Android.OS;
 using Android.Support.V4.App;
-using Android.Util;
 using FFImageLoading;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
@@ -16,6 +15,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static SmartLyrics.Globals;
 using static SmartLyrics.Toolbox.MiscTools;
+using static SmartLyrics.Common.Logging;
+using Type = SmartLyrics.Common.Logging.Type;
 
 namespace SmartLyrics.Services
 {
@@ -42,7 +43,7 @@ namespace SmartLyrics.Services
         public override IBinder OnBind(Intent intent)
         {
             Binder = new ProgressBinder(this);
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnBind (DownloadService): Service bound!");
+            Log(Type.Info, "Service bound!");
 
             createNotificationChannel();
             startWorking(intent);
@@ -85,7 +86,7 @@ namespace SmartLyrics.Services
                     builder.SetProgress(100, 100, false);
                     nm.CancelAll();
 
-                    Log.WriteLine(LogPriority.Warn, "SmartLyrics", "updateProgress (DownloadService): Finished work, stopping service...");
+                    Log(Type.Event, "Finished work, stopping service...");
                     isWorking = false;
                     StopSelf();
                 }
@@ -120,17 +121,17 @@ namespace SmartLyrics.Services
 
             while (nextURL != "")
             {
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getSavedList (DownloadService): nextURL = " + nextURL);
+                Log(Type.Info, "nextURL = " + nextURL);
                 string results = await APIRequests.Spotify.GetSavedSongs("Bearer " + accessToken, nextURL);
                 JObject parsed = JObject.Parse(results);
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getSavedList (DownloadService): Results parsed into JObject");
+                Log(Type.Info, "Results parsed into JObject");
 
                 float offset = Convert.ToSingle((string)parsed["offset"]);
                 float total = Convert.ToSingle((string)parsed["total"]);
                 progress = (int)ConvertRange(0, 100, 0, 25, (offset / total) * 100);
 
                 IList<JToken> parsedList = parsed["items"].Children().ToList();
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getSavedList (DownloadService): Parsed results into list");
+                Log(Type.Info, "Parsed results into list");
 
                 foreach (JToken result in parsedList)
                 {
@@ -159,13 +160,13 @@ namespace SmartLyrics.Services
                 {
                     while (completedTasks < 50)
                     {
-                        Log.WriteLine(LogPriority.Error, "SmartLyrics", "getGeniusSearchResults (DownloadService): geniusSearch tasks still running");
+                        Log(Type.Error, "geniusSearch tasks still running");
                         await Task.Delay(1000);
                     }
 
                     completedTasks = 0;
                     callsMade = 0;
-                    Log.WriteLine(LogPriority.Info, "SmartLyrics", "getGeniusSearchResults (DownloadService): No tasks are running!");
+                    Log(Type.Info, "No tasks are running!");
                     geniusSearch(s, geniusTemp);
                 }
                 else
@@ -176,27 +177,27 @@ namespace SmartLyrics.Services
                 current++;
                 progress = (int)ConvertRange(0, 100, 0, 25, (current / total) * 100) + 25;
 
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "getGeniusSearchResults (DownloadService): foreach for index " + current + " completed.");
+                Log(Type.Info, "foreach for index " + current + " completed.");
             }
 
             if (total % 25 != 0)
             {
                 while (completedTasks < (total % 25))
                 {
-                    Log.WriteLine(LogPriority.Error, "SmartLyrics", "getGeniusSearchResults (DownloadService): geniusSearch tasks still running, can't finish task!");
+                    Log(Type.Error, "geniusSearch tasks still running, can't finish task!");
                     await Task.Delay(1000);
                 }
             }
 
             savedTracks = geniusTemp;
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getGeniusSearchResults (DownloadService): Changed savedTracks to Genius results");
+            Log(Type.Info, "Changed savedTracks to Genius results");
         }
 
         private async Task geniusSearch(Song s, List<Song> geniusTemp)
         {
             callsMade++;
 
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "geniusSearch (DownloadService): Starting geniusSearch");
+            Log(Type.Info, "Starting geniusSearch");
             string results = await HTTPRequests.GetRequest(geniusSearchURL + s.Artist + " - " + s.Title, geniusAuthHeader);
             if (results == null)
             {
@@ -216,7 +217,7 @@ namespace SmartLyrics.Services
 
                     if (!File.Exists(path))
                     {
-                        Log.WriteLine(LogPriority.Info, "SmartLyrics", "geniusSearch (DownloadService): Song found! Adding to geniusTemp");
+                        Log(Type.Info, "Song found! Adding to geniusTemp");
 
                         Song song = new Song()
                         {
@@ -234,14 +235,14 @@ namespace SmartLyrics.Services
                     }
                     else
                     {
-                        Log.WriteLine(LogPriority.Info, "SmartLyrics", "geniusSearch (DownloadService): Song found but already downloaded");
+                        Log(Type.Info, "Song found but already downloaded");
                         break;
                     }
                 }
             }
 
             completedTasks++;
-            Log.WriteLine(LogPriority.Warn, "SmartLyrics", "geniusSearch (DownloadService): completedTasks = " + completedTasks);
+            Log(Type.Event, "completedTasks = " + completedTasks);
         }
 
         private async Task getLyricsAndDetails()
@@ -262,13 +263,13 @@ namespace SmartLyrics.Services
                     {
                         while (completedTasks < 10)
                         {
-                            Log.WriteLine(LogPriority.Error, "SmartLyrics", "getLyricsAndDetails (DownloadService): getDetails tasks still running");
+                            Log(Type.Error, "getDetails tasks still running");
                             await Task.Delay(5000);
                         }
 
                         completedTasks = 0;
                         callsMade = 0;
-                        Log.WriteLine(LogPriority.Info, "SmartLyrics", "getLyricsAndDetails (DownloadService): No tasks are running!");
+                        Log(Type.Info, "No tasks are running!");
                         getDetails(s.APIPath);
                     }
                     else
@@ -279,13 +280,13 @@ namespace SmartLyrics.Services
                     current++;
                     progress = (int)ConvertRange(0, 100, 0, 50, (current / total) * 100) + 50;
 
-                    Log.WriteLine(LogPriority.Info, "SmartLyrics", "getLyricsAndDetails (DownloadService): foreach for index " + current + " completed.");
+                    Log(Type.Info, "foreach for index " + current + " completed.");
                 }
             }
             else
             {
                 progress = 100;
-                Log.WriteLine(LogPriority.Warn, "SmartLyrics", "getLyricsAndDetails (DownloadService): savedTracks is empty!");
+                Log(Type.Event, "savedTracks is empty!");
             }
 
             progress = 100;
@@ -295,11 +296,11 @@ namespace SmartLyrics.Services
         {
             callsMade++;
 
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "getDetails (DownloadService): Starting getDetails operation");
+            Log(Type.Info, "Starting getDetails operation");
             string results = await HTTPRequests.GetRequest(geniusAPIURL + APIPath, geniusAuthHeader);
             if (results == null)
             {
-                Log.WriteLine(LogPriority.Debug, "SmartLyrics", "getDetails (DownloadService): Returned null, calling API again...");
+                Log(Type.Processing, "Returned null, calling API again...");
                 results = await HTTPRequests.GetRequest(geniusAPIURL + APIPath, geniusAuthHeader);
             }
             JObject parsed = JObject.Parse(results);
@@ -315,11 +316,11 @@ namespace SmartLyrics.Services
                 Path = (string)parsed["response"]["song"]["path"]
             };
 
-            Log.WriteLine(LogPriority.Debug, "SmartLyrics", "getDetails (DownloadService): Created new Song variable");
+            Log(Type.Processing, "Created new Song variable");
 
             if (parsed["response"]["song"]["featured_artists"].HasValues)
             {
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "getDetails (DownloadService): Track has featured artists");
+                Log(Type.Info, "Track has featured artists");
                 IList<JToken> parsedList = parsed["response"]["song"]["featured_artists"].Children().ToList();
                 song.FeaturedArtist = "feat. ";
                 foreach (JToken artist in parsedList)
@@ -336,16 +337,16 @@ namespace SmartLyrics.Services
             }
             else
             {
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "getDetails (DownloadService): Track does not have featured artists");
+                Log(Type.Info, "Track does not have featured artists");
                 song.FeaturedArtist = "";
             }
 
             string downloadedLyrics;
 
             HtmlWeb web = new HtmlWeb();
-            Log.WriteLine(LogPriority.Debug, "SmartLyrics", "getDetails (DownloadService): Trying to load page");
+            Log(Type.Processing, "Trying to load page");
             HtmlDocument doc = await web.LoadFromWebAsync("https://genius.com" + song.Path);
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "getDetails (DownloadService): Loaded Genius page");
+            Log(Type.Info, "Loaded Genius page");
             HtmlNode lyricsBody = doc.DocumentNode.SelectSingleNode("//div[@class='lyrics']");
 
             downloadedLyrics = Regex.Replace(lyricsBody.InnerText, @"^\s*", "");
@@ -353,15 +354,15 @@ namespace SmartLyrics.Services
             song.Lyrics = downloadedLyrics;
 
             await saveSongLyrics(song);
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "getDetails (DownloadService): Finished saving!");
+            Log(Type.Info, "Finished saving!");
 
             completedTasks++;
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "getDetails (DownloadService): Completed getDetails task for " + song.APIPath);
+            Log(Type.Info, "Completed getDetails task for " + song.APIPath);
         }
 
         private async Task saveSongLyrics(Song song)
         {
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "saveSongLyrics (DownloadService): Started saveSongLyrics operation");
+            Log(Type.Info, "Started saveSongLyrics operation");
 
             path = Path.Combine(applicationPath, savedLyricsLocation);
             pathImg = Path.Combine(applicationPath, savedImagesLocation);
@@ -376,7 +377,7 @@ namespace SmartLyrics.Services
                 {
                     using (StreamWriter sw = File.CreateText(path))
                     {
-                        Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "saveSongLyrics (DownloadService): File doesn't exist, creating" + path.ToString());
+                        Log(Type.Info, "File doesn't exist, creating" + path.ToString());
                         await sw.WriteAsync(song.Lyrics);
                         await sw.WriteLineAsync("\n");
                         await sw.WriteLineAsync(@"!!@@/\/\-----00-----/\/\@@!!");
@@ -406,12 +407,12 @@ namespace SmartLyrics.Services
                 }
                 else
                 {
-                    Log.WriteLine(LogPriority.Info, "SmartLyrics", "saveSongLyrics (DownloadService): File already exists, let's do nothing!");
+                    Log(Type.Info, "File already exists, let's do nothing!");
                 }
             }
             catch (Exception e)
             {
-                Log.WriteLine(LogPriority.Error, "SmartLyrics", "saveSongLyrics (DownloadService): Exception caught while saving song in DownloadService!\n" + e.ToString());
+                Log(Type.Error, "Exception caught while saving song in DownloadService!\n" + e.ToString());
             }
 
         }

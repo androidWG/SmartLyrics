@@ -1,5 +1,4 @@
-﻿using Android.Util;
-
+﻿using static SmartLyrics.Common.Logging;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -94,14 +93,14 @@ namespace SmartLyrics.Toolbox
         
         public static async Task<string> StripJapanese(this string input)
         {
-            Log.WriteLine(LogPriority.Verbose, "JapaneseTools", $"StripJapanese: Processing string '{input}'");
+            Log(Type.Info, $"Processing string '{input}'");
 
             //TODO: Add support for titles like Bakamitai ばかみたい (Romanized)
 
             if (WanaKana.IsJapanese(input))
             {
                 string converted = await GetTransliteration(input, false, TargetSyllabary.Romaji);
-                Log.WriteLine(LogPriority.Info, "JapaneseTools", "StripJapanese: Converted string from API is " + converted);
+                Log(LogPriority.Info, "Converted string from API is " + converted);
 
                 input = converted;
             }

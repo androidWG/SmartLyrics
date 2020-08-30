@@ -1,5 +1,5 @@
-﻿using Android.Util;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
+using static SmartLyrics.Common.Logging;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -15,7 +15,7 @@ namespace SmartLyrics.Toolbox
             if (doc.Text.Contains("<div class=\"lyrics\">"))
             {
                 //EX: Handle NullReferenceException from error pages and such
-                Log.WriteLine(LogPriority.Warn, "HTMLParsing", "ParseHTML: Song page uses old design");
+                Log(LogPriority.Warn, "Song page uses old design");
                 HtmlNode node = doc.DocumentNode.SelectSingleNode("//div[@class='lyrics']");
                 string output = await CleanHTML(node.InnerHtml);
                 return output;
@@ -56,7 +56,7 @@ namespace SmartLyrics.Toolbox
 
             _ = _.Replace("<br><br><br>", "<br><br>");
 
-            Log.WriteLine(LogPriority.Verbose, "HTMLParsing", "CleanHTML: Cleaned HTML");
+            Log(Type.Info, "Cleaned HTML");
 
             string output = _;
             return output;

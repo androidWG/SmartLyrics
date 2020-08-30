@@ -1,11 +1,13 @@
 ﻿using Android.App;
-using Android.Util;
 
+using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using static Android.App.ActivityManager;
 using static SmartLyrics.Globals;
+using static SmartLyrics.Common.Logging;
 
 namespace SmartLyrics.Toolbox
 {
@@ -36,23 +38,32 @@ namespace SmartLyrics.Toolbox
 
             if (Directory.Exists(path))
             {
-                Log.WriteLine(LogPriority.Verbose, "MiscTools", "CheckAndCreateAppFolders: /Saved Lyrics directory exists!");
+                Log(Type.Info, "/Saved Lyrics directory exists!");
             }
             else
             {
                 Directory.CreateDirectory(path);
-                Log.WriteLine(LogPriority.Verbose, "MiscTools", "CheckAndCreateAppFolders: /Saved Lyrics directory doesn't exist, creating...");
+                Log(Type.Info, "/Saved Lyrics directory doesn't exist, creating...");
             }
 
             if (Directory.Exists(pathImg))
             {
-                Log.WriteLine(LogPriority.Verbose, "MiscTools", "CheckAndCreateAppFolders: /Saved Lyrics/ImageCache directory exists!");
+                Log(Type.Info, "/Saved Lyrics/ImageCache directory exists!");
             }
             else
             {
                 Directory.CreateDirectory(pathImg);
-                Log.WriteLine(LogPriority.Verbose, "MiscTools", "CheckAndCreateAppFolders: /Saved Lyrics/ImageCache directory doesn't exist, creating...");
+                Log(Type.Info, "/Saved Lyrics/ImageCache directory doesn't exist, creating...");
             }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static string GetCurrentMethod()
+        {
+            var st = new StackTrace();
+            var sf = st.GetFrame(1);
+
+            return sf.GetMethod().Name;
         }
     }
 }

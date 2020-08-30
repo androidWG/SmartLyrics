@@ -6,7 +6,6 @@ using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.V4.Widget;
 using Android.Support.V7.App;
-using Android.Util;
 using Android.Views;
 using Android.Webkit;
 using Android.Widget;
@@ -19,6 +18,9 @@ using System.Text.RegularExpressions;
 using System.Timers;
 
 using static SmartLyrics.Globals;
+using static SmartLyrics.Common.Logging;
+using static SmartLyrics.Common.Logging;
+using Type = SmartLyrics.Common.Logging.Type;
 
 namespace SmartLyrics
 {
@@ -57,7 +59,7 @@ namespace SmartLyrics
             NavigationView navigationView = FindViewById<NavigationView>(Resource.Id.nav_view);
             navigationView.NavigationItemSelected += NavigationView_NavigationViewSelected;
 
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnCreate (SpotifyDownload): Loaded view");
+            Log(LogPriority.Info, "Loaded view");
 
             serviceConnection = new Services.DownloadServiceConnection(this);
 
@@ -75,7 +77,7 @@ namespace SmartLyrics
             spotifyAuth.Settings.JavaScriptEnabled = true;
             spotifyAuth.SetWebViewClient(new SpotifyAuthClient(this));
             spotifyAuth.LoadUrl("https://accounts.spotify.com/authorize?client_id=cfa0924c4430409b9a90ad42cb9da301&redirect_uri=http:%2F%2Fredirect.test%2Freturn&scope=user-library-read&response_type=token&state=" + randomState.ToString());
-            Log.WriteLine(LogPriority.Info, "SmartLyrics", "OnCreate (SpotifyDownload): Started LoadURL");
+            Log(LogPriority.Info, "Started LoadURL");
 
             startBtn.Click += async delegate
             {
@@ -84,31 +86,31 @@ namespace SmartLyrics
 
                 if (Directory.Exists(path))
                 {
-                    Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "OnCreate (SpotifyDownload): /SmartLyrics/Saved Lyrics directory exists!");
+                    Log(Type.Info, "/SmartLyrics/Saved Lyrics directory exists!");
                 }
                 else
                 {
                     Directory.CreateDirectory(path);
-                    Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "OnCreate (SpotifyDownload): /SmartLyrics/Saved Lyrics directory doesn't exist, creating...");
+                    Log(Type.Info, "/SmartLyrics/Saved Lyrics directory doesn't exist, creating...");
                 }
 
                 if (Directory.Exists(pathImg))
                 {
-                    Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "OnCreate (SpotifyDownload): /SmartLyrics/Saved Lyrics/ImageCache directory exists!");
+                    Log(Type.Info, "/SmartLyrics/Saved Lyrics/ImageCache directory exists!");
                 }
                 else
                 {
                     Directory.CreateDirectory(pathImg);
-                    Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "OnCreate (SpotifyDownload): /SmartLyrics/Saved Lyrics/ImageCache directory doesn't exist, creating...");
+                    Log(Type.Info, "/SmartLyrics/Saved Lyrics/ImageCache directory doesn't exist, creating...");
                 }
 
                 timer.Interval = 1000;
                 timer.Elapsed += updateProgressBar;
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "OnCreate (SpotifyDownload): Setted up timer");
+                Log(Type.Info, "Setted up timer");
 
                 Intent intent = new Intent(this, typeof(Services.DownloadService));
                 intent.PutExtra("AccessToken", accessToken);
-                Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "OnCreate (SpotifyDownload): Added extra to intent");
+                Log(Type.Info, "Added extra to intent");
                 StartForegroundService(intent);
                 BindService(intent, serviceConnection, Bind.AutoCreate);
             };
@@ -145,7 +147,7 @@ namespace SmartLyrics
         {
             ProgressBar progressBar = FindViewById<ProgressBar>(Resource.Id.progressBar);
 
-            Log.WriteLine(LogPriority.Verbose, "SmartLyrics", "updateProgressBar (SpotifyDownload): Running update clock - progress: " + serviceConnection.Binder.Service.GetProgress());
+            Log(Type.Info, "" + serviceConnection.Binder.Service.GetProgress());
 
             if (serviceConnection.Binder.Service.GetProgress() != 100)
             {
@@ -210,12 +212,12 @@ namespace SmartLyrics
 
             public override void OnPageStarted(WebView view, string url, Bitmap favicon)
             {
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "SpotifyAuthClient (SpotifyDownload): Page started - " + url);
+                Log(LogPriority.Info, "Page started - " + url);
 
                 if (url.Contains("http://redirect.test") && url.Contains(randomState.ToString()))
                 {
                     accessToken = Regex.Match(url, @"(?<=access_token=)(.*?)(?=&token_type)").ToString();
-                    Log.WriteLine(LogPriority.Info, "SmartLyrics", "SpotifyAuthClient (SpotifyDownload): Page returned with access token!");
+                    Log(LogPriority.Info, "Page returned with access token!");
 
                     base.OnPageStarted(view, url, favicon);
                 }

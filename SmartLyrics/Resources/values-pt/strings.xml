@@ -11,7 +11,7 @@
     </string>
     <string name="nowPlaying">TOCANDO AGORA</string>
     <string name="permissionDenied">Permissão negada</string>
-    <string name="searchHint">Pesquisar...</string>
+    <string name="searchHint">Pesquisar..</string>
     <string name="savedSuccessfully">Letra salva com sucesso</string>
     <string name="drawerAbout">Sobre</string>
     <string name="drawerSaved">Letras Salvas</string>
@@ -20,7 +20,7 @@
     <string name="descCover">Capa do album da música, toque para salva essa letra no seu dispositivo</string>
     <string name="descHeader">Imagem do cabeçalho de fundo para esta música</string>
     <string name="descDecorationBG">Imagem de fundo de decoração</string>
-    <string name="mainWelcome">Comece a reproduzir qualquer música em seu aplicativo favorito para ver a letra exibida aqui ou use o bot\'ao de pesquisa no topo da tela para pesquisar uma música.</string>
+    <string name="mainWelcome">Comece a reproduzir qualquer música em seu aplicativo favorito para ver a letra exibida aqui ou use o bot\'ao de pesquisa no topo da tela para pesquisar uma música</string>
     <string name="mainWelcomeHeader">BEM-VINDO AO SMARTLYRICS</string>
     <string name="mainGotoSaved">IR PARA LETRAS SALVAS</string>
     <string name="descSeacrhBtn">Mostar barra de pesquisa</string>
@@ -54,16 +54,16 @@
         app de música para ver a sua letra.
     </string>
     <string name="prefDetectNotification">Mostrar notificação para músicas detectadas</string>
-    <string name="prefDetectNotificationSummary">Mostra uma notificação quando o SmartLyrics detecta uma música tocando com uma letra correspondente.</string>
+    <string name="prefDetectNotificationSummary">Mostra uma notificação quando o SmartLyrics detecta uma música tocando com uma letra correspondente</string>
     <string name="prefHeader">Salvar imagens do cabeçalho</string>
-    <string name="prefHeaderSummary">O SmartLyrics salva a imagem do cabeçalho do plano de fundo e a imagem da capa do álbum ao salvar uma música e, para cada música, a imagem do cabeçalho ocupa algumas centenas de kilobytes. Desativar isso pode economizar espaço, se você quiser salvar muitas músicas. Para excluir cabeçalhos de músicas já salvas, clique no botão abaixo.</string>
-    <string name="saveError">Ocorreu um erro ao salvar essa letra. Por favor tente novamente.</string>
-    <string name="readError">Ocorreu um erro ao ler um arquivo. Por favor tente novamente.</string>
+    <string name="prefHeaderSummary">O SmartLyrics salva a imagem do cabeçalho do plano de fundo e a imagem da capa do álbum ao salvar uma música e, para cada música, a imagem do cabeçalho ocupa algumas centenas de kilobytes. Desativar isso pode economizar espaço, se você quiser salvar muitas músicas. Para excluir cabeçalhos de músicas já salvas, clique no botão abaixo</string>
+    <string name="saveError">Ocorreu um erro ao salvar essa letra. Por favor tente novamente</string>
+    <string name="readError">Ocorreu um erro ao ler um arquivo. Por favor tente novamente</string>
     <string name="prefAdvanced">Configurações avançadas</string>
     <string name="prefDeleteHeader">Excluir imagens de cabeçalho existentes</string>
-    <string name="prefSyncSummary">Baixar e deletar automaticamente letras de músicas que foram adicionadas ou removidas do serviço de streaming de música que você conectou.</string>
+    <string name="prefSyncSummary">Baixar e deletar automaticamente letras de músicas que foram adicionadas ou removidas do serviço de streaming de música que você conectou</string>
     <string name="prefSync">Sincronizar com o serviço de música conectado</string>
-    <string name="prefRomanizeModeSummary">Escolha entre romanização normal ou espaçada.</string>
+    <string name="prefRomanizeModeSummary">Escolha entre romanização normal ou espaçada</string>
     <string name="prefRomanizeMode_spaced">Espaçada</string>
     <string name="prefRomanizeMode_normal">Normal</string>
     <string name="prefRomanizeMode">Modo de romanização</string>
@@ -72,19 +72,19 @@
     <string name="prefJapaneseLang">Língua Japonesa</string>
     <string name="prefBackupRestore">Backup e Restauração</string>
     <string name="prefBackup">Backup de letras salvas</string>
-    <string name="prefAutoUpdateSummary">Atualizar automaticamente a música quando estiver no modo Tocando Agora.</string>
+    <string name="prefAutoUpdateSummary">Atualizar automaticamente a música quando estiver no modo Tocando Agora</string>
     <string name="prefAutoUpdate">Auto-atualizar letra</string>
     <string name="infoScreenFooter">Letras e imagens do Genius</string>
     <string name="descShine">Alerta brilhante de nova música detectada</string>
     <string name="descFabSwitch">Mudar para janela flutuante</string>
     <string name="descFabMore">Abrir um menu para mostrar mais opções</string>
     <string name="noResults">Nenhum resultado</string>
-    <string name="prefDetectSummary">Detectar músicas tocando em aplicativos de streaming e mostrar letras quando estiver no aplicativo. Desativar isso também desativa o serviço de detecção de plano de fundo.</string>
+    <string name="prefDetectSummary">Detectar músicas tocando em aplicativos de streaming e mostrar letras quando estiver no aplicativo. Desativar isso também desativa o serviço de detecção de plano de fundo</string>
     <string name="prefDetect">Detectar músicas tocando em segundo plano</string>
     <string name="coverSearchDesc">Imagem de capa da música</string>
-    <string name="prefRomanizeDetailsSummary">Romanizar automaticamente o título, álbum, artista e o artista em destaque (feat.).</string>
+    <string name="prefRomanizeDetailsSummary">Romanizar automaticamente o título, álbum, artista e o artista em destaque (feat.)</string>
     <string name="prefRomanizeDetails">Romanize automaticamente informações da música</string>
-    <string name="prefRomanizeSearchSummary">Isso manterá apenas os títulos romanizados nos resultados das pesquisas e ocultará o texto original em japonês. Dá uma aparência mais limpa.</string>
+    <string name="prefRomanizeSearchSummary">Isso manterá apenas os títulos romanizados nos resultados das pesquisas e ocultará o texto original em japonês. Dá uma aparência mais limpa</string>
     <string name="prefRomanizeSearch">Romanizar os resultados da pesquisa</string>
     <string name="lyricsErrorOcurred">Ocorreu um erro, por favor recarregue a página</string>
 </resources>

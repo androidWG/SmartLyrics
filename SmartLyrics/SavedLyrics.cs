@@ -5,7 +5,6 @@ using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V4.Widget;
 using Android.Support.V7.App;
-using Android.Util;
 using Android.Views;
 using Android.Widget;
 
@@ -16,6 +15,7 @@ using SmartLyrics.Common;
 using SmartLyrics.Toolbox;
 using SmartLyrics.IO;
 using static SmartLyrics.Globals;
+using static SmartLyrics.Common.Logging;
 
 using System.Collections.Generic;
 using System.IO;
@@ -88,13 +88,13 @@ namespace SmartLyrics
 
             savedList.ChildClick += async delegate (object sender, ExpandableListView.ChildClickEventArgs e)
             {
-                Log.WriteLine(LogPriority.Info, "SavedLyrics", "OnCreate: Clicked on item from grouped list");
+                Log(LogPriority.Info, "Clicked on item from grouped list");
                 await OpenInMainActivity(artistSongs.ElementAt(e.GroupPosition).Value[e.ChildPosition]);
             };
 
             savedListNonGrouped.ItemClick += async delegate (object sender, AdapterView.ItemClickEventArgs e)
             {
-                Log.WriteLine(LogPriority.Info, "SavedLyrics", "OnCreate: Clicked on item from non-grouped list");
+                Log(LogPriority.Info, "Clicked on item from non-grouped list");
                 await OpenInMainActivity(allSongs[e.Position]);
             };
         }
@@ -160,7 +160,7 @@ namespace SmartLyrics
             string path = Path.Combine(applicationPath, savedLyricsLocation);
 
             await MiscTools.CheckAndCreateAppFolders();
-            Log.WriteLine(LogPriority.Verbose, "SavedLyrics", $"ShowSavedSongs: Path is \"{path}\"");
+            Log(Type.Info, $"Path is \"{path}\"");
 
             List<SongBundle> songList = await Database.GetSongList();
             if (songList != null)
@@ -180,24 +180,24 @@ namespace SmartLyrics
                     }
                 }
 
-                Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "ShowSavedSongs: Setted up adapter data");
+                Log(Type.Info, "Setted up adapter data");
 
                 if (nonGrouped)
                 {
                     savedListNonGrouped.Adapter = new SavedLyricsAdapter(this, allSongs);
-                    Log.WriteLine(LogPriority.Info, "SavedLyrics", "ShowSavedSongs: Showing adapter for non grouped view");
+                    Log(LogPriority.Info, "Showing adapter for non grouped view");
                     progressBar.Visibility = ViewStates.Gone;
                 }
                 else
                 {
                     savedList.SetAdapter(new ExpandableListAdapter(this, artistList, artistSongs));
-                    Log.WriteLine(LogPriority.Info, "SavedLyrics", "ShowSavedSongs: Showing adapter for grouped view");
+                    Log(LogPriority.Info, "Showing adapter for grouped view");
                     progressBar.Visibility = ViewStates.Gone;
                 }
             }
             else
             {
-                Log.WriteLine(LogPriority.Info, "SavedLyrics", "ShowSavedSongs: No files found!");
+                Log(LogPriority.Info, "No files found!");
                 progressBar.Visibility = ViewStates.Gone;
             }
         }
@@ -211,7 +211,7 @@ namespace SmartLyrics
 
             artistList = new List<Artist>();
 
-            Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "GetSavedList: Starting foreach loop");
+            Log(Type.Info, "Starting foreach loop");
             foreach (SongBundle s in songList)
             {
                 //finds the first Artist that matches the artist name from the song

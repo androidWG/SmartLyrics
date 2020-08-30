@@ -1,12 +1,11 @@
-﻿using Android.Util;
-
-using Microsoft.AppCenter.Crashes;
-
+﻿using Microsoft.AppCenter.Crashes;
+using static SmartLyrics.Common.Logging;
 using System;
 using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Type = SmartLyrics.Common.Logging.Type;
 
 namespace SmartLyrics.Toolbox
 {
@@ -27,12 +26,12 @@ namespace SmartLyrics.Toolbox
                     Uri urlToSend = new Uri(url);
 
                     HttpResponseMessage responseAsync = await client.GetAsync(urlToSend);
-                    Log.WriteLine(LogPriority.Verbose, "HTTPRequests", "GetRequest: Url sent to HttpClient: " + urlToSend);
+                    Log(Type.Info, "" + urlToSend);
 
                     using (Stream stream = await responseAsync.Content.ReadAsStreamAsync())
                     using (StreamReader reader = new StreamReader(stream))
                     {
-                        Log.WriteLine(LogPriority.Verbose, "HTTPRequests", "GetRequest: Reading content stream...");
+                        Log(Type.Info, "Reading content stream...");
                         return reader.ReadToEnd();
                     }
                 }
@@ -41,7 +40,7 @@ namespace SmartLyrics.Toolbox
             {
                 Crashes.TrackError(e);
 
-                Log.WriteLine(LogPriority.Error, "HTTPRequests", $"GetRequest: Exception caught while getting URL {url}! \n{e}");
+                Log(Type.Error, $"Exception caught while getting URL {url}! \n{e}");
                 return null;
             }
         }
@@ -60,12 +59,12 @@ namespace SmartLyrics.Toolbox
                     HttpContent content = new StringContent(body, Encoding.UTF8, "text/plain");
 
                     HttpResponseMessage responseAsync = await client.PostAsync(url, content);
-                    Log.WriteLine(LogPriority.Verbose, "HTTPRequests", "PostRequest: Url sent to HttpClient: " + url);
+                    Log(Type.Info, "" + url);
 
                     using (Stream stream = await responseAsync.Content.ReadAsStreamAsync())
                     using (StreamReader reader = new StreamReader(stream))
                     {
-                        Log.WriteLine(LogPriority.Verbose, "HTTPRequests", "PostRequest: Reading content stream...");
+                        Log(Type.Info, "Reading content stream...");
                         return reader.ReadToEnd();
                     }
                 }
@@ -74,7 +73,7 @@ namespace SmartLyrics.Toolbox
             {
                 Crashes.TrackError(e);
 
-                Log.WriteLine(LogPriority.Error, "HTTPRequests", $"PostRequest: Exception caught while getting URL {url}! \n{e}");
+                Log(Type.Error, $"Exception caught while getting URL {url}! \n{e}");
                 return null;
             }
         }

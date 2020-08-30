@@ -97,6 +97,7 @@
     <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Mono.Data.Sqlite" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net" />
@@ -118,7 +119,6 @@
     <Compile Include="Classes\Toolbox\HTMLParsing.cs" />
     <Compile Include="Classes\Services\NotificationListener.cs" />
     <Compile Include="Classes\Toolbox\JapaneseTools.cs" />
-    <Compile Include="Classes\Toolbox\Logging.cs" />
     <Compile Include="Classes\Toolbox\MiscTools.cs" />
     <Compile Include="Classes\API Requests\SpotifyRequests.cs" />
     <Compile Include="Classes\Toolbox\SongParsing.cs" />

@@ -3,7 +3,6 @@ using Android.Content;
 using Android.OS;
 using Android.Service.Notification;
 using Android.Support.V4.App;
-using Android.Util;
 using Newtonsoft.Json.Linq;
 using SmartLyrics.Common;
 using SmartLyrics.Toolbox;
@@ -12,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static SmartLyrics.Globals;
 using static SmartLyrics.Toolbox.SongParsing;
+using static SmartLyrics.Common.Logging;
 using TaskStackBuilder = Android.Support.V4.App.TaskStackBuilder;
 
 namespace SmartLyrics.Services
@@ -36,7 +36,7 @@ namespace SmartLyrics.Services
         public override async void OnCreate()
         {
             base.OnCreate();
-            Log.WriteLine(LogPriority.Info, "NLService", "OnCreate (NLService): Service created");
+            Log(Type.Event, "Service created");
 
             prefs = AndroidX.Preference.PreferenceManager.GetDefaultSharedPreferences(this);
 
@@ -49,7 +49,7 @@ namespace SmartLyrics.Services
         public override async void OnListenerConnected()
         {
             base.OnListenerConnected();
-            Log.WriteLine(LogPriority.Info, "NLService", "OnListenerConnected (NLService): Listener connected");
+            Log(Type.Event, "Listener connected");
 
             StatusBarNotification[] notifications = GetActiveNotifications();
             foreach (StatusBarNotification n in notifications)
@@ -59,7 +59,7 @@ namespace SmartLyrics.Services
                     Song notificationSong = GetTitleAndArtistFromExtras(n.Notification.Extras.ToString());
                     if (!string.IsNullOrEmpty(notificationSong.Title))
                     {
-                        Log.WriteLine(LogPriority.Info, "NLService", "OnListenerConnected: Found song, starting search...");
+                        Log(Type.Processing, "Found song, starting search...");
                         await GetAndCompareResults(notificationSong);
                     }
                 }
@@ -78,7 +78,7 @@ namespace SmartLyrics.Services
 
                     if (previousSong.Title != notificationSong.Title && !string.IsNullOrEmpty(notificationSong.Title))
                     {
-                        Log.WriteLine(LogPriority.Info, "NLService", "OnNotificationPosted: Previous song is different and not empty, getting search results...");
+                        Log(Type.Event, "Previous song is different and not empty, getting search results...");
                         await GetAndCompareResults(notificationSong);
                     }
                 }
@@ -92,7 +92,7 @@ namespace SmartLyrics.Services
             //set previous song variable now so that it won't be called again in a short period of time
             previousSong = ntfSong;
 
-            Log.WriteLine(LogPriority.Verbose, "NLService", "GetAndCompareResults (NLService): Starting async GetSearchResults operation");
+            Log(Type.Info, "Starting async GetSearchResults operation");
 
             // strip song for things that interfere search. making a separate
             // Song object makes sure that one search is as broad as possible, so
@@ -104,7 +104,7 @@ namespace SmartLyrics.Services
             JObject parsed = JObject.Parse(results);
 
             IList<JToken> parsedList = parsed["response"]["hits"].Children().ToList();
-            Log.WriteLine(LogPriority.Verbose, "NLService", $"getAndCompareResults (NLService): Parsed results into list with size {parsedList.Count}");
+            Log(Type.Info, $"Parsed results into list with size {parsedList.Count}");
 
             List<Song> likenessRanking = new List<Song>();
             Song mostLikely = new Song();
@@ -113,11 +113,11 @@ namespace SmartLyrics.Services
             if (parsedList.Count == 0)
             {
                 mostLikely = new Song();
-                Log.WriteLine(LogPriority.Warn, "NLService", "GetAndCompareResults: No search results!");
+                Log(Type.Info, "No search results!");
             }
             else if (parsedList.Count == 1)
             {
-                Log.WriteLine(LogPriority.Warn, "NLService", "GetAndCompareResults: Search returned 1 result");
+                Log(Type.Info, "Search returned 1 result");
                 mostLikely = new Song()
                 {
                     Id = (int)parsedList[0]["result"]["id"],
@@ -146,7 +146,7 @@ namespace SmartLyrics.Services
                         Path = (string)result["result"]["path"]
                     };
 
-                    Log.WriteLine(LogPriority.Info, "NLService", $"GetAndCompareResults: Evaluating song {resultSong.Title} by {resultSong.Artist}");
+                    Log(Type.Processing, $"Evaluating song {resultSong.Title} by {resultSong.Artist}");
 
                     int index = parsedList.IndexOf(result);
                     resultSong.Likeness = await CalculateLikeness(resultSong, ntfSong, index);
@@ -166,17 +166,17 @@ namespace SmartLyrics.Services
         {
             if (chosen.Likeness >= maxLikeness)
             {
-                Log.WriteLine(LogPriority.Error, "NLService", $"HandleChosenSong: Selected song {chosen.Title} by {chosen.Artist} with likeness {chosen.Likeness} is too unlikely.\n Song not found.");
+                Log(Type.Info, $"Selected song {chosen.Title} by {chosen.Artist} with likeness {chosen.Likeness} is too unlikely.\n Song not found.");
                 ntfManager.Cancel(NOTIFICATION_ID);
             }
             else if (string.IsNullOrEmpty(chosen.Title))
             {
-                Log.WriteLine(LogPriority.Error, "NLService", "HandleChosenSong: Song not found!");
+                Log(Type.Info, "Song not found!");
                 ntfManager.Cancel(NOTIFICATION_ID);
             }
             else if (chosen.Likeness <= maxLikeness)
             {
-                Log.WriteLine(LogPriority.Warn, "NLService", $"HandleChosenSong: Selected song is {chosen.Title} by {chosen.Artist} with likeness {chosen.Likeness}.");
+                Log(Type.Event, $"Selected song is {chosen.Title} by {chosen.Artist} with likeness {chosen.Likeness}.");
 
                 MainActivity.notificationSong = chosen;
 
@@ -209,7 +209,7 @@ namespace SmartLyrics.Services
 
         private void CreateNotification(string title, string artist)
         {
-            Log.WriteLine(LogPriority.Verbose, "NLService", "CreateNotification: Creating notification");
+            Log(Type.Info, "Creating notification");
             MainActivity.fromNotification = true;
 
             TaskStackBuilder stackBuilder = TaskStackBuilder.Create(Application.Context);
@@ -230,7 +230,7 @@ namespace SmartLyrics.Services
 
             ntfManager = NotificationManagerCompat.From(Application.Context);
             ntfManager.Notify(NOTIFICATION_ID, builder.Build());
-            Log.WriteLine(LogPriority.Info, "NLService", "CreateNotification (NLService): Notification made!");
+            Log(Type.Event, "Notification made!");
         }
     }
 }

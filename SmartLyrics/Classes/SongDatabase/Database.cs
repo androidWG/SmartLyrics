@@ -1,6 +1,4 @@
-﻿using Android.Util;
-
-using FFImageLoading;
+﻿using FFImageLoading;
 using Microsoft.AppCenter.Crashes;
 
 using SmartLyrics.Common;
@@ -12,7 +10,10 @@ using System.IO;
 using System.Threading.Tasks;
 
 using static SmartLyrics.Globals;
+using static SmartLyrics.Common.Logging;
 using SmartLyrics.Toolbox;
+using Type = SmartLyrics.Common.Logging.Type;
+using Newtonsoft.Json;
 
 namespace SmartLyrics.IO
 {
@@ -56,7 +57,7 @@ namespace SmartLyrics.IO
             rdb.Columns.Add("album", typeof(string));
             rdb.Columns.Add("featuredArtist", typeof(string));
 
-            Log.WriteLine(LogPriority.Info, "DatabaseHandling", "InitializeTable: Finished initializing datatable!");
+            Log(Type.Info, "Finished initializing datatable!");
         }
 
         internal static Song DataRowToSong(DataRow dr)
@@ -96,7 +97,7 @@ namespace SmartLyrics.IO
         #region Reading
         internal static async Task<DataTable> ReadDatabaseFile(string path)
         {
-            Log.WriteLine(LogPriority.Info, "DatabaseHandling", "ReadFromDatabaseFile: Reading database from file...");
+            Log(Type.Info, "Reading database from file...");
             DataTable _dt = new DataTable("db"); //name needs to be the same as the "db" variable
 
             //EX: Better error hadnling
@@ -122,8 +123,11 @@ namespace SmartLyrics.IO
             }
             catch (Exception ex)
             {
-                Crashes.TrackError(ex);
-                Log.WriteLine(LogPriority.Info, "DatabaseHandling", "ReadFromDatabaseFile: Exception cought while trying reading database!\n" + ex.ToString());
+                Crashes.TrackError(ex, new Dictionary<string, string> {
+                    { "DBPath", path },
+                    { "Exception", ex.ToString() }
+                });
+                Log(Type.Error, $"Exception cought while trying to read database in path {path}!\n{ex}");
 
                 return null;
             }
@@ -133,7 +137,7 @@ namespace SmartLyrics.IO
 
         internal static async Task<DataTable> ReadRomanizedDatabaseFile(string path)
         {
-            Log.WriteLine(LogPriority.Info, "DatabaseHandling", "ReadFromDatabaseFile: Reading database from file...");
+            Log(Type.Info, "Reading database from file...");
             DataTable _rdt = new DataTable("db"); //name needs to be the same as the "db" variable
 
             //EX: Better error hadnling
@@ -154,8 +158,11 @@ namespace SmartLyrics.IO
             }
             catch (Exception ex)
             {
-                Crashes.TrackError(ex);
-                Log.WriteLine(LogPriority.Info, "DatabaseHandling", "ReadFromDatabaseFile: Exception cought while trying reading database!\n" + ex.ToString());
+                Crashes.TrackError(ex, new Dictionary<string, string> {
+                    { "DBPath", path },
+                    { "Exception", ex.ToString() }
+                });
+                Log(Type.Error, $"Exception cought while trying to read database in path {path}!\n{ex}");
 
                 return null;
             }
@@ -181,7 +188,7 @@ namespace SmartLyrics.IO
                 song.Romanized.Lyrics = await sr.ReadToEndAsync();
             }
 
-            Log.WriteLine(LogPriority.Verbose, "MainActivity", "ReadFromFile: Read lyrics from file(s)");
+            Log(Type.Event, "Read lyrics from file");
             sr.Dispose(); //Dispose/close manually since we're not using "using"
 
             return song;
@@ -232,7 +239,7 @@ namespace SmartLyrics.IO
             }
             else
             {
-                Log.WriteLine(LogPriority.Verbose, "DatabaseHandling", $"GetSongFromTable: Attempting to find song with ID {id} on table...");
+                Log(Type.Info, $"Attempting to find song with ID {id} on table...");
 
                 DataRow[] _;
                 try
@@ -254,7 +261,7 @@ namespace SmartLyrics.IO
                     }
                     else
                     {
-                        Log.WriteLine(LogPriority.Info, "DatabaseHandling", "GetSongFromTable: Did not find song, returning null...");
+                        Log(Type.Info, "Did not find song, returning null...");
                         return null;
                     }
                 }
@@ -268,7 +275,7 @@ namespace SmartLyrics.IO
 
         public static async Task<RomanizedSong> GetRomanizedSongFromTable(int id)
         {
-            Log.WriteLine(LogPriority.Verbose, "DatabaseHandling", $"GetSongFromTable: Attempting to find romanized song with ID {id} on table...");
+            Log(Type.Info, $"Attempting to find romanized song with ID {id} on table...");
 
             DataRow[] _;
             try
@@ -284,7 +291,7 @@ namespace SmartLyrics.IO
                 }
                 else
                 {
-                    Log.WriteLine(LogPriority.Info, "DatabaseHandling", "GetSongFromTable: Did not find song, returning null...");
+                    Log(Type.Info, "Did not find song, returning null...");
                     return null;
                 }
             }
@@ -312,7 +319,7 @@ namespace SmartLyrics.IO
                     header.Seek(0, SeekOrigin.Begin);
                     header.CopyTo(fs);
 
-                    Log.WriteLine(LogPriority.Info, "MainActivity", "SaveSong: Saved header image");
+                    Log(Type.Info, "Saved header image");
                 }
             }
 
@@ -322,7 +329,7 @@ namespace SmartLyrics.IO
                 cover.Seek(0, SeekOrigin.Begin);
                 cover.CopyTo(fs);
 
-                Log.WriteLine(LogPriority.Info, "MainActivity", "SaveSong: Saved cover image");
+                Log(Type.Info, "Saved cover image");
             }
         }
 
@@ -376,29 +383,38 @@ namespace SmartLyrics.IO
                         song.Normal.Path);
                     db.WriteXml(DBPath);
 
-                    Log.WriteLine(LogPriority.Info, "DatabaseHandling", $"WriteLyrics: Wrote song {song.Normal.Title} to disk");
+                    Log(Type.Info, $"Wrote song {song.Normal.Title} to disk");
                     return true;
                 }
                 else { return false; }
             }
             catch (IOException ex)
             {
-                Crashes.TrackError(ex);
-                Log.WriteLine(LogPriority.Error, "DatabaseHandling", "WriteSong: Exception while writing lyrics to disk!\n" + ex.ToString());
+                Crashes.TrackError(ex, new Dictionary<string, string> {
+                    { "SongInfo", JsonConvert.SerializeObject(song) },
+                    { "Exception", ex.ToString() }
+                });
+                Log(Type.Error, "Exception while writing lyrics to disk!\n" + ex.ToString());
 
                 return false;
             }
             catch (NullReferenceException ex)
             {
-                Crashes.TrackError(ex);
-                Log.WriteLine(LogPriority.Error, "DatabaseHandling", "WriteSong: NullReferenceException while writing lyrics to disk! Reload song and try again.\n" + ex.ToString());
+                Crashes.TrackError(ex, new Dictionary<string, string> {
+                    { "SongInfo", JsonConvert.SerializeObject(song) },
+                    { "Exception", ex.ToString() }
+                });
+                Log(Type.Error, "NullReferenceException while writing lyrics to disk! Reload song and try again.\n" + ex.ToString());
 
                 return false;
             }
             catch (Exception ex)
             {
-                Crashes.TrackError(ex);
-                Log.WriteLine(LogPriority.Error, "DatabaseHandling", "WriteSong: Unkown error while writing song to disk!\n" + ex.ToString());
+                Crashes.TrackError(ex, new Dictionary<string, string> {
+                    { "SongInfo", JsonConvert.SerializeObject(song) },
+                    { "Exception", ex.ToString() }
+                });
+                Log(Type.Error, "Unkown error while writing song to disk!\n" + ex.ToString());
 
                 return false;
             }
