@@ -26,12 +26,11 @@ namespace SmartLyrics.Toolbox
                     Uri urlToSend = new Uri(url);
 
                     HttpResponseMessage responseAsync = await client.GetAsync(urlToSend);
-                    Log(Type.Info, "" + urlToSend);
 
                     using (Stream stream = await responseAsync.Content.ReadAsStreamAsync())
                     using (StreamReader reader = new StreamReader(stream))
                     {
-                        Log(Type.Info, "Reading content stream...");
+                        Log(Type.Processing, "Reading content stream...");
                         return reader.ReadToEnd();
                     }
                 }

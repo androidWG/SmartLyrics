@@ -14,6 +14,7 @@ using static SmartLyrics.Common.Logging;
 using SmartLyrics.Toolbox;
 using Type = SmartLyrics.Common.Logging.Type;
 using Newtonsoft.Json;
+using Microsoft.AppCenter.Analytics;
 
 namespace SmartLyrics.IO
 {
@@ -275,7 +276,7 @@ namespace SmartLyrics.IO
 
         public static async Task<RomanizedSong> GetRomanizedSongFromTable(int id)
         {
-            Log(Type.Info, $"Attempting to find romanized song with ID {id} on table...");
+            Log(Type.Processing, $"Attempting to find romanized song with ID {id} on table...");
 
             DataRow[] _;
             try
@@ -291,7 +292,7 @@ namespace SmartLyrics.IO
                 }
                 else
                 {
-                    Log(Type.Info, "Did not find song, returning null...");
+                    Log(Type.Processing, "Did not find song, returning null...");
                     return null;
                 }
             }
@@ -383,7 +384,12 @@ namespace SmartLyrics.IO
                         song.Normal.Path);
                     db.WriteXml(DBPath);
 
-                    Log(Type.Info, $"Wrote song {song.Normal.Title} to disk");
+                    Log(Type.Event, $"Wrote song {song.Normal.Id} to file");
+                    Analytics.TrackEvent("Wrote song to file", new Dictionary<string, string> {
+                        { "SongID", song.Normal.Id.ToString() },
+                        { "DBSize", db.Rows.Count.ToString() },
+                        { "RomanizedDBSize", rdb.Rows.Count.ToString() }
+                    });
                     return true;
                 }
                 else { return false; }

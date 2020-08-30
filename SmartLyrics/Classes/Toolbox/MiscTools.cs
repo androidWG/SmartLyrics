@@ -57,13 +57,10 @@ namespace SmartLyrics.Toolbox
             }
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public static string GetCurrentMethod()
+        public static string Truncate(this string value, int maxLength)
         {
-            var st = new StackTrace();
-            var sf = st.GetFrame(1);
-
-            return sf.GetMethod().Name;
+            if (string.IsNullOrEmpty(value)) return value;
+            return value.Length <= maxLength ? value : value.Substring(0, maxLength);
         }
     }
 }

@@ -3,6 +3,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using WanaKanaNet;
+using Microsoft.AppCenter.Analytics;
+using Java.Util;
+using System.Collections.Generic;
 
 namespace SmartLyrics.Toolbox
 {
@@ -34,11 +37,18 @@ namespace SmartLyrics.Toolbox
 
         //TODO: Add clearing up of romanized text, to eliminate spaces before and after //will be done on RomanizationService
         public static async Task<string> GetTransliteration(string text,
-            bool useHtml,
-            TargetSyllabary to = TargetSyllabary.Romaji,
-            Mode mode = Mode.Spaced,
-            RomajiSystem system = RomajiSystem.Hepburn)
+                                                            bool useHtml,
+                                                            TargetSyllabary to = TargetSyllabary.Romaji,
+                                                            Mode mode = Mode.Spaced,
+                                                            RomajiSystem system = RomajiSystem.Hepburn)
         {
+            string logString = text.Truncate(30);
+            Log(Type.Processing, $"Getting transliteration for '{logString}'");
+            Analytics.TrackEvent("Getting transliteration from RomanizationService", new Dictionary<string, string> {
+                { "Input", logString },
+                { "TargetSyllabary", to.ToString("G") }
+            });
+            
             //Maybe there's a better way of doing this? This is a tad long
             string _to = "";
             switch (to)
@@ -93,14 +103,14 @@ namespace SmartLyrics.Toolbox
         
         public static async Task<string> StripJapanese(this string input)
         {
-            Log(Type.Info, $"Processing string '{input}'");
+            string logString = input.Truncate(30);
+            Log(Type.Info, $"Processing string '{logString}'");
 
             //TODO: Add support for titles like Bakamitai ばかみたい (Romanized)
 
             if (WanaKana.IsJapanese(input))
             {
                 string converted = await GetTransliteration(input, false, TargetSyllabary.Romaji);
-                Log(LogPriority.Info, "Converted string from API is " + converted);
 
                 input = converted;
             }
@@ -124,6 +134,9 @@ namespace SmartLyrics.Toolbox
                     }
                 }
             }
+
+            logString = input.Truncate(50);
+            Log(Type.Processing, $"Converted string to '{logString}'");
 
             //returns unchaged input if it doesn't follow format
             return input;

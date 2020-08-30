@@ -41,7 +41,7 @@ namespace SmartLyrics.Common
             using var cmd = new SqliteCommand(sql);
             cmd.CommandText = "DROP TABLE IF EXISTS log";
             cmd.ExecuteNonQuery();
-            cmd.CommandText = @"CREATE TABLE log(id INTEGER PRIMARY KEY,time DATETIME DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),type TEXT,file TEXT,method TEXT,type TEXT,message TEXT,attach TEXT)";
+            cmd.CommandText = @"CREATE TABLE log(id INTEGER PRIMARY KEY,time DATETIME DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),file TEXT,method TEXT,type TEXT,message TEXT,attach TEXT)";
             cmd.ExecuteNonQuery();
         }
 
@@ -89,7 +89,7 @@ namespace SmartLyrics.Common
             cmd.Parameters.AddWithValue("@Timestamp", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
             cmd.Parameters.AddWithValue("@File", file + line);
             cmd.Parameters.AddWithValue("@Method", memberName);
-            cmd.Parameters.AddWithValue("@Type", type);
+            cmd.Parameters.AddWithValue("@Type", type.ToString("G"));
             cmd.Parameters.AddWithValue("@Message", message);
             cmd.ExecuteNonQuery();
         }

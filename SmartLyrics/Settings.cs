@@ -5,10 +5,9 @@ using Android.Support.Design.Widget;
 using Android.Support.V4.Widget;
 using Android.Widget;
 using AndroidX.Preference;
-
+using Java.Util;
 using Microsoft.AppCenter.Analytics;
-
-
+using System.Collections.Generic;
 using static SmartLyrics.Common.Logging;
 
 namespace SmartLyrics
@@ -44,7 +43,7 @@ namespace SmartLyrics
                 drawer.OpenDrawer(navigationView);
             };
 
-            Log(LogPriority.Info, "Finished OnCreate");
+            Log(Type.Info, "Finished OnCreate");
         }
 
         protected override void OnResume()
@@ -94,6 +93,8 @@ namespace SmartLyrics
             if (key == "sendAnalytics")
             {
                 await Analytics.SetEnabledAsync(sharedPreferences.GetBoolean("sendAnalytics", true));
+                bool currentSetting = await Analytics.IsEnabledAsync();
+                Log(Type.Action, "Changed send analytics to " + currentSetting.ToString());
             }
         }
     }

@@ -19,7 +19,6 @@ using System.Timers;
 
 using static SmartLyrics.Globals;
 using static SmartLyrics.Common.Logging;
-using static SmartLyrics.Common.Logging;
 using Type = SmartLyrics.Common.Logging.Type;
 
 namespace SmartLyrics
@@ -59,7 +58,7 @@ namespace SmartLyrics
             NavigationView navigationView = FindViewById<NavigationView>(Resource.Id.nav_view);
             navigationView.NavigationItemSelected += NavigationView_NavigationViewSelected;
 
-            Log(LogPriority.Info, "Loaded view");
+            Log(Type.Info, "Loaded view");
 
             serviceConnection = new Services.DownloadServiceConnection(this);
 
@@ -77,7 +76,7 @@ namespace SmartLyrics
             spotifyAuth.Settings.JavaScriptEnabled = true;
             spotifyAuth.SetWebViewClient(new SpotifyAuthClient(this));
             spotifyAuth.LoadUrl("https://accounts.spotify.com/authorize?client_id=cfa0924c4430409b9a90ad42cb9da301&redirect_uri=http:%2F%2Fredirect.test%2Freturn&scope=user-library-read&response_type=token&state=" + randomState.ToString());
-            Log(LogPriority.Info, "Started LoadURL");
+            Log(Type.Info, "Started LoadURL");
 
             startBtn.Click += async delegate
             {
@@ -212,12 +211,12 @@ namespace SmartLyrics
 
             public override void OnPageStarted(WebView view, string url, Bitmap favicon)
             {
-                Log(LogPriority.Info, "Page started - " + url);
+                Log(Type.Info, "Page started - " + url);
 
                 if (url.Contains("http://redirect.test") && url.Contains(randomState.ToString()))
                 {
                     accessToken = Regex.Match(url, @"(?<=access_token=)(.*?)(?=&token_type)").ToString();
-                    Log(LogPriority.Info, "Page returned with access token!");
+                    Log(Type.Info, "Page returned with access token!");
 
                     base.OnPageStarted(view, url, favicon);
                 }

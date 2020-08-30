@@ -554,9 +554,8 @@ namespace SmartLyrics
                 songInfo.Normal.Romanized = true;
 
                 Log(Type.Event, "Romanized song info with ID " + songInfo.Normal.Id);
-                SongBundle toSendR = prefs.GetBoolean("sendSongInfo", false) ? songInfo : new SongBundle(new Song(), new RomanizedSong());
                 Analytics.TrackEvent("Romanized song info", new Dictionary<string, string> {
-                    { "SongInfo", JsonConvert.SerializeObject(toSendR) }
+                    { "SongID", songInfo.Normal.Id.ToString() }
                 });
             }
             else 
@@ -566,9 +565,8 @@ namespace SmartLyrics
 
             await  UpdateSong(songInfo, true, true);
             Log(Type.Info, "Finished getting info from Genius");
-            SongBundle toSend = prefs.GetBoolean("sendSongInfo", false) ? songInfo : new SongBundle(new Song(), new RomanizedSong());
             Analytics.TrackEvent("Finished getting info from Genius", new Dictionary<string, string> {
-                    { "SongInfo", JsonConvert.SerializeObject(toSend) }
+                    { "SongID", songInfo.Normal.Id.ToString() }
                 });
         }
 
@@ -616,9 +614,8 @@ namespace SmartLyrics
                 songInfo.Normal.Romanized = true;
 
                 Log(Type.Event, "Romanized song lyrics with ID " + songInfo.Normal.Id);
-                SongBundle toSendR = prefs.GetBoolean("sendSongInfo", false) ? songInfo : new SongBundle(new Song(), new RomanizedSong());
                 Analytics.TrackEvent("Romanized song lyrics", new Dictionary<string, string> {
-                    { "SongInfo", JsonConvert.SerializeObject(toSendR) }
+                    { "SongID", songInfo.Normal.Id.ToString() }
                 });
             }
             else 
@@ -644,9 +641,8 @@ namespace SmartLyrics
             shouldCheck = true;
 
             Log(Type.Info, "Finished getting lyrics from Genius");
-            SongBundle toSend = prefs.GetBoolean("sendSongInfo", false) ? songInfo : new SongBundle(new Song(), new RomanizedSong());
             Analytics.TrackEvent("Finished getting lyrics from Genius", new Dictionary<string, string> {
-                    { "SongInfo", JsonConvert.SerializeObject(toSend) }
+                    { "SongID", songInfo.Normal.Id.ToString() }
                 });
 
         }
@@ -682,9 +678,8 @@ namespace SmartLyrics
             if (await Database.GetSongFromTable(songInfo.Normal.Id) == null)
             {
                 Log(Type.Event, "Song is not saved, getting data from Genius...");
-                SongBundle toSend = prefs.GetBoolean("sendSongInfo", false) ? songInfo : new SongBundle(new Song(), new RomanizedSong());
                 Analytics.TrackEvent("Loading song from Genius", new Dictionary<string, string> {
-                    { "SongInfo", JsonConvert.SerializeObject(toSend) }
+                    { "SongID", songInfo.Normal.Id.ToString() }
                 });
 
                 RunOnUiThread(() =>
@@ -709,9 +704,8 @@ namespace SmartLyrics
             else
             {
                 Log(Type.Event, "File for song exists, loading...");
-                SongBundle toSend = prefs.GetBoolean("sendSongInfo", false) ? songInfo : new SongBundle(new Song(), new RomanizedSong());
                 Analytics.TrackEvent("Loading song from file", new Dictionary<string, string> {
-                    { "SongInfo", JsonConvert.SerializeObject(toSend) }
+                    { "SongID", songInfo.Normal.Id.ToString() }
                 });
 
                 await ReadFromFile();
@@ -747,9 +741,8 @@ namespace SmartLyrics
 
             shouldCheck = true;
             Log(Type.Info, "Done reading from file!");
-            SongBundle toSend = prefs.GetBoolean("sendSongInfo", false) ? songInfo : new SongBundle(new Song(), new RomanizedSong());
             Analytics.TrackEvent("Finished reading song from file", new Dictionary<string, string> {
-                    { "SongInfo", JsonConvert.SerializeObject(toSend) }
+                    { "SongID", songInfo.Normal.Id.ToString() }
                 });
         }
 
@@ -770,9 +763,8 @@ namespace SmartLyrics
                 });
 
                 Log(Type.Event, "Song saved successfully");
-                SongBundle toSend = prefs.GetBoolean("sendSongInfo", false) ? songInfo : new SongBundle(new Song(), new RomanizedSong());
                 Analytics.TrackEvent("Finished saving song", new Dictionary<string, string> {
-                    { "SongInfo", JsonConvert.SerializeObject(toSend) }
+                    { "SongID", songInfo.Normal.Id.ToString() }
                 });
             }
             else
@@ -865,7 +857,7 @@ namespace SmartLyrics
 
         private async Task UpdateSong(SongBundle song, bool updateImages, bool updateDetails, bool imagesOnDisk = false)
         {
-            Log(Type.Info, "Started UpdateSong method");
+            Log(Type.Info, "Started UpdateSong method for ID " + song.Normal.Id);
 
             #region UI Variables
             TextView songLyrics = FindViewById<TextView>(Resource.Id.songLyrics);
@@ -880,7 +872,7 @@ namespace SmartLyrics
                 Song toShow = song.Normal;
                 if (song.Normal.Romanized && song.Romanized != null && prefs.GetBoolean("auto_romanize_details", false))
                 {
-                    Log(Type.Info, $"Song with ID {songInfo.Normal.Id} has romanization data, using it for display");
+                    Log(Type.Processing, $"Song with ID {songInfo.Normal.Id} has romanization data, using it for display");
                     toShow = (Song)song.Romanized;
                 }
 
@@ -923,7 +915,7 @@ namespace SmartLyrics
                     }
                 }
 
-                Log(Type.Info, "Updated labels");
+                Log(Type.Processing, "Updated labels");
             });
 
             if (updateImages) //TODO: Add timer to retry after enough time with images not updated
@@ -967,13 +959,12 @@ namespace SmartLyrics
                         }
                     });
                     
-                    Log(Type.Info, "Updated images from disk");
+                    Log(Type.Processing, "Updated images from disk");
                 }
                 else
                 {
                     RunOnUiThread(() =>
                     {
-                        Log(Type.Info, $"Loading cover from {song.Normal.Cover} and header from {song.Normal.Header}");
                         ImageService.Instance.LoadUrl(song.Normal.Cover)
                             .Transform(new RoundedTransformation(coverRadius))
                             .Into(coverView);
@@ -987,7 +978,7 @@ namespace SmartLyrics
                             .Into(searchView);
                     });
 
-                    Log(Type.Info, "Updated images from the internet");
+                    Log(Type.Processing, "Updated images from the internet");
                 }
             }
         }

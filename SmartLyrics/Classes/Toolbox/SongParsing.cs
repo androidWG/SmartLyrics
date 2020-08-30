@@ -65,7 +65,6 @@ namespace SmartLyrics.Toolbox
                 {
                     if (s.Value.ToLowerInvariant().ContainsAny("feat", "ft", "featuring", "edit", "mix"))
                     {
-                        Log(LogPriority.Info, $"s.Value - {s.Value}");
                         strippedTitle = input.Title.Replace(s.Value, "");
                     }
                 }
@@ -81,8 +80,8 @@ namespace SmartLyrics.Toolbox
             strippedTitle.Trim();
             strippedArtist.Trim();
 
-            Log(Type.Info, "Stripped title");
             Song output = new Song() { Title = strippedTitle, Artist = strippedArtist };
+            Log(Type.Processing, $"Stripped title from {input} to {output.Title}");
             return output;
         }
 
