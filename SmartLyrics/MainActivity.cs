@@ -32,7 +32,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
-using static System.Reflection.MethodBase;
 
 using Exception = System.Exception;
 using Type = SmartLyrics.Common.Logging.Type;
@@ -82,13 +81,15 @@ namespace SmartLyrics
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.main);
+
+            await StartSession();
             Log(Type.Info, "Loaded view");
 
             // Startup error handling
-            //AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
-            //TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+            TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
             AppCenter.Start("b07a2f8e-5d02-4516-aadc-2cba2c27fcf8",
-                   typeof(Analytics), typeof(Crashes)); //TODO: Add Event Trackers
+                   typeof(Analytics), typeof(Crashes));
 
             #region UI Variables
             NavigationView navigationView = FindViewById<NavigationView>(Resource.Id.nav_view);
@@ -1020,17 +1021,19 @@ namespace SmartLyrics
             LogUnhandledException(newExc);
         }
 
-        internal void LogUnhandledException(Exception exception)
+        internal async void LogUnhandledException(Exception exception)
         {
             try
             {
-                string errorMessage = string.Format("Time: {0}\r\nError: Unhandled Exception\r\n{1}",
-                        DateTime.Now, exception.ToString());
+                string errorMessage = "Unhandled Exception\r\n" + exception.ToString();
+                FileInfo latestLog = await GetLatestLog();
+                byte[] latestBinary = File.ReadAllBytes(latestLog.FullName);
 
-                System.Diagnostics.Debug.WriteLine(errorMessage);
                 Log(Type.Error, "Crash Report", errorMessage);
-                Crashes.TrackError(exception);
-                DisplayCrashReport();
+                Crashes.TrackError(exception, attachments:new ErrorAttachmentLog[] {
+                    ErrorAttachmentLog.AttachmentWithBinary(latestBinary, latestLog.Name, "application/x-sqlite3"),
+                    ErrorAttachmentLog.AttachmentWithText(JsonConvert.SerializeObject(songInfo), "songInfo")
+                });
             }
             catch
             {
@@ -1039,34 +1042,6 @@ namespace SmartLyrics
         }
 
         //EX: Finish exception handling
-        // If there is an unhandled exception, the exception information is diplayed 
-        // on screen the next time the app is started (only in debug configuration)
-        private void DisplayCrashReport()
-        {
-            const string errorFilename = "Fatal.log";
-            string libraryPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal);
-            string errorFilePath = Path.Combine(libraryPath, errorFilename);
-
-            if (!File.Exists(errorFilePath))
-            {
-                return;
-            }
-
-            string errorText = File.ReadAllText(errorFilePath);
-            new AndroidX.AppCompat.App.AlertDialog.Builder(this)
-                .SetPositiveButton("Clear", (sender, args) =>
-                {
-                    //File.Delete(errorFilePath);
-                })
-                .SetNegativeButton("Close", (sender, args) =>
-                {
-                    // User pressed Close.
-                })
-                .SetMessage(errorText)
-                .SetTitle("Crash Report")
-                .Show();
-        }
-
         #endregion
     }
 }

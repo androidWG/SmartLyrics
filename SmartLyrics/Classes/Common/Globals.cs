@@ -8,13 +8,19 @@ namespace SmartLyrics
 
         public const string savedLyricsLocation = "saved/";
         public const string savedImagesLocation = "saved/imagecache/";
-        public const string DBLocation = ".lyricsdatabase";
-        public const string romanizedDBLocation = ".romanizeddatabase";
+        public const string logsLocation = "logs/";
+
+        public const string DBFilename = ".lyricsdatabase";
+        public const string romanizedDBFilename = ".romanizeddatabase";
+
         public const string lyricsExtension = ".lyrics";
         public const string romanizedExtension = ".romanized";
+        public const string logDatabaseExtension = ".logdb";
 
         public const string headerSuffix = "-header.jpg";
         public const string coverSuffix = "-cover.jpg";
+
+        public const string logDateTimeFormat = "yyyy-MM-dd HH:mm:ss";
 
         public const string geniusAuthHeader = "Bearer nRYPbfZ164rBLiqfjoHQfz9Jnuc6VgFc2PWQuxIFVlydj00j4yqMaFml59vUoJ28";
         public const string geniusSearchURL = "https://api.genius.com/search?q=";

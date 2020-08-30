@@ -23,8 +23,8 @@ namespace SmartLyrics.IO
         private static DataTable db = new DataTable("db");
         private static DataTable rdb = new DataTable("rdb");
 
-        private static readonly string DBPath = Path.Combine(applicationPath, savedLyricsLocation + DBLocation);
-        private static readonly string romanizedDBPath = Path.Combine(applicationPath, savedLyricsLocation + romanizedDBLocation);
+        private static readonly string DBPath = Path.Combine(applicationPath, savedLyricsLocation + DBFilename);
+        private static readonly string romanizedDBPath = Path.Combine(applicationPath, savedLyricsLocation + romanizedDBFilename);
         private static readonly string pathImg = Path.Combine(applicationPath, savedImagesLocation);
         private static readonly string lyricsPath = Path.Combine(applicationPath, savedLyricsLocation);
 

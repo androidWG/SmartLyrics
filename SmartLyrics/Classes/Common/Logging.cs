@@ -1,9 +1,13 @@
-﻿using Android.Graphics;
-using Android.Util;
+﻿using Android.Util;
 using Mono.Data.Sqlite;
-
+using SmartLyrics.Toolbox;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using static SmartLyrics.Globals;
 
 namespace SmartLyrics.Common
@@ -11,6 +15,7 @@ namespace SmartLyrics.Common
     class Logging
     {
         private static SqliteConnection sql;
+        private static string filepath = "";
 
         public enum Priority
         {
@@ -31,9 +36,42 @@ namespace SmartLyrics.Common
             Fatal
         }
 
-        private static void InitializeDB()
+        public static async Task StartSession()
         {
-            string filepath = System.IO.Path.Combine(applicationPath, "log.db");
+            await MiscTools.CheckAndCreateAppFolders();
+
+            string loggingFolder = Path.Combine(applicationPath, logsLocation);
+            List<DateTime> previousSessions = new List<DateTime>();
+            DateTime timestamp = DateTime.Now;
+            
+            foreach (string s in Directory.EnumerateFiles(loggingFolder))
+            {
+                string timestampString = Path.GetFileNameWithoutExtension(s);
+                if (DateTime.TryParseExact(timestampString, logDateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsed))
+                {
+                    previousSessions.Add(parsed);
+                }
+            }
+
+            previousSessions.OrderByDescending(x => x);
+            if (previousSessions.Count != 0)
+            {
+                DateTime latest = previousSessions.First();
+                string latestPath = Path.Combine(applicationPath, logsLocation, latest.ToString(logDateTimeFormat, CultureInfo.InvariantCulture), logDatabaseExtension);
+
+                //If the latest log file is newer than 6 hours AND smaller than 5MB, use that file
+                if (latest < latest.AddHours(-6) || new FileInfo(latestPath).Length <= 5000000)
+                {
+                    timestamp = latest;
+                }
+            }
+            
+            filepath = Path.Combine(applicationPath, timestamp.ToString(logDateTimeFormat, CultureInfo.InvariantCulture) + logDatabaseExtension);
+            InitializeDB();
+        }
+
+        private static void InitializeDB()
+        {            
             string source = "URI=file:" + filepath;
             sql = new SqliteConnection(source);
             sql.Open();
@@ -56,7 +94,7 @@ namespace SmartLyrics.Common
                 InitializeDB();
             }
 
-            string file = System.IO.Path.GetFileName(sourceFilePath.Replace('\\', '/'));
+            string file = Path.GetFileName(sourceFilePath.Replace('\\', '/'));
             string line = ", " + sourceLineNumber;
             string fileAndLine = file + line;
 
@@ -93,5 +131,15 @@ namespace SmartLyrics.Common
             cmd.Parameters.AddWithValue("@Message", message);
             cmd.ExecuteNonQuery();
         }
+
+        public static async Task<FileInfo> GetLatestLog()
+        {
+            DirectoryInfo loggingFolder = new DirectoryInfo(Path.Combine(applicationPath, logsLocation));
+            FileInfo latest = loggingFolder.GetFiles("*" + logDatabaseExtension)
+             .OrderByDescending(f => f.LastWriteTime)
+             .First();
+
+            return latest;
+        } 
     }
 }

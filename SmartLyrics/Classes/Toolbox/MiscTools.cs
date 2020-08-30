@@ -32,28 +32,24 @@ namespace SmartLyrics.Toolbox
 
         public static async Task CheckAndCreateAppFolders()
         {
-            string path = Path.Combine(applicationPath, Globals.savedLyricsLocation);
-            string pathImg = Path.Combine(applicationPath, Globals.savedImagesLocation);
+            string path = Path.Combine(applicationPath, savedLyricsLocation);
+            string pathImg = Path.Combine(applicationPath, savedImagesLocation);
+            string pathLog = Path.Combine(applicationPath, logsLocation);
             //TODO: Add IOException handling
 
-            if (Directory.Exists(path))
-            {
-                Log(Type.Info, "/Saved Lyrics directory exists!");
-            }
-            else
+            if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
-                Log(Type.Info, "/Saved Lyrics directory doesn't exist, creating...");
             }
 
-            if (Directory.Exists(pathImg))
-            {
-                Log(Type.Info, "/Saved Lyrics/ImageCache directory exists!");
-            }
-            else
+            if (!Directory.Exists(pathImg))
             {
                 Directory.CreateDirectory(pathImg);
-                Log(Type.Info, "/Saved Lyrics/ImageCache directory doesn't exist, creating...");
+            }
+
+            if (!Directory.Exists(pathLog))
+            {
+                Directory.CreateDirectory(pathLog);
             }
         }
 
