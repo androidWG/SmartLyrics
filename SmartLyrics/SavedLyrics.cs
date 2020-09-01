@@ -5,7 +5,6 @@ using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V4.Widget;
 using Android.Support.V7.App;
-using Android.Util;
 using Android.Views;
 using Android.Widget;
 
@@ -16,11 +15,13 @@ using SmartLyrics.Common;
 using SmartLyrics.Toolbox;
 using SmartLyrics.IO;
 using static SmartLyrics.Globals;
+using static SmartLyrics.Common.Logging;
 
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AppCenter.Analytics;
 
 namespace SmartLyrics
 {
@@ -31,16 +32,7 @@ namespace SmartLyrics
         private List<SongBundle> allSongs = new List<SongBundle>();
         private Dictionary<Artist, List<SongBundle>> artistSongs = new Dictionary<Artist, List<SongBundle>>();
 
-        private bool nonGrouped = false;
-
-        //! used to alert a method that called PermissionChecking.CheckAndSetPermissions
-        //! that the user made their decision
-        //----------------------------
-        //! index 0 is the status of the permission (true = arrived, false = didn't arrive)
-        //! index 1 is the result (true = granted, false = denied)
-        //same on any activity that asks for permissions
-        private readonly bool[] permissionGranted = new bool[2] { false, false };
-
+        private bool nonGrouped = false; //TODO: Add persistency to grouping option
 
         #region Standard Activity Shit
         protected override async void OnCreate(Bundle savedInstanceState)
@@ -88,14 +80,26 @@ namespace SmartLyrics
 
             savedList.ChildClick += async delegate (object sender, ExpandableListView.ChildClickEventArgs e)
             {
-                Log.WriteLine(LogPriority.Info, "SavedLyrics", "OnCreate: Clicked on item from grouped list");
-                await OpenInMainActivity(artistSongs.ElementAt(e.GroupPosition).Value[e.ChildPosition]);
+                SongBundle selection = artistSongs.ElementAt(e.GroupPosition).Value[e.ChildPosition];
+
+                Log(Type.Action, "Clicked on item from grouped list");
+                Analytics.TrackEvent("Clicked on item from non-grouped list", new Dictionary<string, string> {
+                    { "SongID", selection.Normal.Id.ToString() }
+                });
+
+                await OpenInMainActivity(selection);
             };
 
             savedListNonGrouped.ItemClick += async delegate (object sender, AdapterView.ItemClickEventArgs e)
             {
-                Log.WriteLine(LogPriority.Info, "SavedLyrics", "OnCreate: Clicked on item from non-grouped list");
-                await OpenInMainActivity(allSongs[e.Position]);
+                SongBundle selection = allSongs[e.Position];
+
+                Log(Type.Action, "Clicked on item from non-grouped list");
+                Analytics.TrackEvent("Clicked on item from non-grouped list", new Dictionary<string, string> {
+                    { "SongID", selection.Normal.Id.ToString() }
+                });
+
+                await OpenInMainActivity(selection);
             };
         }
 
@@ -160,7 +164,7 @@ namespace SmartLyrics
             string path = Path.Combine(applicationPath, savedLyricsLocation);
 
             await MiscTools.CheckAndCreateAppFolders();
-            Log.WriteLine(LogPriority.Verbose, "SavedLyrics", $"ShowSavedSongs: Path is \"{path}\"");
+            Log(Type.Info, $"Saved lyrics location is '{path}'");
 
             List<SongBundle> songList = await Database.GetSongList();
             if (songList != null)
@@ -180,24 +184,24 @@ namespace SmartLyrics
                     }
                 }
 
-                Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "ShowSavedSongs: Setted up adapter data");
+                Log(Type.Processing, "Setted up adapter data");
 
                 if (nonGrouped)
                 {
                     savedListNonGrouped.Adapter = new SavedLyricsAdapter(this, allSongs);
-                    Log.WriteLine(LogPriority.Info, "SavedLyrics", "ShowSavedSongs: Showing adapter for non grouped view");
+                    Log(Type.Info, "Showing adapter for non grouped view");
                     progressBar.Visibility = ViewStates.Gone;
                 }
                 else
                 {
                     savedList.SetAdapter(new ExpandableListAdapter(this, artistList, artistSongs));
-                    Log.WriteLine(LogPriority.Info, "SavedLyrics", "ShowSavedSongs: Showing adapter for grouped view");
+                    Log(Type.Info, "Showing adapter for grouped view");
                     progressBar.Visibility = ViewStates.Gone;
                 }
             }
             else
             {
-                Log.WriteLine(LogPriority.Info, "SavedLyrics", "ShowSavedSongs: No files found!");
+                Log(Type.Info, "No files found!");
                 progressBar.Visibility = ViewStates.Gone;
             }
         }
@@ -211,7 +215,7 @@ namespace SmartLyrics
 
             artistList = new List<Artist>();
 
-            Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "GetSavedList: Starting foreach loop");
+            Log(Type.Processing, "Starting foreach loop");
             foreach (SongBundle s in songList)
             {
                 //finds the first Artist that matches the artist name from the song

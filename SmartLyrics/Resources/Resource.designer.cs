@@ -6016,112 +6016,136 @@ namespace SmartLyrics
 			public const int prefAdvanced = 2131755093;
 			
 			// aapt resource value: 0x7F100056
-			public const int prefAutoUpdate = 2131755094;
+			public const int prefAnalyticsAndData = 2131755094;
 			
 			// aapt resource value: 0x7F100057
-			public const int prefAutoUpdateSummary = 2131755095;
+			public const int prefAutoUpdate = 2131755095;
 			
 			// aapt resource value: 0x7F100058
-			public const int prefBackup = 2131755096;
+			public const int prefAutoUpdateSummary = 2131755096;
 			
 			// aapt resource value: 0x7F100059
-			public const int prefBackupRestore = 2131755097;
+			public const int prefBackup = 2131755097;
 			
 			// aapt resource value: 0x7F10005A
-			public const int prefDeleteHeader = 2131755098;
+			public const int prefBackupRestore = 2131755098;
 			
 			// aapt resource value: 0x7F10005B
-			public const int prefDetect = 2131755099;
+			public const int prefDeleteHeader = 2131755099;
 			
 			// aapt resource value: 0x7F10005C
-			public const int prefDetectNotification = 2131755100;
+			public const int prefDetect = 2131755100;
 			
 			// aapt resource value: 0x7F10005D
-			public const int prefDetectNotificationSummary = 2131755101;
+			public const int prefDetectNotification = 2131755101;
 			
 			// aapt resource value: 0x7F10005E
-			public const int prefDetectSummary = 2131755102;
-			
-			// aapt resource value: 0x7F10006E
-			public const int preference_copied = 2131755118;
+			public const int prefDetectNotificationSummary = 2131755102;
 			
 			// aapt resource value: 0x7F10005F
-			public const int prefHeader = 2131755103;
-			
-			// aapt resource value: 0x7F100060
-			public const int prefHeaderSummary = 2131755104;
-			
-			// aapt resource value: 0x7F100061
-			public const int prefJapaneseLang = 2131755105;
-			
-			// aapt resource value: 0x7F100062
-			public const int prefRestore = 2131755106;
-			
-			// aapt resource value: 0x7F100063
-			public const int prefRomanize = 2131755107;
-			
-			// aapt resource value: 0x7F100064
-			public const int prefRomanizeDetails = 2131755108;
-			
-			// aapt resource value: 0x7F100065
-			public const int prefRomanizeDetailsSummary = 2131755109;
-			
-			// aapt resource value: 0x7F100066
-			public const int prefRomanizeMode = 2131755110;
-			
-			// aapt resource value: 0x7F100067
-			public const int prefRomanizeModeSummary = 2131755111;
-			
-			// aapt resource value: 0x7F100068
-			public const int prefRomanizeMode_normal = 2131755112;
-			
-			// aapt resource value: 0x7F100069
-			public const int prefRomanizeMode_spaced = 2131755113;
-			
-			// aapt resource value: 0x7F10006A
-			public const int prefRomanizeSearch = 2131755114;
-			
-			// aapt resource value: 0x7F10006B
-			public const int prefRomanizeSearchSummary = 2131755115;
-			
-			// aapt resource value: 0x7F10006C
-			public const int prefSync = 2131755116;
-			
-			// aapt resource value: 0x7F10006D
-			public const int prefSyncSummary = 2131755117;
-			
-			// aapt resource value: 0x7F10006F
-			public const int readError = 2131755119;
-			
-			// aapt resource value: 0x7F100070
-			public const int sadFace = 2131755120;
-			
-			// aapt resource value: 0x7F100072
-			public const int savedSuccessfully = 2131755122;
-			
-			// aapt resource value: 0x7F100071
-			public const int saveError = 2131755121;
-			
-			// aapt resource value: 0x7F100073
-			public const int searchHint = 2131755123;
-			
-			// aapt resource value: 0x7F100074
-			public const int search_menu_title = 2131755124;
-			
-			// aapt resource value: 0x7F100075
-			public const int serviceLabel = 2131755125;
+			public const int prefDetectSummary = 2131755103;
 			
 			// aapt resource value: 0x7F100076
-			public const int status_bar_notification_info_overflow = 2131755126;
+			public const int preference_copied = 2131755126;
+			
+			// aapt resource value: 0x7F100060
+			public const int prefHeader = 2131755104;
+			
+			// aapt resource value: 0x7F100061
+			public const int prefHeaderDescription = 2131755105;
+			
+			// aapt resource value: 0x7F100062
+			public const int prefHeaderSummary = 2131755106;
+			
+			// aapt resource value: 0x7F100063
+			public const int prefHeaderSummaryOff = 2131755107;
+			
+			// aapt resource value: 0x7F100064
+			public const int prefJapaneseLang = 2131755108;
+			
+			// aapt resource value: 0x7F100065
+			public const int prefLearnMoreData = 2131755109;
+			
+			// aapt resource value: 0x7F100066
+			public const int prefRestore = 2131755110;
+			
+			// aapt resource value: 0x7F100067
+			public const int prefRomanize = 2131755111;
+			
+			// aapt resource value: 0x7F100068
+			public const int prefRomanizeDetails = 2131755112;
+			
+			// aapt resource value: 0x7F100069
+			public const int prefRomanizeDetailsSummary = 2131755113;
+			
+			// aapt resource value: 0x7F10006A
+			public const int prefRomanizeMode = 2131755114;
+			
+			// aapt resource value: 0x7F10006B
+			public const int prefRomanizeModeSummary = 2131755115;
+			
+			// aapt resource value: 0x7F10006C
+			public const int prefRomanizeMode_normal = 2131755116;
+			
+			// aapt resource value: 0x7F10006D
+			public const int prefRomanizeMode_spaced = 2131755117;
+			
+			// aapt resource value: 0x7F10006E
+			public const int prefRomanizeSearch = 2131755118;
+			
+			// aapt resource value: 0x7F10006F
+			public const int prefRomanizeSearchSummary = 2131755119;
+			
+			// aapt resource value: 0x7F100070
+			public const int prefSendAnalytics = 2131755120;
+			
+			// aapt resource value: 0x7F100071
+			public const int prefSendAnalyticsSummary = 2131755121;
+			
+			// aapt resource value: 0x7F100072
+			public const int prefSendSong = 2131755122;
+			
+			// aapt resource value: 0x7F100073
+			public const int prefSendSongSummary = 2131755123;
+			
+			// aapt resource value: 0x7F100074
+			public const int prefSync = 2131755124;
+			
+			// aapt resource value: 0x7F100075
+			public const int prefSyncSummary = 2131755125;
 			
 			// aapt resource value: 0x7F100077
-			public const int summary_collapsed_preference_list = 2131755127;
+			public const int readError = 2131755127;
 			
 			// aapt resource value: 0x7F100078
-			public const int v7_preference_off = 2131755128;
+			public const int sadFace = 2131755128;
+			
+			// aapt resource value: 0x7F10007A
+			public const int savedSuccessfully = 2131755130;
 			
 			// aapt resource value: 0x7F100079
-			public const int v7_preference_on = 2131755129;
+			public const int saveError = 2131755129;
+			
+			// aapt resource value: 0x7F10007B
+			public const int searchHint = 2131755131;
+			
+			// aapt resource value: 0x7F10007C
+			public const int search_menu_title = 2131755132;
+			
+			// aapt resource value: 0x7F10007D
+			public const int serviceLabel = 2131755133;
+			
+			// aapt resource value: 0x7F10007E
+			public const int status_bar_notification_info_overflow = 2131755134;
+			
+			// aapt resource value: 0x7F10007F
+			public const int summary_collapsed_preference_list = 2131755135;
+			
+			// aapt resource value: 0x7F100080
+			public const int v7_preference_off = 2131755136;
+			
+			// aapt resource value: 0x7F100081
+			public const int v7_preference_on = 2131755137;
 			
 			static String()
 			{

@@ -1,7 +1,9 @@
-﻿using System;
+﻿using static SmartLyrics.Common.Logging;
+using System;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Type = SmartLyrics.Common.Logging.Type;
 
 namespace SmartLyrics.APIRequests
 {
@@ -19,9 +21,8 @@ namespace SmartLyrics.APIRequests
                     Uri urlToSend = new Uri(url);
 
                     HttpResponseMessage responseAsync = await client.GetAsync(urlToSend);
-                    Android.Util.Log.WriteLine(Android.Util.LogPriority.Warn, "SmartLyrics", "SpotifyRequests.cs: Url sent to HttpClient: " + urlToSend);
 
-                    Android.Util.Log.WriteLine(Android.Util.LogPriority.Verbose, "SmartLyrics", "SpotifyRequests.cs: Reading content stream...");
+                    Log(Type.Info, "Reading content stream...");
                     using (Stream stream = await responseAsync.Content.ReadAsStreamAsync())
                     using (StreamReader reader = new StreamReader(stream))
                     {
@@ -30,7 +31,7 @@ namespace SmartLyrics.APIRequests
                 }
                 catch (HttpRequestException e)
                 {
-                    Android.Util.Log.WriteLine(Android.Util.LogPriority.Error, "SmartLyrics", "SpotifyRequests.cs: Exception caught while getting song list from Spotify!\n" + e.ToString());
+                    Log(Type.Error, "Exception caught while getting song list from Spotify!\n" + e.ToString());
                     return null;
                 }
             }

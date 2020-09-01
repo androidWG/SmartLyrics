@@ -1,6 +1,5 @@
-﻿using Android.Util;
-
-using SmartLyrics.Common;
+﻿using SmartLyrics.Common;
+using static SmartLyrics.Common.Logging;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -60,13 +59,12 @@ namespace SmartLyrics.Toolbox
                 List<Match> insideBrk = Regex.Matches(input.Title, @"\[.*?\]").ToList();
                 inside = inside.Concat(insideBrk).ToList();
 
-                Log.WriteLine(LogPriority.Error, "SongParsing", $"StripSongForSearch: 'inside' list length: {inside.Count()}");
+                Log(Type.Error, $"{inside.Count()}");
 
                 foreach (Match s in inside)
                 {
                     if (s.Value.ToLowerInvariant().ContainsAny("feat", "ft", "featuring", "edit", "mix"))
                     {
-                        Log.WriteLine(LogPriority.Info, "SongParsing", $"StripSongForSearch: s.Value - {s.Value}");
                         strippedTitle = input.Title.Replace(s.Value, "");
                     }
                 }
@@ -82,8 +80,8 @@ namespace SmartLyrics.Toolbox
             strippedTitle.Trim();
             strippedArtist.Trim();
 
-            Log.WriteLine(LogPriority.Verbose, "SongParsing", "StripSongForSearch: Stripped title");
             Song output = new Song() { Title = strippedTitle, Artist = strippedArtist };
+            Log(Type.Processing, $"Stripped title from {input} to {output.Title}");
             return output;
         }
 
@@ -131,7 +129,7 @@ namespace SmartLyrics.Toolbox
             int likeness = titleDist + artistDist + index;
             if (likeness < 0) { likeness = 0; }
 
-            Log.WriteLine(LogPriority.Verbose, $"SmartLyrics", $"Title - {title} vs {ntfTitle}\nArtist - {artist} vs {ntfArtist}\nLikeness - {likeness}");
+            Log(Type.Info, $"SmartLyrics", $"Title - {title} vs {ntfTitle}\nArtist - {artist} vs {ntfArtist}\nLikeness - {likeness}");
             return likeness;
         }
     }

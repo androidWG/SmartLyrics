@@ -1,10 +1,10 @@
 <resources>
     <string name="app_name" translatable="false">SmartLyrics</string>
     <string name="channelName">Lyrics Available</string>
-    <string name="channelDescription">Shows a notification when SmartLyrics finds lyrics for a song playing.</string>
+    <string name="channelDescription">Shows a notification when SmartLyrics finds lyrics for a song playing</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="searchHint">Search...</string>
+    <string name="searchHint">Search..</string>
     <string name="needStoragePermission">We need your permission to store and read saved lyrics from your device</string>
     <string name="permissionDenied">Permission denied</string>
     <string name="descHeader">Header background image for this song</string>
@@ -16,7 +16,7 @@
     <string name="drawerSettings">Settings</string>
     <string name="drawerAbout">About</string>
     <string name="descDecorationBG">Decoration background image</string>
-    <string name="mainWelcome">Start playing any song on your favorite app to see its lyrics displayed here, or use the search button on the top of the screen to search lyrics.</string>
+    <string name="mainWelcome">Start playing any song on your favorite app to see its lyrics displayed here, or use the search button on the top of the screen to search lyrics</string>
     <string name="mainWelcomeHeader">WELCOME TO SMARTLYRICS</string>
     <string name="mainGotoSaved">GO TO SAVED LYRICS</string>
     <string name="descSeacrhBtn">Show search bar</string>
@@ -24,9 +24,9 @@
     <string name="filterHint">Filter coming soon</string>
     <string name="drawerSpotify">Connect to Spotify</string>
     <string name="mainSpotifyHeader">ALMOST THERE</string>
-    <string name="mainSpotify">Press the big green button below to start downloading lyrics to all your songs.</string>
+    <string name="mainSpotify">Press the big green button below to start downloading lyrics to all your songs</string>
     <string name="downloadLyrics">DOWNLOAD LYRICS</string>
-    <string name="mainSpotifyStarted">There we go! SmartLyrics will download your lyrics on the background so you can go do something else instead of sitting here watching paint dry. You can check the progress by looking at the notification we just created or checking back here on this page of the app.</string>
+    <string name="mainSpotifyStarted">There we go! SmartLyrics will download your lyrics on the background so you can go do something else instead of sitting here watching paint dry. You can check the progress by looking at the notification we just created or checking back here on this page of the app</string>
     <string name="overallProgress">Overall Progress</string>
     <string name="descSaved">Icon indicating this lyric is already saved</string>
     <string name="alreadySaved">This song is already saved</string>
@@ -34,29 +34,28 @@
     <string name="notificationTitle">Downloading Lyrics</string>
     <string name="notificationDesc">SmartLyrics is downloading all lyrics for your Spotify library in the background</string>
     <string name="notificationChannelName">Lyrics Download Progress</string>
-    <string name="notificationChannelDesc">Shows the progress when you ask SmartLyrics to download lyrics for all your songs.</string>
-    <string name="mainSpotifyFinished">Lyrics to all of your Spotify tracks have been downloaded to your device. You can go to the Saved Lyrics page on the app drawer to browse all your downloaded songs or start playing from any music app to see its lyrics.</string>
+    <string name="notificationChannelDesc">Shows the progress when you ask SmartLyrics to download lyrics for all your songs</string>
+    <string name="mainSpotifyFinished">Lyrics to all of your Spotify tracks have been downloaded to your device. You can go to the Saved Lyrics page on the app drawer to browse all your downloaded songs or start playing from any music app to see its lyrics</string>
     <string name="mainSpotifyFinishedHeader">WE\'RE DONE!</string>
     <string name="prefDetectNotification">Show notification for detected songs</string>
-    <string name="prefDetectNotificationSummary">Shows a notification when SmartLyrics detects a song playing with matching lyrics.</string>
+    <string name="prefDetectNotificationSummary">Shows a notification when SmartLyrics detects a song playing with matching lyrics</string>
     <string name="prefHeader">Save header images</string>
-    <string name="saveError">An error occurred while saving this song. Please try again.</string>
-    <string name="readError">An error occurred while reading a file. Please try again.</string>
-    <string name="prefHeaderSummary">SmartLyrics saves both the background header image and album cover image when saving a song, and for each song the header image takes up a few hundred kilobytes. Disabling this can save some space if you want to save lots of songs. To delete headers for already saved songs, click the button below.</string>
+    <string name="saveError">An error occurred while saving this song. Please try again</string>
+    <string name="readError">An error occurred while reading a file. Please try again</string>
     <string name="prefAdvanced">Advacned Settings</string>
     <string name="prefDeleteHeader">Delete existing header images</string>
     <string name="prefRomanize">Auto-romanize song lyrics</string>
     <string name="prefJapaneseLang">Japanese Language</string>
     <string name="prefRomanizeMode">Romanization mode</string>
-    <string name="prefRomanizeModeSummary">Choose between spaced or normal romanization.</string>
+    <string name="prefRomanizeModeSummary">Choose between spaced or normal romanization</string>
     <string name="prefRomanizeMode_spaced">Spaced</string>
     <string name="prefRomanizeMode_normal">Normal</string>
     <string name="prefAutoUpdate">Auto-update song page</string>
-    <string name="prefAutoUpdateSummary">Automatically update the song when in Now Playing mode.</string>
+    <string name="prefAutoUpdateSummary">Automatically update the song when in Now Playing mode</string>
     <string name="prefBackup">Backup saved lyrics</string>
     <string name="prefRestore">Restore saved lyrics backup</string>
     <string name="prefSync">Sync with connected music service</string>
-    <string name="prefSyncSummary">Automatically download and delete lyrics for songs that were added or removed from a music service you\'ve connected to.</string>
+    <string name="prefSyncSummary">Automatically download and delete lyrics for songs that were added or removed from a music service you\'ve connected to</string>
     <string name="prefBackupRestore">Backup and Restore</string>
     <string name="descShine">Shining alert for new detected song</string>
     <string name="descFabMore">Open a menu to show more options</string>
@@ -64,12 +63,21 @@
     <string name="infoScreenFooter">Lyrics and images provided by Genius</string>
     <string name="noResults">No results found</string>
     <string name="prefDetect">Detect songs playing on background</string>
-    <string name="prefDetectSummary">Detect songs playing on music apps and shows lyrics when in-app. Disabling this also disables the background detection service.</string>
+    <string name="prefDetectSummary">Detect songs playing on music apps and shows lyrics when in-app. Disabling this also disables the background detection service</string>
     <string name="sadFace" translatable="false">ಥ_ಥ</string>
     <string name="coverSearchDesc">Song cover image</string>
     <string name="prefRomanizeDetails">Auto-romanize song info</string>
-    <string name="prefRomanizeDetailsSummary">Automatically romanize song title, album, artist and featured artist.</string>
+    <string name="prefRomanizeDetailsSummary">Automatically romanize song title, album, artist and featured artist</string>
     <string name="prefRomanizeSearch">Romanize search results</string>
-    <string name="prefRomanizeSearchSummary">This will only keep the romanized titles in search results and hide the original Japanese text. Gives a cleaner look.</string>
+    <string name="prefRomanizeSearchSummary">This will only keep the romanized titles in search results and hide the original Japanese text</string>
     <string name="lyricsErrorOcurred">An error occurred, please reload the song</string>
+    <string name="prefHeaderDescription">SmartLyrics saves both the background header image and album cover image when saving a song, and for each song the header image takes up a few hundred kilobytes. \n\nDisabling this can save some space if you want to download more than 500 songs. To delete headers for already saved songs, tap on \"Delete existing header images\"</string>
+    <string name="prefHeaderSummary">Header images will be saved</string>
+    <string name="prefHeaderSummaryOff">Header images will not be saved</string>
+    <string name="prefLearnMoreData">SmartLyrics does not send or collect any personal data. Our analytics involve only what things you tapped inside the app and what songs you are viewing. We use this data to help troubleshoot bugs and crashes</string>
+    <string name="prefSendAnalytics">Send analytics data</string>
+    <string name="prefSendAnalyticsSummary">Allow SmartLyrics to send analytics data when using the app</string>
+    <string name="prefSendSongSummary">Allow us to track what songs you view</string>
+    <string name="prefSendSong">Send song information</string>
+    <string name="prefAnalyticsAndData">Analytics and Crash Data</string>
 </resources>
