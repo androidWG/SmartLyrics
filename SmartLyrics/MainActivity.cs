@@ -86,10 +86,9 @@ namespace SmartLyrics
             Log(Type.Info, "Loaded view");
 
             // Startup error handling
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
-            TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
             AppCenter.Start("b07a2f8e-5d02-4516-aadc-2cba2c27fcf8",
                    typeof(Analytics), typeof(Crashes));
+            SetUpAppCenterAndCheckForCrashes();
 
             #region UI Variables
             NavigationView navigationView = FindViewById<NavigationView>(Resource.Id.nav_view);
@@ -216,6 +215,8 @@ namespace SmartLyrics
         {
             TextView headerTxt = FindViewById<TextView>(Resource.Id.headerTxt);
             ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
+
+            Crashes.GenerateTestCrash();
 
             if (searchTxt.Visibility == ViewStates.Visible && lastSearch == searchTxt.Text)
             {
@@ -1009,39 +1010,25 @@ namespace SmartLyrics
 
 
         #region Error Handling
-        private void TaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs unobservedTaskExceptionEventArgs)
+        private async void SetUpAppCenterAndCheckForCrashes()
         {
-            Exception newExc = new Exception("TaskSchedulerOnUnobservedTaskException", unobservedTaskExceptionEventArgs.Exception);
-            LogUnhandledException(newExc);
-        }
-
-        private void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
-        {
-            Exception newExc = new Exception("CurrentDomainOnUnhandledException", unhandledExceptionEventArgs.ExceptionObject as Exception);
-            LogUnhandledException(newExc);
-        }
-
-        internal async void LogUnhandledException(Exception exception)
-        {
-            try
+            if (await Crashes.HasCrashedInLastSessionAsync())
             {
-                string errorMessage = "Unhandled Exception\r\n" + exception.ToString();
-                FileInfo latestLog = await GetLatestLog();
-                byte[] latestBinary = File.ReadAllBytes(latestLog.FullName);
+                ErrorReport lastCrashReport = await Crashes.GetLastSessionCrashReportAsync();
+                Log(Type.Error, "Crash report from previous session", attachment: lastCrashReport.ToString());
 
-                Log(Type.Error, "Crash Report", errorMessage);
-                Crashes.TrackError(exception, attachments:new ErrorAttachmentLog[] {
+                Crashes.GetErrorAttachments = (ErrorReport report) =>
+                {
+                    FileInfo latestLog = GetLatestLog();
+                    byte[] latestBinary = File.ReadAllBytes(latestLog.FullName);
+
+                    return new ErrorAttachmentLog[] {
                     ErrorAttachmentLog.AttachmentWithBinary(latestBinary, latestLog.Name, "application/x-sqlite3"),
                     ErrorAttachmentLog.AttachmentWithText(JsonConvert.SerializeObject(songInfo), "songInfo")
-                });
-            }
-            catch
-            {
-                //Just suppress any error logging exceptions
+                };
+                };
             }
         }
-
-        //EX: Finish exception handling
         #endregion
     }
 }
