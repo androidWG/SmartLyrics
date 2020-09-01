@@ -42,14 +42,13 @@ namespace SmartLyrics
     public class MainActivity : AppCompatActivity, ActivityCompat.IOnRequestPermissionsResultCallback
     {
         private List<Song> resultsToView;
-        public static SongBundle songInfo;
-        public static Song notificationSong = new Song(); //TODO: Change to SongBundle
-        private Song previousNtfSong = new Song();
+        private static SongBundle songInfo;
+        private static SongBundle notificationSong = new SongBundle();
+        private SongBundle previousNtfSong = new SongBundle();
 
         View welcomeView;
         View songView;
 
-        public static bool fromNotification = false;
         private readonly int coverRadius = 16;
         private readonly int headerBlur = 25;
         private readonly int searchBlur = 25;
@@ -115,7 +114,7 @@ namespace SmartLyrics
             prefs = AndroidX.Preference.PreferenceManager.GetDefaultSharedPreferences(this);
 
             // Inflate layouts
-            if (!fromNotification) { InflateWelcome(); }
+            if (!Intent.HasExtra("NotificationSong")) { InflateWelcome(); }
             else { InflateSong(); }
 
             InitTimer();
@@ -152,16 +151,20 @@ namespace SmartLyrics
             base.OnResume();
             Log(Type.Info, "OnResume started");
 
+            bool fromNotification = Intent.HasExtra("NotificationSong");
             if (fromNotification)
             {
                 Log(Type.Event, "Attempting to load song from notification");
                 Analytics.TrackEvent("Opening song from notification", new Dictionary<string, string> {
                     { "NotificationSong", JsonConvert.SerializeObject(notificationSong) }
                 });
+
+                notificationSong = JsonConvert.DeserializeObject<SongBundle>(Intent.GetStringExtra("NotificationSong"));
+
                 NotificationManagerCompat ntfManager = NotificationManagerCompat.From(this);
                 ntfManager.CancelAll();
 
-                songInfo.Normal = notificationSong;
+                songInfo = notificationSong;
                 previousNtfSong = notificationSong;
 
                 shouldCheck = false;
@@ -175,7 +178,7 @@ namespace SmartLyrics
             base.OnStop();
 
             Log(Type.Info, "OnStop started");
-            notificationSong = new Song();
+            notificationSong = new SongBundle();
             previousNtfSong = notificationSong;
         }
 
@@ -303,7 +306,7 @@ namespace SmartLyrics
             nowPlayingMode = false;
             ClearLabels();
 
-            if (songInfo == null) { songInfo = new SongBundle(new Song(), new RomanizedSong()); }
+            if (songInfo == null) { songInfo = new SongBundle(); }
             songInfo.Normal = resultsToView.ElementAt(e.Position);
 
             Log(Type.Action, $"Attempting to display song at search position {e.Position}.");
@@ -432,14 +435,14 @@ namespace SmartLyrics
         #region Timer
         private async void CheckIfSongIsPlaying()
         {
-            if (shouldCheck && MiscTools.IsInForeground() && !fromNotification) //Checks for the user coming from outside the app are made on OnResume method
+            if (shouldCheck && MiscTools.IsInForeground()) //Checks for the user coming from outside the app are made on OnResume method
             {
-                if (notificationSong.Id != previousNtfSong.Id)
+                if (notificationSong.Normal.Id != previousNtfSong.Normal.Id)
                 {
                     Log(Type.Event, "Song playing is different, updating...");
 
                     nowPlayingMode = true;
-                    songInfo.Normal = notificationSong;
+                    songInfo = notificationSong;
                     previousNtfSong = notificationSong;
 
                     bool autoUpdate = prefs.GetBoolean("auto_update_page", false);
@@ -697,8 +700,8 @@ namespace SmartLyrics
                 }
                 catch (NullReferenceException ex)
                 {
-                    Crashes.TrackError(ex, new Dictionary<string, string> { 
-                        { "SongInfo", JsonConvert.SerializeObject(songInfo) }
+                    Crashes.TrackError(ex, new Dictionary<string, string> {
+                        { "SongID", songInfo.Normal.Id.ToString() }
                     });
                     Log(Type.Error, "NullReferenceException while getting lyrics for ID " + songInfo.Normal.Id);
                 }
@@ -712,8 +715,6 @@ namespace SmartLyrics
 
                 await ReadFromFile();
             }
-
-            fromNotification = false;
         }
 
         private async Task ReadFromFile()

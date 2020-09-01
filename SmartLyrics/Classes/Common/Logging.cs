@@ -71,16 +71,26 @@ namespace SmartLyrics.Common
         }
 
         private static void InitializeDB()
-        {            
-            string source = "URI=file:" + filepath;
-            sql = new SqliteConnection(source);
-            sql.Open();
+        {
+            try
+            {
+                string source = "URI=file:" + filepath;
+                sql = new SqliteConnection(source);
+                sql.Open();
 
-            using var cmd = new SqliteCommand(sql);
-            cmd.CommandText = "DROP TABLE IF EXISTS log";
-            cmd.ExecuteNonQuery();
-            cmd.CommandText = @"CREATE TABLE log(id INTEGER PRIMARY KEY,time DATETIME DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),file TEXT,method TEXT,type TEXT,message TEXT,attach TEXT)";
-            cmd.ExecuteNonQuery();
+                using var cmd = new SqliteCommand(sql);
+                cmd.CommandText = "DROP TABLE IF EXISTS log";
+                cmd.ExecuteNonQuery();
+                cmd.CommandText = @"CREATE TABLE log(id INTEGER PRIMARY KEY,time DATETIME DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),file TEXT,method TEXT,type TEXT,message TEXT,attach TEXT)";
+                cmd.ExecuteNonQuery();
+            }
+            catch (ArgumentException)
+            {
+                //TODO: Add a log cache to log errors when the Logging Database is unavailable
+                
+                filepath = Path.Combine(applicationPath, logsLocation, DateTime.UtcNow.ToString(logDateTimeFormat, CultureInfo.InvariantCulture) + logDatabaseExtension);
+                InitializeDB();
+            }
         }
 
         public static void Log(Type type,
@@ -92,7 +102,7 @@ namespace SmartLyrics.Common
         {
             if (sql == null)
             {
-                InitializeDB();
+                StartSession();
             }
 
             string file = Path.GetFileName(sourceFilePath.Replace('\\', '/'));
@@ -121,7 +131,8 @@ namespace SmartLyrics.Common
                     priority = LogPriority.Error;
                     break;
             }
-            Android.Util.Log.WriteLine(priority, fileAndLine, memberName + ": " + message);
+            //Exclude Processing log messages since they're mostly useless and spammy
+            if (type != Type.Processing) { Android.Util.Log.WriteLine(priority, fileAndLine, memberName + ": " + message); }
 
             using var cmd = new SqliteCommand(sql);
             cmd.CommandText = $"INSERT INTO log(time, file, method, type, message, attach) VALUES(@Timestamp,@File,@Method,@Type,@Message,@Attach)";

@@ -23,6 +23,12 @@ namespace SmartLyrics.Common
             Normal = song;
             Romanized = romanized;
         }
+
+        public SongBundle()
+        {
+            Normal = new Song();
+            Romanized = new RomanizedSong();
+        }
     }
 
     //TODO: Split into different classes used when displaying, saving, and comparing to notification song

@@ -397,7 +397,7 @@ namespace SmartLyrics.IO
             catch (IOException ex)
             {
                 Crashes.TrackError(ex, new Dictionary<string, string> {
-                    { "SongInfo", JsonConvert.SerializeObject(song) },
+                    { "SongID", song.Normal.Id.ToString() },
                     { "Exception", ex.ToString() }
                 });
                 Log(Type.Error, "Exception while writing lyrics to disk!\n" + ex.ToString());
@@ -407,7 +407,7 @@ namespace SmartLyrics.IO
             catch (NullReferenceException ex)
             {
                 Crashes.TrackError(ex, new Dictionary<string, string> {
-                    { "SongInfo", JsonConvert.SerializeObject(song) },
+                    { "SongID", song.Normal.Id.ToString() },
                     { "Exception", ex.ToString() }
                 });
                 Log(Type.Error, "NullReferenceException while writing lyrics to disk! Reload song and try again.\n" + ex.ToString());
@@ -417,7 +417,7 @@ namespace SmartLyrics.IO
             catch (Exception ex)
             {
                 Crashes.TrackError(ex, new Dictionary<string, string> {
-                    { "SongInfo", JsonConvert.SerializeObject(song) },
+                    { "SongID", song.Normal.Id.ToString() },
                     { "Exception", ex.ToString() }
                 });
                 Log(Type.Error, "Unkown error while writing song to disk!\n" + ex.ToString());

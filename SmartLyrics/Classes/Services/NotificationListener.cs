@@ -13,6 +13,7 @@ using static SmartLyrics.Globals;
 using static SmartLyrics.Toolbox.SongParsing;
 using static SmartLyrics.Common.Logging;
 using TaskStackBuilder = Android.Support.V4.App.TaskStackBuilder;
+using Newtonsoft.Json;
 
 namespace SmartLyrics.Services
 {
@@ -178,15 +179,9 @@ namespace SmartLyrics.Services
             {
                 Log(Type.Event, $"Selected song is {chosen.Title} by {chosen.Artist} with likeness {chosen.Likeness}.");
 
-                MainActivity.notificationSong = chosen;
-
                 if (!MiscTools.IsInForeground())
                 {
-                    chosen.Title = await JapaneseTools.StripJapanese(chosen.Title);
-                    chosen.Artist = await JapaneseTools.StripJapanese(chosen.Artist);
-
-                    CreateNotification(chosen.Title, chosen.Artist);
-                    MainActivity.fromNotification = true;
+                    CreateNotification(new SongBundle(chosen, new RomanizedSong()));
                 }
             }
         }
@@ -207,23 +202,23 @@ namespace SmartLyrics.Services
             }
         }
 
-        private void CreateNotification(string title, string artist)
+        private void CreateNotification(SongBundle song)
         {
             Log(Type.Info, "Creating notification");
-            MainActivity.fromNotification = true;
+
+            Intent info = new Intent(Application.Context, typeof(MainActivity));
+            info.PutExtra("NotificationSong", JsonConvert.SerializeObject(song));
 
             TaskStackBuilder stackBuilder = TaskStackBuilder.Create(Application.Context);
             stackBuilder.AddParentStack(Java.Lang.Class.FromType(typeof(MainActivity)));
-            stackBuilder.AddNextIntent(new Intent(Application.Context, typeof(MainActivity)));
-
-            Intent info = new Intent(Application.Context, typeof(MainActivity));
+            stackBuilder.AddNextIntent(info);
 
             PendingIntent resultIntent = stackBuilder.GetPendingIntent(0, (int)PendingIntentFlags.UpdateCurrent);
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .SetAutoCancel(true)
-                .SetContentTitle("SmartLyrics")
-                .SetContentText(artist + " - " + title)
+                .SetContentTitle(Resources.GetString(Resource.String.app_name))
+                .SetContentText(song.Normal.Artist + " - " + song.Normal.Title)
                 .SetSmallIcon(Resource.Drawable.ic_stat_name)
                 .SetContentIntent(resultIntent)
                 .SetPriority(-1);
