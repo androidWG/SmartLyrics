@@ -1,13 +1,15 @@
-﻿using System;
+﻿using FFImageLoading;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
+
+using SmartLyrics.Common;
+using SmartLyrics.Toolbox;
+
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Threading.Tasks;
-using FFImageLoading;
-using Microsoft.AppCenter.Analytics;
-using Microsoft.AppCenter.Crashes;
-using SmartLyrics.Common;
-using SmartLyrics.Toolbox;
 
 namespace SmartLyrics.IO
 {
@@ -27,7 +29,7 @@ namespace SmartLyrics.IO
         //Clear table and add correct columns
         internal static void InitializeTables()
         {
-            //EX: Add error handling
+            //TODO: Add error handling
             db.Clear();
             db.Columns.Clear();
 
@@ -94,7 +96,7 @@ namespace SmartLyrics.IO
             Logging.Log(Logging.Type.Info, "Reading database from file...");
             DataTable dt = new DataTable("db"); //name needs to be the same as the "db" variable
 
-            //EX: Better error hadnling
+            //TODO: Better error hadnling
             try
             {
                 //initialize temp DataTable to import XML
@@ -134,7 +136,7 @@ namespace SmartLyrics.IO
             Logging.Log(Logging.Type.Info, "Reading database from file...");
             DataTable rdt = new DataTable("db"); //name needs to be the same as the "db" variable
 
-            //EX: Better error hadnling
+            //TODO: Better error hadnling
             try
             {
                 //initialize temp DataTable to import XML
@@ -261,7 +263,7 @@ namespace SmartLyrics.IO
                 }
                 catch (EvaluateException)
                 {
-                    //EX: Add error hadnling
+                    //TODO: Add error hadnling
                     return null;
                 }
             }
@@ -291,7 +293,7 @@ namespace SmartLyrics.IO
             }
             catch (EvaluateException)
             {
-                //EX: Add error hadnling
+                //TODO: Add error hadnling
                 return null;
             }
         }

@@ -690,7 +690,7 @@ namespace SmartLyrics
                     savedView.Visibility = ViewStates.Gone;
                 });
 
-                try //EX: Add error handling to each method
+                try //TODO: Add error handling to each method
                 {
                     Task getDetails = GetAndShowSongDetails();
                     Task getLyrics = GetAndShowLyrics();
