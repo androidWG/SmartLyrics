@@ -111,7 +111,6 @@ namespace SmartLyrics
         }
         #endregion
 
-
         #region Button Actions
         private void NavigationView_NavigationViewSelected(object sender, NavigationView.NavigationItemSelectedEventArgs e)
         {

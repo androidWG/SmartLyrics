@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace SmartLyrics.IO
 {
-    internal class Database
+    internal static class Database
     {
         private static DataTable db = new DataTable("db");
         private static DataTable rdb = new DataTable("rdb");
@@ -91,7 +91,7 @@ namespace SmartLyrics.IO
         #endregion
 
         #region Reading
-        internal static async Task<DataTable> ReadDatabaseFile(string path)
+        private static async Task<DataTable> ReadDatabaseFile(string path)
         {
             Logging.Log(Logging.Type.Info, "Reading database from file...");
             DataTable dt = new DataTable("db"); //name needs to be the same as the "db" variable
@@ -113,7 +113,7 @@ namespace SmartLyrics.IO
 
                 if (File.Exists(path))
                 {
-                    using Stream s = new FileStream(path, FileMode.Open, FileAccess.Read);
+                    await using Stream s = new FileStream(path, FileMode.Open, FileAccess.Read);
                     dt.ReadXml(s);
                 }
             }
@@ -131,7 +131,7 @@ namespace SmartLyrics.IO
             return dt;
         }
 
-        internal static async Task<DataTable> ReadRomanizedDatabaseFile(string path)
+        private static async Task<DataTable> ReadRomanizedDatabaseFile(string path)
         {
             Logging.Log(Logging.Type.Info, "Reading database from file...");
             DataTable rdt = new DataTable("db"); //name needs to be the same as the "db" variable
@@ -148,7 +148,7 @@ namespace SmartLyrics.IO
 
                 if (File.Exists(path))
                 {
-                    using Stream s = new FileStream(path, FileMode.Open, FileAccess.Read);
+                    await using Stream s = new FileStream(path, FileMode.Open, FileAccess.Read);
                     rdt.ReadXml(s);
                 }
             }

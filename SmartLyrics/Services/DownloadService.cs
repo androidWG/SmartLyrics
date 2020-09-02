@@ -122,7 +122,7 @@ namespace SmartLyrics.Services
             while (nextUrl != "")
             {
                 Log(Type.Info, "nextURL = " + nextUrl);
-                string results = await APIRequests.Spotify.GetSavedSongs("Bearer " + accessToken, nextUrl);
+                string results = await WebRequests.Spotify.GetSavedSongs("Bearer " + accessToken, nextUrl);
                 JObject parsed = JObject.Parse(results);
                 Log(Type.Info, "Results parsed into JObject");
 

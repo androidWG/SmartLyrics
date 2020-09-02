@@ -21,18 +21,18 @@ using AndroidX.ConstraintLayout.Widget;
 using AndroidX.Preference;
 using FFImageLoading;
 using FFImageLoading.Transformations;
-using HtmlAgilityPack;
 using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using SmartLyrics.Animation;
+using SmartLyrics.WebRequests;
 using SmartLyrics.Common;
 using SmartLyrics.IO;
 using SmartLyrics.Toolbox;
 using static SmartLyrics.Globals;
 using static SmartLyrics.Common.Logging;
+using Type = SmartLyrics.Common.Logging.Type;
 
 namespace SmartLyrics
 {
@@ -40,35 +40,34 @@ namespace SmartLyrics
     [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class MainActivity : AppCompatActivity
     {
-        private List<Song> resultsToView;
+        private List<SongBundle> resultsToView;
         private static SongBundle songInfo;
         private static SongBundle notificationSong = new SongBundle();
         private SongBundle previousNtfSong = new SongBundle();
-
-        private View welcomeView;
-        private View songView;
 
         private Timer checkTimer;
         private bool nowPlayingMode;
         private bool shouldCheck;
         private string lastSearch = "";
 
-        //! This variable keeps track of multiple simultaneous searches
-        //! that happen while you're typing. This list contains no relevant content.
-        //! The GetAndShowSearchResults method just uses it to compare the size of
-        //! the list when the method started and when results are ready to show up.
-        //? There's almost definitely a better way of keeping track of the newest
-        //? search then the size of a list (int variable for example).
+        // This variable keeps track of multiple simultaneous searches
+        // that happen while you're typing. This list contains no relevant content.
+        // The ShowSearchResults method just uses it to compare the size of
+        // the list when the method started and when results are ready to show up.
         private readonly List<string> t = new List<string>();
+        private InputMethodManager imm;
 
+        #region UI Variables
+        private View welcomeView;
+        private View songView;
+        
         private TextView npTxt;
         private ImageView shineView;
         private TextView noResultsTxt;
         private TextView faceTxt;
         private EditText searchTxt;
         private FrameLayout dynamicLayout;
-
-        private InputMethodManager imm;
+        #endregion
 
         #region Standard Activity Shit
         protected override async void OnCreate(Bundle savedInstanceState)
@@ -77,7 +76,7 @@ namespace SmartLyrics
             SetContentView(Resource.Layout.main);
 
             await StartSession();
-            Log(Logging.Type.Info, "Loaded view");
+            Log(Type.Info, "Loaded view");
 
             // Startup error handling
             AppCenter.Start("b07a2f8e-5d02-4516-aadc-2cba2c27fcf8",
@@ -86,12 +85,7 @@ namespace SmartLyrics
 
             #region UI Variables
             NavigationView navigationView = FindViewById<NavigationView>(Resource.Id.nav_view);
-            DrawerLayout drawer = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);
             navigationView.NavigationItemSelected += NavigationView_NavigationViewSelected;
-
-            ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
-            ImageButton searchBtn = FindViewById<ImageButton>(Resource.Id.searchBtn);
-            ImageButton drawerBtn = FindViewById<ImageButton>(Resource.Id.drawerBtn);
 
             npTxt = FindViewById<TextView>(Resource.Id.npTxt);
             faceTxt = FindViewById<TextView>(Resource.Id.faceTxt);
@@ -113,43 +107,18 @@ namespace SmartLyrics
             else { InflateSong(); }
 
             InitTimer();
-
-            //! Some event subscriptions happen on the InflateWelcome
-            //! and InflateSong methods.
-            #region Event Subscriptions
-            searchTxt.TextChanged += async delegate
-            {
-                if (string.IsNullOrEmpty(searchTxt.Text))
-                {
-                    t.Clear();
-                    Log(Logging.Type.Info, "Cleared Task list");
-                }
-
-                t.Add("wow taskk"); //Placeholder
-                await SearchKeyboardButton_Action(false, t.Count);
-            };
-
-            searchResults.Touch += (s, e) =>
-            {
-                imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0);
-                e.Handled = false;
-            };
-
-            drawerBtn.Click += delegate { drawer.OpenDrawer(navigationView); };
-            searchBtn.Click += async delegate { SearchButton_Action(); };
-            searchResults.ItemClick += SearchResults_ItemClick;
-            #endregion
+            EventSubscriptions();
         }
 
         protected override async void OnResume()
         {
             base.OnResume();
-            Log(Logging.Type.Info, "OnResume started");
+            Log(Type.Info, "OnResume started");
 
             bool fromNotification = Intent.HasExtra("NotificationSong");
             if (fromNotification)
             {
-                Log(Logging.Type.Event, "Attempting to load song from notification");
+                Log(Type.Event, "Attempting to load song from notification");
                 Analytics.TrackEvent("Opening song from notification", new Dictionary<string, string> {
                     { "NotificationSong", JsonConvert.SerializeObject(notificationSong) }
                 });
@@ -157,14 +126,14 @@ namespace SmartLyrics
                 notificationSong = JsonConvert.DeserializeObject<SongBundle>(Intent.GetStringExtra("NotificationSong")!);
 
                 NotificationManagerCompat ntfManager = NotificationManagerCompat.From(this);
-                ntfManager.CancelAll();
+                ntfManager.Cancel(NotificationId);
 
                 songInfo = notificationSong;
                 previousNtfSong = notificationSong;
 
                 shouldCheck = false;
                 nowPlayingMode = true;
-                await LoadSong();
+                LoadSong();
             }
         }
 
@@ -172,7 +141,7 @@ namespace SmartLyrics
         {
             base.OnStop();
 
-            Log(Logging.Type.Info, "OnStop started");
+            Log(Type.Info, "OnStop started");
             notificationSong = new SongBundle();
             previousNtfSong = notificationSong;
         }
@@ -189,129 +158,42 @@ namespace SmartLyrics
                 SongBundle saved = JsonConvert.DeserializeObject<SongBundle>(intent.GetStringExtra("SavedSong") ?? Resources.GetString(Resource.String.lyricsErrorOcurred));
                 songInfo = saved;
 
-                Log(Logging.Type.Event, "Received SavedSongs intent, loading song from disk");
+                Log(Type.Event, "Received SavedSongs intent, loading song from disk");
                 Analytics.TrackEvent("Received SavedSongs intent", new Dictionary<string, string> {
                     { "SongID", saved.Normal.Id.ToString() }});
 
-                await LoadSong();
+                LoadSong();
             }
 
-            Log(Logging.Type.Info, "OnNewIntent started");
+            Log(Type.Info, "OnNewIntent started");
         }
         #endregion
-
-
+        
         #region Button Actions
-        private void SearchButton_Action()
+        private void EventSubscriptions()
         {
-            #region UI Variables
-            TextView headerTxt = FindViewById<TextView>(Resource.Id.headerTxt);
-            ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
-            #endregion
-
-            if (searchTxt.Visibility == ViewStates.Visible && lastSearch == searchTxt.Text)
-            {
-                RunOnUiThread(() =>
-                {
-                    dynamicLayout.Visibility = ViewStates.Visible;
-
-                    headerTxt.Visibility = ViewStates.Visible;
-                    searchTxt.Visibility = ViewStates.Gone;
-                    searchResults.Visibility = ViewStates.Gone;
-
-                    noResultsTxt.Visibility = ViewStates.Invisible;
-                    faceTxt.Visibility = ViewStates.Invisible;
-                });
-
-                imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0);
-                Log(Logging.Type.Action, "Hiding search screen");
-                Analytics.TrackEvent("Hiding search screen");
-            }
-            else
-            {
-                RunOnUiThread(() =>
-                {
-                    dynamicLayout.Visibility = ViewStates.Gone;
-
-                    searchResults.Visibility = ViewStates.Visible;
-                    headerTxt.Visibility = ViewStates.Gone;
-                    searchTxt.Visibility = ViewStates.Visible;
-
-                    npTxt.Visibility = ViewStates.Gone;
-                });
-
-                searchTxt.RequestFocus();
-                imm.ShowSoftInput(searchTxt, ShowFlags.Forced);
-                imm.ToggleSoftInput(ShowFlags.Forced, HideSoftInputFlags.ImplicitOnly);
-
-                Log(Logging.Type.Action, "Showing search screen");
-                Analytics.TrackEvent("Showing search screen");
-            }
-        }
-
-        private async Task SearchKeyboardButton_Action(bool hideKeyboard, int index)
-        {
-            #region UI Variables
-            ProgressBar searchLoadingWheel = FindViewById<ProgressBar>(Resource.Id.searchLoadingWheel);
-            ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
-            #endregion
-
-            if (searchTxt.Text != "")
-            {
-                if (hideKeyboard) { imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0); }
-                string searchString = searchTxt.Text;
-
-                lastSearch = searchString;
-                searchLoadingWheel.Visibility = ViewStates.Visible;
-                searchResults.Visibility = ViewStates.Visible;
-
-                noResultsTxt.Visibility = ViewStates.Invisible;
-                faceTxt.Visibility = ViewStates.Invisible;
-
-                //Pass on index property to GetAndShowSearchResults to keep track of most recent query
-                await GetAndShowSearchResults(searchString, index);
-            }
-        }
-
-        private async void SearchResults_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
-        {
-            if (welcomeView != null)
-            {
-                dynamicLayout.RemoveView(welcomeView);
-                welcomeView = null;
-
-                InflateSong();
-            }
-
-            dynamicLayout.Visibility = ViewStates.Visible;
+            // Some event subscriptions happen on the InflateWelcome
+            // and InflateSong methods.
 
             #region UI Variables
-            ProgressBar lyricsLoadingWheel = FindViewById<ProgressBar>(Resource.Id.lyricsLoadingWheel);
+            NavigationView navigationView = FindViewById<NavigationView>(Resource.Id.nav_view);
             ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
+            ImageButton searchBtn = FindViewById<ImageButton>(Resource.Id.searchBtn);
+            ImageButton drawerBtn = FindViewById<ImageButton>(Resource.Id.drawerBtn);
+            DrawerLayout drawer = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);
             #endregion
+            
+            searchTxt.TextChanged += async delegate
+            { SearchOnGenius(false); };
 
-            imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0);
-            nowPlayingMode = false;
-            ClearLabels();
+            searchResults.Touch += (s, e) =>
+            { imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0); e.Handled = false; };
 
-            songInfo ??= new SongBundle();
-            songInfo.Normal = resultsToView.ElementAt(e.Position);
-
-            Log(Logging.Type.Action, $"Attempting to display song at search position {e.Position}.");
-            Analytics.TrackEvent("Attempting to display song from search", new Dictionary<string, string> {
-                    { "SongID", songInfo.Normal.Id.ToString() },
-                    { "ListPosition", e.Position.ToString() }
-                });
-
-            RunOnUiThread(() =>
-            {
-                lyricsLoadingWheel.Visibility = ViewStates.Visible;
-                searchResults.Visibility = ViewStates.Gone;
-            });
-
-            await LoadSong();
+            drawerBtn.Click += delegate { drawer.OpenDrawer(navigationView); };
+            searchBtn.Click += async delegate { SearchButton_Action(); };
+            searchResults.ItemClick += SearchResults_ItemClick;
         }
-
+        
         private void NavigationView_NavigationViewSelected(object sender, NavigationView.NavigationItemSelectedEventArgs e)
         {
             
@@ -343,90 +225,14 @@ namespace SmartLyrics
             drawer.CloseDrawers();
         }
         #endregion
-
-
-        #region Search
-        private async Task GetAndShowSearchResults(string query, int index)
-        {
-            #region UI Variables
-            ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
-            ProgressBar searchLoadingWheel = FindViewById<ProgressBar>(Resource.Id.searchLoadingWheel);
-            #endregion
-
-            Log(Logging.Type.Event, $"Started search of index {index}, with query {query}");
-
-            string results = await HttpRequests.GetRequest(GeniusSearchUrl + Uri.EscapeUriString(query), GeniusAuthHeader);
-            JObject parsed = JObject.Parse(results);
-
-            IList<JToken> parsedList = parsed["response"]["hits"].Children().ToList();
-
-            List<Song> resultsList;
-            if (parsedList.Count != 0)
-            {
-                resultsList = new List<Song>();
-                foreach (JToken result in parsedList)
-                {
-                    Song song = new Song
-                    {
-                        Id = (int)result["result"]["id"],
-                        Title = (string)result["result"]["title"],
-                        Artist = (string)result["result"]["primary_artist"]["name"],
-                        Cover = (string)result["result"]["song_art_image_thumbnail_url"],
-                        Header = (string)result["result"]["header_image_url"],
-                        ApiPath = (string)result["result"]["api_path"],
-                        Path = (string)result["result"]["path"]
-                    };
-
-                    if (song.Title.ContainsJapanese() && Prefs.GetBoolean("romanize_search", false))
-                    {
-                        song.Title = await song.Title.StripJapanese();
-                    }
-                    if (song.Artist.ContainsJapanese() && Prefs.GetBoolean("romanize_search", false))
-                    {
-                        song.Artist = await song.Artist.StripJapanese();
-                    }
-
-                    resultsList.Add(song);
-                }
-
-                if (index == t.Count)
-                {
-                    SearchResultAdapter adapter = new SearchResultAdapter(this, resultsList);
-                    searchResults.Adapter = adapter;
-
-                    resultsToView = resultsList;
-                    searchLoadingWheel.Visibility = ViewStates.Gone;
-
-                    Log(Logging.Type.Processing, $"Added results of {index} to activity view at count {t.Count}");
-                }
-                else
-                {
-                    Log(Logging.Type.Processing, $"Results of index {index} is smaller than Task list with size {t.Count}");
-                }
-            }
-            else
-            {
-                resultsList = new List<Song>();
-                SearchResultAdapter adapter = new SearchResultAdapter(this, resultsList);
-                searchResults.Adapter = adapter;
-
-                resultsToView = resultsList;
-
-                noResultsTxt.Visibility = ViewStates.Visible;
-                faceTxt.Visibility = ViewStates.Visible;
-                Log(Logging.Type.Info, $"No results found for query {query}");
-            }
-        }
-        #endregion
-
-
+        
         #region Timer
         private async void CheckIfSongIsPlaying()
         {
             if (!shouldCheck || !MiscTools.IsInForeground()) return;
             if (notificationSong.Normal.Id == previousNtfSong.Normal.Id) return;
             
-            Log(Logging.Type.Event, "Song playing is different, updating...");
+            Log(Type.Event, "Song playing is different, updating...");
 
             nowPlayingMode = true;
             songInfo = notificationSong;
@@ -437,7 +243,7 @@ namespace SmartLyrics
             if (autoUpdate && nowPlayingMode)
             {
                 shouldCheck = false;
-                await LoadSong();
+                LoadSong();
             }
             else if (nowPlayingMode)
             {
@@ -445,7 +251,7 @@ namespace SmartLyrics
 
                 Android.Views.Animations.Animation anim = Animations.BlinkingAnimation(700, 3);
                 npTxt.StartAnimation(anim);
-                Log(Logging.Type.Event, "Playing animation on npTxt");
+                Log(Type.Event, "Playing animation on npTxt");
             }
             else if (!nowPlayingMode)
             {
@@ -454,7 +260,7 @@ namespace SmartLyrics
                 Android.Views.Animations.Animation anim = Animations.BlinkingImageAnimation(500, 4);
                 shineView.Visibility = ViewStates.Visible;
                 shineView.StartAnimation(anim);
-                Log(Logging.Type.Event, "Playing animation on shineView");
+                Log(Type.Event, "Playing animation on shineView");
             }
         }
 
@@ -472,172 +278,169 @@ namespace SmartLyrics
             npTxt.Visibility = nowPlayingMode ? ViewStates.Visible : ViewStates.Gone;
         }
         #endregion
-
-
-        #region Load from Genius
-        private async Task GetAndShowSongDetails()
+        
+        #region Search
+        private void SearchButton_Action()
         {
-            Log(Logging.Type.Info, "Starting GetSongDetails operation");
-            string results = await HttpRequests.GetRequest(GeniusApiUrl + songInfo.Normal.ApiPath, GeniusAuthHeader);
+            #region UI Variables
+            TextView headerTxt = FindViewById<TextView>(Resource.Id.headerTxt);
+            ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
+            #endregion
 
-            JObject parsed = JObject.Parse(results);
-            parsed = (JObject)parsed["response"]["song"]; //Change root to song
-
-            Song fromJson = new Song
+            if (searchTxt.Visibility == ViewStates.Visible && lastSearch == searchTxt.Text)
             {
-                Title = (string) parsed?.SelectToken("title") ?? "",
-                Artist = (string) parsed?.SelectToken("primary_artist.name") ?? "",
-                Album = (string) parsed?.SelectToken("album.name") ?? "",
-                Header = (string) parsed?.SelectToken("header_image_url") ?? "",
-                Cover = (string) parsed?.SelectToken("song_art_image_url") ?? "",
-                ApiPath = (string) parsed?.SelectToken("api_path") ?? "",
-                Path = (string) parsed?.SelectToken("path") ?? ""
-            };
-
-            songInfo.Normal = fromJson;
-
-            if (parsed["featured_artists"].HasValues)
-            {
-                IList<JToken> parsedList = parsed["featured_artists"].Children().ToList();
-
-                songInfo.Normal.FeaturedArtist = "feat. ";
-                foreach (JToken artist in parsedList)
+                RunOnUiThread(() =>
                 {
-                    if (songInfo.Normal.FeaturedArtist == "feat. ")
-                    { songInfo.Normal.FeaturedArtist += artist["name"].ToString(); }
-                    else
-                    { songInfo.Normal.FeaturedArtist += ", " + artist["name"]; }
-                }
+                    dynamicLayout.Visibility = ViewStates.Visible;
+                    headerTxt.Visibility = ViewStates.Visible;
+                    searchTxt.Visibility = ViewStates.Gone;
+                    searchResults.Visibility = ViewStates.Gone;
+                    noResultsTxt.Visibility = ViewStates.Invisible;
+                    faceTxt.Visibility = ViewStates.Invisible;
+                });
 
-                Log(Logging.Type.Processing, "Added featured artists to songInfo");
+                imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0);
+                Log(Type.Action, "Hiding search screen");
+                Analytics.TrackEvent("Hiding search screen");
             }
             else
             {
-                songInfo.Normal.FeaturedArtist = "";
-            }
-
-            //Execute all Japanese transliteration tasks at once
-            if (Prefs.GetBoolean("auto_romanize_details", true) && songInfo.Normal.Title.ContainsJapanese() || songInfo.Normal.Artist.ContainsJapanese() || songInfo.Normal.Album.ContainsJapanese())
-            {
-                Task<string> awaitTitle = songInfo.Normal.Title.StripJapanese();
-                Task<string> awaitArtist = songInfo.Normal.Artist.StripJapanese();
-                Task<string> awaitAlbum = songInfo.Normal.Album.StripJapanese();
-
-                await Task.WhenAll(awaitTitle, awaitArtist, awaitAlbum);
-
-                RomanizedSong romanized = new RomanizedSong();
-                // This snippet is the same in GetAndShowLyrics
-                songInfo.Romanized ??= romanized;
-
-                romanized.Title = await awaitTitle;
-                romanized.Artist = await awaitArtist;
-                romanized.Album = await awaitAlbum;
-
-                romanized.Id = songInfo.Normal.Id;
-                songInfo.Romanized = romanized;
-                songInfo.Normal.Romanized = true;
-
-                Log(Logging.Type.Event, "Romanized song info with ID " + songInfo.Normal.Id);
-                Analytics.TrackEvent("Romanized song info", new Dictionary<string, string> {
-                    { "SongID", songInfo.Normal.Id.ToString() }
+                RunOnUiThread(() =>
+                {
+                    dynamicLayout.Visibility = ViewStates.Gone;
+                    searchResults.Visibility = ViewStates.Visible;
+                    headerTxt.Visibility = ViewStates.Gone;
+                    searchTxt.Visibility = ViewStates.Visible;
+                    npTxt.Visibility = ViewStates.Gone;
                 });
-            }
-            else 
-            {
-                songInfo.Romanized = null;
-            }
 
-            await  UpdateSong(songInfo, true, true);
-            Log(Logging.Type.Info, "Finished getting info from Genius");
-            Analytics.TrackEvent("Finished getting info from Genius", new Dictionary<string, string> {
-                    { "SongID", songInfo.Normal.Id.ToString() }
-                });
+                searchTxt.RequestFocus();
+                imm.ShowSoftInput(searchTxt, ShowFlags.Forced);
+                imm.ToggleSoftInput(ShowFlags.Forced, HideSoftInputFlags.ImplicitOnly);
+
+                Log(Type.Action, "Showing search screen");
+                Analytics.TrackEvent("Showing search screen");
+            }
         }
 
-        private async Task GetAndShowLyrics()
+        private async void SearchOnGenius(bool hideKeyboard)
         {
-            Log(Logging.Type.Info, "Started GetAndShowLyrics method");
+            #region UI Variables
+            ProgressBar searchLoadingWheel = FindViewById<ProgressBar>(Resource.Id.searchLoadingWheel);
+            ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
+            #endregion
+            
+            if (string.IsNullOrEmpty(searchTxt.Text))
+            {
+                t.Clear();
+                Log(Type.Info, "Cleared Task list");
+            }
+            t.Add("wow taskk"); //Placeholder
+            
+            if (searchTxt.Text != "")
+            {
+                if (hideKeyboard) { imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0); }
+                string searchString = searchTxt.Text;
+                lastSearch = searchString;
+                
+                RunOnUiThread(() =>
+                {
+                    searchLoadingWheel.Visibility = ViewStates.Visible;
+                    searchResults.Visibility = ViewStates.Visible;
+
+                    noResultsTxt.Visibility = ViewStates.Invisible;
+                    faceTxt.Visibility = ViewStates.Invisible;
+                });
+
+                //Pass on index property to ShowSearchResults to keep track of most recent query
+                ShowSearchResults(searchString, t.Count);
+            }
+        }
+
+        private async void SearchResults_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
+        {
+            if (welcomeView != null)
+            {
+                dynamicLayout.RemoveView(welcomeView);
+                welcomeView = null;
+
+                InflateSong();
+            }
+
+            RunOnUiThread(() =>
+            {
+                dynamicLayout.Visibility = ViewStates.Visible;
+            });
 
             #region UI Variables
-            TextView infoTxt = FindViewById<TextView>(Resource.Id.infoTxt);
             ProgressBar lyricsLoadingWheel = FindViewById<ProgressBar>(Resource.Id.lyricsLoadingWheel);
-            SwipeRefreshLayout refreshLayout = FindViewById<SwipeRefreshLayout>(Resource.Id.swipeRefreshLayout);
-            ImageView savedView = FindViewById<ImageView>(Resource.Id.savedView);
-            ImageButton fabMore = FindViewById<ImageButton>(Resource.Id.fabMore);
+            ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
             #endregion
 
-            HtmlWeb web = new HtmlWeb();
-            HtmlDocument doc = await web.LoadFromWebAsync("https://genius.com" + songInfo.Normal.Path);
+            imm.HideSoftInputFromWindow(searchTxt.WindowToken, 0);
+            nowPlayingMode = false;
+            ClearLabels();
 
-            songInfo.Normal.Lyrics = await HtmlParsing.ParseHtml(doc);
-            Log(Logging.Type.Processing, "Parsed HTML");
+            songInfo ??= new SongBundle();
+            songInfo = resultsToView.ElementAt(e.Position);
 
-            // Auto-romanize based on preferences
-            if (songInfo.Normal.Lyrics.ContainsJapanese() && Prefs.GetBoolean("auto_romanize", false))
-            {
-                //TODO: Add furigana/okurigana support across app
-                string romanizedLyrics = await JapaneseTools.GetTransliteration(songInfo.Normal.Lyrics, true);
-                RomanizedSong romanized = songInfo.Romanized;
-
-                if (songInfo.Romanized == null) { songInfo.Romanized = new RomanizedSong(); } // This snippet is the same in GetAndShowSongDetails
-                romanized.Lyrics = romanizedLyrics;
-
-                //Fill empty info for songs with romanized lyrics and non-romanized details
-                if (string.IsNullOrEmpty(romanized.Title) && !string.IsNullOrEmpty(songInfo.Normal.Title))
-                { romanized.Title = songInfo.Normal.Title; }
-                if (string.IsNullOrEmpty(romanized.Artist) && !string.IsNullOrEmpty(songInfo.Normal.Artist))
-                { romanized.Artist = songInfo.Normal.Artist; }
-                if (string.IsNullOrEmpty(romanized.Album) && !string.IsNullOrEmpty(songInfo.Normal.Album))
-                { romanized.Album = songInfo.Normal.Album; }
-                if (string.IsNullOrEmpty(romanized.FeaturedArtist) && !string.IsNullOrEmpty(songInfo.Normal.FeaturedArtist))
-                { romanized.FeaturedArtist = songInfo.Normal.FeaturedArtist; }
-
-                romanized.Id = songInfo.Normal.Id;
-                songInfo.Romanized = romanized;
-                songInfo.Normal.Romanized = true;
-
-                Log(Logging.Type.Event, "Romanized song lyrics with ID " + songInfo.Normal.Id);
-                Analytics.TrackEvent("Romanized song lyrics", new Dictionary<string, string> {
-                    { "SongID", songInfo.Normal.Id.ToString() }
+            Log(Type.Action, $"Attempting to display song at search position {e.Position}.");
+            Analytics.TrackEvent("Attempting to display song from search", new Dictionary<string, string> {
+                    { "SongID", songInfo.Normal.Id.ToString() },
+                    { "ListPosition", e.Position.ToString() }
                 });
-            }
-            else 
-            { 
-                if (songInfo.Romanized != null) { songInfo.Romanized.Lyrics = ""; }
-            }
 
             RunOnUiThread(() =>
             {
-                fabMore.Visibility = ViewStates.Visible;
-                savedView.Visibility = ViewStates.Gone;
-                infoTxt.Visibility = ViewStates.Visible;
+                lyricsLoadingWheel.Visibility = ViewStates.Visible;
+                searchResults.Visibility = ViewStates.Gone;
             });
 
-            await UpdateSong(songInfo, false, false);
+            LoadSong();
+        }
+        
+        private async void ShowSearchResults(string query, int index)
+        {
+            #region UI Variables
+            ListView searchResults = FindViewById<ListView>(Resource.Id.searchResults);
+            ProgressBar searchLoadingWheel = FindViewById<ProgressBar>(Resource.Id.searchLoadingWheel);
+            #endregion
 
-            RunOnUiThread(() =>
+            List<SongBundle> results = await Genius.GetSearchResults(query);
+
+            if (index == t.Count)
             {
-                lyricsLoadingWheel.Visibility = ViewStates.Gone;
-                refreshLayout.Refreshing = false;
-            });
-
-            shouldCheck = true;
-
-            Log(Logging.Type.Info, "Finished getting lyrics from Genius");
-            Analytics.TrackEvent("Finished getting lyrics from Genius", new Dictionary<string, string> {
-                    { "SongID", songInfo.Normal.Id.ToString() }
+                SearchResultAdapter adapter = new SearchResultAdapter(this, results);
+                searchResults.Adapter = adapter;
+                resultsToView = results;
+                
+                RunOnUiThread(() =>
+                {
+                    if (results.Count == 0)
+                    {
+                        Log(Type.Info, $"No results found for query {query}");
+                        noResultsTxt.Visibility = ViewStates.Visible;
+                        faceTxt.Visibility = ViewStates.Visible;
+                    }
+                    else
+                    {
+                        Log(Type.Info, $"Added {results.Count} results of query '{query}' with index {index} to view at count {t.Count}");
+                        noResultsTxt.Visibility = ViewStates.Gone;
+                        faceTxt.Visibility = ViewStates.Gone;
+                    }
+                    
+                    searchLoadingWheel.Visibility = ViewStates.Gone;
                 });
-
+            }
         }
         #endregion
-
 
         #region Song Loading
         //Handles all song loading by itself.
         //Can be called at anytime if songInfo.Normal contains a song path
         private async Task LoadSong()
         {
-            Log(Logging.Type.Event, "Started LoadSong method");
+            Log(Type.Event, "Started LoadSong method");
 
             if (welcomeView != null)
             {
@@ -658,7 +461,7 @@ namespace SmartLyrics
             //Check if song is downloaded
             if (await Database.GetSongFromTable(songInfo.Normal.Id) == null)
             {
-                Log(Logging.Type.Event, "Song is not saved, getting data from Genius...");
+                Log(Type.Event, "Song is not saved, getting data from Genius...");
                 Analytics.TrackEvent("Loading song from Genius", new Dictionary<string, string> {
                     { "SongID", songInfo.Normal.Id.ToString() }
                 });
@@ -670,8 +473,8 @@ namespace SmartLyrics
 
                 try //TODO: Add error handling to each method
                 {
-                    Task getDetails = GetAndShowSongDetails();
-                    Task getLyrics = GetAndShowLyrics();
+                    Task getDetails = ShowSongDetails();
+                    Task getLyrics = ShowLyrics();
                     await Task.WhenAll(getDetails, getLyrics);
                 }
                 catch (NullReferenceException ex)
@@ -679,12 +482,12 @@ namespace SmartLyrics
                     Crashes.TrackError(ex, new Dictionary<string, string> {
                         { "SongID", songInfo.Normal.Id.ToString() }
                     });
-                    Log(Logging.Type.Error, "NullReferenceException while getting lyrics for ID " + songInfo.Normal.Id);
+                    Log(Type.Error, "NullReferenceException while getting lyrics for ID " + songInfo.Normal.Id);
                 }
             }
             else
             {
-                Log(Logging.Type.Event, "File for song exists, loading...");
+                Log(Type.Event, "File for song exists, loading...");
                 Analytics.TrackEvent("Loading song from file", new Dictionary<string, string> {
                     { "SongID", songInfo.Normal.Id.ToString() }
                 });
@@ -692,10 +495,87 @@ namespace SmartLyrics
                 await ReadFromFile();
             }
         }
+        
+        #region Show from Genius
+        private async Task ShowSongDetails()
+        {
+            songInfo = await Genius.GetSongDetails(songInfo); 
 
+            UpdateSong(songInfo, true, true);
+            Log(Type.Info, "Finished getting info from Genius");
+            Analytics.TrackEvent("Finished getting info from Genius", new Dictionary<string, string> {
+                { "SongID", songInfo.Normal.Id.ToString() }
+            });
+        }
+
+        private async Task ShowLyrics()
+        {
+            Log(Type.Info, "Started ShowLyrics method");
+
+            #region UI Variables
+            TextView infoTxt = FindViewById<TextView>(Resource.Id.infoTxt);
+            ProgressBar lyricsLoadingWheel = FindViewById<ProgressBar>(Resource.Id.lyricsLoadingWheel);
+            SwipeRefreshLayout refreshLayout = FindViewById<SwipeRefreshLayout>(Resource.Id.swipeRefreshLayout);
+            ImageView savedView = FindViewById<ImageView>(Resource.Id.savedView);
+            ImageButton fabMore = FindViewById<ImageButton>(Resource.Id.fabMore);
+            #endregion
+
+            string lyrics = await Genius.GetSongLyrics(songInfo);
+            songInfo.Normal.Lyrics = lyrics;
+
+            //TODO: Make auto-romanization happen after loading normal version of song
+            //Auto-romanize based on preferences
+            if (songInfo.Normal.Lyrics.ContainsJapanese() && Prefs.GetBoolean("auto_romanize", false))
+            {
+                RomanizedSong romanized = await JapaneseTools.RomanizeSong(songInfo.Normal, true);
+
+                //Fill empty info for songs with romanized lyrics and non-romanized details
+                if (string.IsNullOrEmpty(romanized.Title) && 
+                    !string.IsNullOrEmpty(songInfo.Normal.Title))
+                { romanized.Title = songInfo.Normal.Title; }
+                if (string.IsNullOrEmpty(romanized.Artist) && 
+                    !string.IsNullOrEmpty(songInfo.Normal.Artist))
+                { romanized.Artist = songInfo.Normal.Artist; }
+                if (string.IsNullOrEmpty(romanized.Album) && 
+                    !string.IsNullOrEmpty(songInfo.Normal.Album))
+                { romanized.Album = songInfo.Normal.Album; }
+                if (string.IsNullOrEmpty(romanized.FeaturedArtist) &&
+                    !string.IsNullOrEmpty(songInfo.Normal.FeaturedArtist))
+                { romanized.FeaturedArtist = songInfo.Normal.FeaturedArtist; }
+
+                songInfo.Romanized = romanized;
+                songInfo.Normal.Romanized = true;
+            }
+            else 
+            { 
+                if (songInfo.Romanized != null) { songInfo.Romanized.Lyrics = ""; }
+            }
+
+            UpdateSong(songInfo, false, false);
+            RunOnUiThread(() =>
+            {
+                fabMore.Visibility = ViewStates.Visible;
+                savedView.Visibility = ViewStates.Gone;
+                infoTxt.Visibility = ViewStates.Visible;
+                
+                lyricsLoadingWheel.Visibility = ViewStates.Gone;
+                refreshLayout.Refreshing = false;
+            });
+
+            shouldCheck = true;
+
+            Log(Type.Info, "Finished getting lyrics from Genius");
+            Analytics.TrackEvent("Finished getting lyrics from Genius", new Dictionary<string, string> {
+                { "SongID", songInfo.Normal.Id.ToString() }
+            });
+
+        }
+        #endregion
+
+        #region File Handling
         private async Task ReadFromFile()
         {
-            Log(Logging.Type.Event, "Started ReadFromFile method");
+            Log(Type.Event, "Started ReadFromFile method");
 
             #region UI Variables
             ImageView savedView = FindViewById<ImageView>(Resource.Id.savedView);
@@ -719,15 +599,14 @@ namespace SmartLyrics
             });
 
             shouldCheck = true;
-            Log(Logging.Type.Info, "Done reading from file!");
+            Log(Type.Info, "Done reading from file!");
             Analytics.TrackEvent("Finished reading song from file", new Dictionary<string, string> {
-                    { "SongID", songInfo.Normal.Id.ToString() }
-                });
+                { "SongID", songInfo.Normal.Id.ToString() }
+            });
         }
 
         private async Task SaveSong()
         {
-            //Simply pass current song info to WriteInfoAndLyrics method and it handles everything
             bool saveSuccessful = await Database.WriteInfoAndLyrics(songInfo);
 
             //Show Snackbar alerting user of result
@@ -741,7 +620,7 @@ namespace SmartLyrics
                     snackbar.Show();
                 });
 
-                Log(Logging.Type.Event, "Song saved successfully");
+                Log(Type.Event, "Song saved successfully");
                 Analytics.TrackEvent("Finished saving song", new Dictionary<string, string> {
                     { "SongID", songInfo.Normal.Id.ToString() }
                 });
@@ -755,7 +634,7 @@ namespace SmartLyrics
                     snackbar.Show();
                 });
 
-                Log(Logging.Type.Info, "Song already exists");
+                Log(Type.Info, "Song already exists");
             }
 
             RunOnUiThread(() =>
@@ -764,80 +643,16 @@ namespace SmartLyrics
                 savedView.Visibility = ViewStates.Visible;
             });
         }
+#endregion
+
         #endregion
 
-
-        #region Tools
-
-        private void InflateWelcome()
+        private async void UpdateSong(SongBundle song, 
+            bool updateImages, 
+            bool updateDetails, 
+            bool imagesOnDisk = false)
         {
-            welcomeView = LayoutInflater.Inflate(Resource.Layout.sub_main_welcome, dynamicLayout, false);
-            dynamicLayout.AddView(welcomeView);
-            Log(Logging.Type.Processing, "Inflated welcome layout");
-            Analytics.TrackEvent("Inflated welcome layout");
-
-            Button gotoLyricsBtn = FindViewById<Button>(Resource.Id.gotoLyricsBtn);
-            gotoLyricsBtn.Click += delegate
-            {
-                Intent intent = new Intent(this, typeof(SavedLyrics)).SetFlags(ActivityFlags.ReorderToFront);
-                StartActivity(intent);
-            };
-        }
-
-        private void InflateSong()
-        {
-            songView = LayoutInflater.Inflate(Resource.Layout.sub_main_song, dynamicLayout, false);
-            dynamicLayout.AddView(songView);
-            Log(Logging.Type.Processing, "Inflated song layout");
-            Analytics.TrackEvent("Inflated song layout");
-
-            SwipeRefreshLayout refreshLayout = FindViewById<SwipeRefreshLayout>(Resource.Id.swipeRefreshLayout);
-            ImageButton coverView = FindViewById<ImageButton>(Resource.Id.coverView);
-
-            coverView.Click += async delegate
-            {
-                //TODO: Clicking on the cover an already saved song allows you to delete it
-                //Make sure that the song has finished loading before attempting to save
-                ProgressBar lyricsLoadingWheel = FindViewById<ProgressBar>(Resource.Id.lyricsLoadingWheel);
-                if (!refreshLayout.Refreshing && lyricsLoadingWheel.Visibility != ViewStates.Visible)
-                {
-                    await SaveSong();
-                }
-            };
-            refreshLayout.Refresh += async delegate
-            {
-                Log(Logging.Type.Info, "Refreshing song...");
-
-                await LoadSong();
-                refreshLayout.Refreshing = false;
-            };
-
-            shineView = FindViewById<ImageView>(Resource.Id.shineView);
-        }
-
-        private void ClearLabels()
-        {
-            #region UI Variables
-            TextView songLyrics = FindViewById<TextView>(Resource.Id.songLyrics);
-            TextView songTitle = FindViewById<TextView>(Resource.Id.songTitle);
-            TextView songArtist = FindViewById<TextView>(Resource.Id.songArtist);
-            TextView songAlbum = FindViewById<TextView>(Resource.Id.songAlbum);
-            TextView songFeat = FindViewById<TextView>(Resource.Id.songFeat);
-            #endregion
-
-            RunOnUiThread(() =>
-            {
-                songLyrics.Text = "";
-                songTitle.Text = "";
-                songArtist.Text = "";
-                songAlbum.Text = "";
-                songFeat.Text = "";
-            });
-        }
-
-        private async Task UpdateSong(SongBundle song, bool updateImages, bool updateDetails, bool imagesOnDisk = false)
-        {
-            Log(Logging.Type.Info, "Started UpdateSong method for ID " + song.Normal.Id);
+            Log(Type.Info, "Started UpdateSong method for ID " + song.Normal.Id);
 
             #region UI Variables
             TextView songLyrics = FindViewById<TextView>(Resource.Id.songLyrics);
@@ -852,7 +667,7 @@ namespace SmartLyrics
                 Song toShow = song.Normal;
                 if (song.Normal.Romanized && song.Romanized != null && Prefs.GetBoolean("auto_romanize_details", false))
                 {
-                    Log(Logging.Type.Processing, $"Song with ID {songInfo.Normal.Id} has romanization data, using it for display");
+                    Log(Type.Processing, $"Song with ID {songInfo.Normal.Id} has romanization data, using it for display");
                     toShow = (Song)song.Romanized;
                 }
 
@@ -887,7 +702,7 @@ namespace SmartLyrics
                     }
                 }
 
-                Log(Logging.Type.Processing, "Updated labels");
+                Log(Type.Processing, "Updated labels");
             });
 
             if (updateImages) //TODO: Add timer to retry after enough time with images not updated
@@ -931,7 +746,7 @@ namespace SmartLyrics
                         }
                     });
                     
-                    Log(Logging.Type.Processing, "Updated images from disk");
+                    Log(Type.Processing, "Updated images from disk");
                 }
                 else
                 {
@@ -950,14 +765,12 @@ namespace SmartLyrics
                             .Into(searchView);
                     });
 
-                    Log(Logging.Type.Processing, "Updated images from the internet");
+                    Log(Type.Processing, "Updated images from the internet");
                 }
             }
         }
-        #endregion
-
-
-        #region The stuff that's always on the bottom
+        
+        #region Tools
         public override void OnBackPressed()
         {
             TextView headerTxt = FindViewById<TextView>(Resource.Id.headerTxt);
@@ -976,8 +789,73 @@ namespace SmartLyrics
                 base.OnBackPressed();
             }
         }
-        #endregion
+        
+        private void InflateWelcome()
+        {
+            welcomeView = LayoutInflater.Inflate(Resource.Layout.sub_main_welcome, dynamicLayout, false);
+            dynamicLayout.AddView(welcomeView);
+            Log(Type.Processing, "Inflated welcome layout");
+            Analytics.TrackEvent("Inflated welcome layout");
 
+            Button gotoLyricsBtn = FindViewById<Button>(Resource.Id.gotoLyricsBtn);
+            gotoLyricsBtn.Click += delegate
+            {
+                Intent intent = new Intent(this, typeof(SavedLyrics)).SetFlags(ActivityFlags.ReorderToFront);
+                StartActivity(intent);
+            };
+        }
+
+        private void InflateSong()
+        {
+            songView = LayoutInflater.Inflate(Resource.Layout.sub_main_song, dynamicLayout, false);
+            dynamicLayout.AddView(songView);
+            Log(Type.Processing, "Inflated song layout");
+            Analytics.TrackEvent("Inflated song layout");
+
+            SwipeRefreshLayout refreshLayout = FindViewById<SwipeRefreshLayout>(Resource.Id.swipeRefreshLayout);
+            ImageButton coverView = FindViewById<ImageButton>(Resource.Id.coverView);
+
+            coverView.Click += async delegate
+            {
+                //TODO: Clicking on the cover an already saved song allows you to delete it
+                //Make sure that the song has finished loading before attempting to save
+                ProgressBar lyricsLoadingWheel = FindViewById<ProgressBar>(Resource.Id.lyricsLoadingWheel);
+                if (!refreshLayout.Refreshing && lyricsLoadingWheel.Visibility != ViewStates.Visible)
+                {
+                    await SaveSong();
+                }
+            };
+            refreshLayout.Refresh += async delegate
+            {
+                Log(Type.Info, "Refreshing song...");
+
+                await LoadSong();
+                refreshLayout.Refreshing = false;
+            };
+
+            shineView = FindViewById<ImageView>(Resource.Id.shineView);
+        }
+
+        private void ClearLabels()
+        {
+            #region UI Variables
+            TextView songLyrics = FindViewById<TextView>(Resource.Id.songLyrics);
+            TextView songTitle = FindViewById<TextView>(Resource.Id.songTitle);
+            TextView songArtist = FindViewById<TextView>(Resource.Id.songArtist);
+            TextView songAlbum = FindViewById<TextView>(Resource.Id.songAlbum);
+            TextView songFeat = FindViewById<TextView>(Resource.Id.songFeat);
+            #endregion
+
+            RunOnUiThread(() =>
+            {
+                songLyrics.Text = "";
+                songTitle.Text = "";
+                songArtist.Text = "";
+                songAlbum.Text = "";
+                songFeat.Text = "";
+            });
+        }
+        #endregion
 
         #region Error Handling
         private static async void SetUpAppCenterAndCheckForCrashes()
@@ -985,7 +863,7 @@ namespace SmartLyrics
             if (!await Crashes.HasCrashedInLastSessionAsync()) return;
             
             ErrorReport lastCrashReport = await Crashes.GetLastSessionCrashReportAsync();
-            Log(Logging.Type.Error, "Crash report from previous session", attachment: lastCrashReport.ToString());
+            Log(Type.Error, "Crash report from previous session", attachment: lastCrashReport.ToString());
 
             Crashes.GetErrorAttachments = report =>
             {

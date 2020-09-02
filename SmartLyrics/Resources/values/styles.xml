@@ -183,6 +183,7 @@
         <item name="android:paddingBottom">4dp</item>
         <item name="android:fontFamily">@font/lato</item>
         <item name="android:textSize">18sp</item>
+        <item name="android:textColor">?android:attr/textColor</item>
     </style>
 
     <style name="editText_filter" parent="@style/Widget.AppCompat.EditText">

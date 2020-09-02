@@ -12,11 +12,12 @@ using static SmartLyrics.Globals;
 
 namespace SmartLyrics.Common
 {
-    class Logging
+    internal static class Logging
     {
         private static SqliteConnection sql;
         private static string filepath = "";
 
+/*
         public enum Priority
         {
             Debug,
@@ -25,6 +26,7 @@ namespace SmartLyrics.Common
             Error,
             Fatal
         }
+*/
 
         public enum Type
         {
@@ -53,14 +55,14 @@ namespace SmartLyrics.Common
                 }
             }
 
-            var orderByDescending = previousSessions.OrderByDescending(x => x).ToList();
+            List<DateTime> orderByDescending = previousSessions.OrderByDescending(x => x).ToList();
             if (orderByDescending.Count != 0)
             {
                 DateTime latest = previousSessions.First();
                 string latestPath = Path.Combine(ApplicationPath, LogsLocation, latest.ToString(LogDateTimeFormat, CultureInfo.InvariantCulture) + LogDatabaseExtension);
 
                 //If the latest log file is newer than 2 hours AND smaller than 5MB, use that file
-                if (latest > DateTime.UtcNow.AddHours(-2) || new FileInfo(latestPath).Length >= 5000000)
+                if (latest > DateTime.UtcNow.AddHours(LogFileMaxAge) || new FileInfo(latestPath).Length >= LogFileMaxSize)
                 {
                     timestamp = latest;
                 }
@@ -78,8 +80,11 @@ namespace SmartLyrics.Common
                 sql = new SqliteConnection(source);
                 sql.Open();
 
-                using var cmd = new SqliteCommand(sql);
-                cmd.CommandText = "DROP TABLE IF EXISTS log";
+                using SqliteCommand cmd = new SqliteCommand(sql)
+                {
+                    CommandText = "DROP TABLE IF EXISTS log"
+                };
+                
                 cmd.ExecuteNonQuery();
                 cmd.CommandText = @"CREATE TABLE log(id INTEGER PRIMARY KEY,time DATETIME DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')),file TEXT,method TEXT,type TEXT,message TEXT,attach TEXT)";
                 cmd.ExecuteNonQuery();
@@ -109,33 +114,24 @@ namespace SmartLyrics.Common
             string line = ", " + sourceLineNumber;
             string fileAndLine = file + line;
 
-            LogPriority priority = LogPriority.Debug;
-            switch (type)
+            LogPriority priority = type switch
             {
-                case Type.Action:
-                    priority = LogPriority.Info;
-                    break;
-                case Type.Event:
-                    priority = LogPriority.Debug;
-                    break;
-                case Type.Error:
-                    priority = LogPriority.Warn;
-                    break;
-                case Type.Processing:
-                    priority = LogPriority.Verbose;
-                    break;
-                case Type.Info:
-                    priority = LogPriority.Verbose;
-                    break;
-                case Type.Fatal:
-                    priority = LogPriority.Error;
-                    break;
-            }
+                Type.Action => LogPriority.Info,
+                Type.Event => LogPriority.Debug,
+                Type.Error => LogPriority.Warn,
+                Type.Processing => LogPriority.Verbose,
+                Type.Info => LogPriority.Verbose,
+                Type.Fatal => LogPriority.Error,
+                _ => LogPriority.Debug
+            };
             //Exclude Processing log messages since they're mostly useless and spammy
             if (type != Type.Processing) { Android.Util.Log.WriteLine(priority, fileAndLine, memberName + ": " + message); }
 
-            using var cmd = new SqliteCommand(sql);
-            cmd.CommandText = $"INSERT INTO log(time, file, method, type, message, attach) VALUES(@Timestamp,@File,@Method,@Type,@Message,@Attach)";
+            using SqliteCommand cmd = new SqliteCommand(sql)
+            {
+                CommandText =
+                    $"INSERT INTO log(time, file, method, type, message, attach) VALUES(@Timestamp,@File,@Method,@Type,@Message,@Attach)"
+            };
             cmd.Parameters.AddWithValue("@Timestamp", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
             cmd.Parameters.AddWithValue("@File", file + line);
             cmd.Parameters.AddWithValue("@Method", memberName);

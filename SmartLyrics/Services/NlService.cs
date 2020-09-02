@@ -19,19 +19,13 @@ namespace SmartLyrics.Services
 {
     [Service(Label = "SmartLyrics", Permission = "android.permission.BIND_NOTIFICATION_LISTENER_SERVICE")]
     [IntentFilter(new[] { "android.service.notification.NotificationListenerService" })]
+    // ReSharper disable once UnusedType.Global
     internal class NlService : NotificationListenerService
     {
-        private static readonly int NotificationId = 1000;
-        private static readonly string ChannelId = "auto_lyrics_detect_sl";
-        internal static readonly string CountKey = "count";
         private ISharedPreferences prefs;
         private Song previousSong = new Song() { Title = "", Artist = "" };
 
         private NotificationManagerCompat ntfManager;
-
-        //max string distance
-        private const int MaxLikeness = 12;
-
 
         #region Standard Activity Shit
         public override async void OnCreate()
