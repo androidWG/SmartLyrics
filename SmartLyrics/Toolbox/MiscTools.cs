@@ -1,13 +1,10 @@
 ﻿using Android.App;
 
-using System.Diagnostics;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using static Android.App.ActivityManager;
 using static SmartLyrics.Globals;
-using static SmartLyrics.Common.Logging;
 
 namespace SmartLyrics.Toolbox
 {
@@ -32,9 +29,9 @@ namespace SmartLyrics.Toolbox
 
         public static async Task CheckAndCreateAppFolders()
         {
-            string path = Path.Combine(applicationPath, savedLyricsLocation);
-            string pathImg = Path.Combine(applicationPath, savedImagesLocation);
-            string pathLog = Path.Combine(applicationPath, logsLocation);
+            string path = Path.Combine(ApplicationPath, SavedLyricsLocation);
+            string pathImg = Path.Combine(ApplicationPath, SavedImagesLocation);
+            string pathLog = Path.Combine(ApplicationPath, LogsLocation);
             //TODO: Add IOException handling
 
             if (!Directory.Exists(path))

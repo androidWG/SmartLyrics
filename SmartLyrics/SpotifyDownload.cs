@@ -26,15 +26,15 @@ namespace SmartLyrics
     [Activity(Label = "SpotifyDownload", ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, ScreenOrientation = ScreenOrientation.Portrait)]
     public class SpotifyDownload : AppCompatActivity
     {
-        private static readonly int randomState = new Random().Next(2000, 10000000);
+        private static readonly int RandomState = new Random().Next(2000, 10000000);
         private static string accessToken = "";
-        private bool _shouldStop = false;
+        private bool shouldStop;
         private readonly Timer timer = new Timer();
         private ConstraintLayout startedLayout;
         private ConstraintLayout finishedLayout;
         private Services.DownloadServiceConnection serviceConnection;
-        private readonly string path = System.IO.Path.Combine(applicationPath, "SmartLyrics/Saved Lyrics/Spotify/");
-        private readonly string pathImg = System.IO.Path.Combine(applicationPath, "SmartLyrics/Saved Lyrics/Spotify/Image Cache/");
+        private readonly string path = System.IO.Path.Combine(ApplicationPath, "SmartLyrics/Saved Lyrics/Spotify/");
+        private readonly string pathImg = System.IO.Path.Combine(ApplicationPath, "SmartLyrics/Saved Lyrics/Spotify/Image Cache/");
 
         protected override async void OnCreate(Bundle savedInstanceState)
         {
@@ -43,7 +43,7 @@ namespace SmartLyrics
             CrossCurrentActivity.Current.Activity = this; //don't remove this, permission stuff needs it
 
             timer.Interval = 250;
-            timer.Elapsed += checkWebView;
+            timer.Elapsed += CheckWebView;
             timer.Enabled = true;
 
             DrawerLayout drawer = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);
@@ -75,7 +75,7 @@ namespace SmartLyrics
 
             spotifyAuth.Settings.JavaScriptEnabled = true;
             spotifyAuth.SetWebViewClient(new SpotifyAuthClient(this));
-            spotifyAuth.LoadUrl("https://accounts.spotify.com/authorize?client_id=cfa0924c4430409b9a90ad42cb9da301&redirect_uri=http:%2F%2Fredirect.test%2Freturn&scope=user-library-read&response_type=token&state=" + randomState.ToString());
+            spotifyAuth.LoadUrl("https://accounts.spotify.com/authorize?client_id=cfa0924c4430409b9a90ad42cb9da301&redirect_uri=http:%2F%2Fredirect.test%2Freturn&scope=user-library-read&response_type=token&state=" + RandomState);
             Log(Type.Info, "Started LoadURL");
 
             startBtn.Click += async delegate
@@ -104,7 +104,7 @@ namespace SmartLyrics
                 }
 
                 timer.Interval = 1000;
-                timer.Elapsed += updateProgressBar;
+                timer.Elapsed += UpdateProgressBar;
                 Log(Type.Info, "Setted up timer");
 
                 Intent intent = new Intent(this, typeof(Services.DownloadService));
@@ -115,14 +115,12 @@ namespace SmartLyrics
             };
         }
 
-        private async void checkWebView(object sender, ElapsedEventArgs e)
+        private async void CheckWebView(object sender, ElapsedEventArgs e)
         {
             WebView spotifyAuth = FindViewById<WebView>(Resource.Id.spotifyAuth);
             ConstraintLayout infoLayout = FindViewById<ConstraintLayout>(Resource.Id.infoLayout);
 
-            ProgressBar progressBar = FindViewById<ProgressBar>(Resource.Id.progressBar);
-
-            if (_shouldStop)
+            if (shouldStop)
             {
                 //do nothing
             }
@@ -136,13 +134,13 @@ namespace SmartLyrics
                         infoLayout.Visibility = ViewStates.Visible;
                     });
 
-                    _shouldStop = true;
+                    shouldStop = true;
                 }
 
             }
         }
 
-        private async void updateProgressBar(object sender, ElapsedEventArgs e)
+        private async void UpdateProgressBar(object sender, ElapsedEventArgs e)
         {
             ProgressBar progressBar = FindViewById<ProgressBar>(Resource.Id.progressBar);
 
@@ -213,7 +211,7 @@ namespace SmartLyrics
             {
                 Log(Type.Info, "Page started - " + url);
 
-                if (url.Contains("http://redirect.test") && url.Contains(randomState.ToString()))
+                if (url.Contains("http://redirect.test") && url.Contains(RandomState.ToString()))
                 {
                     accessToken = Regex.Match(url, @"(?<=access_token=)(.*?)(?=&token_type)").ToString();
                     Log(Type.Info, "Page returned with access token!");

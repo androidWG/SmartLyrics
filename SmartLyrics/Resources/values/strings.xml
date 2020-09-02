@@ -77,7 +77,6 @@
     <string name="prefLearnMoreData">SmartLyrics does not send or collect any personal data. Our analytics involve only what things you tapped inside the app and what songs you are viewing. We use this data to help troubleshoot bugs and crashes</string>
     <string name="prefSendAnalytics">Send analytics data</string>
     <string name="prefSendAnalyticsSummary">Allow SmartLyrics to send analytics data when using the app</string>
-    <string name="prefSendSongSummary">Allow us to track what songs you view</string>
-    <string name="prefSendSong">Send song information</string>
     <string name="prefAnalyticsAndData">Analytics and Crash Data</string>
+    <string name="prefLearnMoreButton">Learn more</string>
 </resources>

@@ -29,16 +29,16 @@
                 android:layout_height="wrap_content"
                 android:key="learnMoreData"
                 android:summary="@string/prefLearnMoreData" />
+        <Preference
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:key="backup"
+                android:title="@string/prefLearnMoreButton" />
         <SwitchPreference
                 android:defaultValue="true"
                 android:key="sendAnalytics"
                 android:summary="@string/prefSendAnalyticsSummary"
                 android:title="@string/prefSendAnalytics" />
-        <SwitchPreference
-                android:defaultValue="false"
-                android:key="sendSongInfo"
-                android:summary="@string/prefSendSongSummary"
-                android:title="@string/prefSendSong" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/prefBackupRestore">
         <Preference

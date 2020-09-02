@@ -7,7 +7,7 @@ using Type = SmartLyrics.Common.Logging.Type;
 
 namespace SmartLyrics.APIRequests
 {
-    internal class Spotify
+    internal static class Spotify
     {
         public static async Task<string> GetSavedSongs(string authHeader, string url)
         {
@@ -23,15 +23,13 @@ namespace SmartLyrics.APIRequests
                     HttpResponseMessage responseAsync = await client.GetAsync(urlToSend);
 
                     Log(Type.Info, "Reading content stream...");
-                    using (Stream stream = await responseAsync.Content.ReadAsStreamAsync())
-                    using (StreamReader reader = new StreamReader(stream))
-                    {
-                        return reader.ReadToEnd();
-                    }
+                    await using Stream stream = await responseAsync.Content.ReadAsStreamAsync();
+                    using StreamReader reader = new StreamReader(stream);
+                    return reader.ReadToEnd();
                 }
                 catch (HttpRequestException e)
                 {
-                    Log(Type.Error, "Exception caught while getting song list from Spotify!\n" + e.ToString());
+                    Log(Type.Error, "Exception caught while getting song list from Spotify!\n" + e);
                     return null;
                 }
             }

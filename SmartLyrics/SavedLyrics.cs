@@ -2,7 +2,6 @@
 using Android.Content;
 using Android.OS;
 using Android.Support.Design.Widget;
-using Android.Support.V4.App;
 using Android.Support.V4.Widget;
 using Android.Support.V7.App;
 using Android.Views;
@@ -13,26 +12,28 @@ using Plugin.CurrentActivity;
 
 using SmartLyrics.Common;
 using SmartLyrics.Toolbox;
-using SmartLyrics.IO;
 using static SmartLyrics.Globals;
 using static SmartLyrics.Common.Logging;
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AppCenter.Analytics;
+using SmartLyrics.IO;
 
 namespace SmartLyrics
 {
     [Activity(Label = "SavedLyrics", ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenSize | Android.Content.PM.ConfigChanges.Orientation, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class SavedLyrics : AppCompatActivity, ActivityCompat.IOnRequestPermissionsResultCallback
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
+    public class SavedLyrics : AppCompatActivity
     {
         private List<Artist> artistList = new List<Artist>();
         private List<SongBundle> allSongs = new List<SongBundle>();
         private Dictionary<Artist, List<SongBundle>> artistSongs = new Dictionary<Artist, List<SongBundle>>();
 
-        private bool nonGrouped = false; //TODO: Add persistency to grouping option
+        private bool nonGrouped; //TODO: Add persistency to grouping option
 
         #region Standard Activity Shit
         protected override async void OnCreate(Bundle savedInstanceState)
@@ -161,7 +162,7 @@ namespace SmartLyrics
 
             progressBar.Visibility = ViewStates.Visible;
 
-            string path = Path.Combine(applicationPath, savedLyricsLocation);
+            string path = Path.Combine(ApplicationPath, SavedLyricsLocation);
 
             await MiscTools.CheckAndCreateAppFolders();
             Log(Type.Info, $"Saved lyrics location is '{path}'");
@@ -209,10 +210,6 @@ namespace SmartLyrics
         //makes a list with all artists and songs saved
         private async Task GetSavedList(List<SongBundle> songList)
         {
-            //initializing UI variables
-            ExpandableListView savedList = FindViewById<ExpandableListView>(Resource.Id.savedList);
-            //--UI--
-
             artistList = new List<Artist>();
 
             Log(Type.Processing, "Starting foreach loop");

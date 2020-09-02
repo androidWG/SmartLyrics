@@ -40,37 +40,37 @@ namespace SmartLyrics.Common
         {
             await MiscTools.CheckAndCreateAppFolders();
 
-            string loggingFolder = Path.Combine(applicationPath, logsLocation);
+            string loggingFolder = Path.Combine(ApplicationPath, LogsLocation);
             List<DateTime> previousSessions = new List<DateTime>();
             DateTime timestamp = DateTime.UtcNow;
             
             foreach (string s in Directory.EnumerateFiles(loggingFolder))
             {
                 string timestampString = Path.GetFileNameWithoutExtension(s);
-                if (DateTime.TryParseExact(timestampString, logDateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsed))
+                if (DateTime.TryParseExact(timestampString, LogDateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsed))
                 {
                     previousSessions.Add(parsed);
                 }
             }
 
-            previousSessions.OrderByDescending(x => x);
-            if (previousSessions.Count != 0)
+            var orderByDescending = previousSessions.OrderByDescending(x => x).ToList();
+            if (orderByDescending.Count != 0)
             {
                 DateTime latest = previousSessions.First();
-                string latestPath = Path.Combine(applicationPath, logsLocation, latest.ToString(logDateTimeFormat, CultureInfo.InvariantCulture) + logDatabaseExtension);
+                string latestPath = Path.Combine(ApplicationPath, LogsLocation, latest.ToString(LogDateTimeFormat, CultureInfo.InvariantCulture) + LogDatabaseExtension);
 
-                //If the latest log file is newer than 6 hours AND smaller than 5MB, use that file
-                if (latest > DateTime.UtcNow.AddHours(-6) || new FileInfo(latestPath).Length >= 5000000)
+                //If the latest log file is newer than 2 hours AND smaller than 5MB, use that file
+                if (latest > DateTime.UtcNow.AddHours(-2) || new FileInfo(latestPath).Length >= 5000000)
                 {
                     timestamp = latest;
                 }
             }
             
-            filepath = Path.Combine(applicationPath, logsLocation, timestamp.ToString(logDateTimeFormat, CultureInfo.InvariantCulture) + logDatabaseExtension);
-            InitializeDB();
+            filepath = Path.Combine(ApplicationPath, LogsLocation, timestamp.ToString(LogDateTimeFormat, CultureInfo.InvariantCulture) + LogDatabaseExtension);
+            InitializeDb();
         }
 
-        private static void InitializeDB()
+        private static void InitializeDb()
         {
             try
             {
@@ -88,8 +88,8 @@ namespace SmartLyrics.Common
             {
                 //TODO: Add a log cache to log errors when the Logging Database is unavailable
                 
-                filepath = Path.Combine(applicationPath, logsLocation, DateTime.UtcNow.ToString(logDateTimeFormat, CultureInfo.InvariantCulture) + logDatabaseExtension);
-                InitializeDB();
+                filepath = Path.Combine(ApplicationPath, LogsLocation, DateTime.UtcNow.ToString(LogDateTimeFormat, CultureInfo.InvariantCulture) + LogDatabaseExtension);
+                InitializeDb();
             }
         }
 
@@ -147,8 +147,8 @@ namespace SmartLyrics.Common
 
         public static FileInfo GetLatestLog()
         {
-            DirectoryInfo loggingFolder = new DirectoryInfo(Path.Combine(applicationPath, logsLocation));
-            FileInfo latest = loggingFolder.GetFiles("*" + logDatabaseExtension)
+            DirectoryInfo loggingFolder = new DirectoryInfo(Path.Combine(ApplicationPath, LogsLocation));
+            FileInfo latest = loggingFolder.GetFiles("*" + LogDatabaseExtension)
              .OrderByDescending(f => f.LastWriteTime)
              .ElementAt(1); //Gets the second most recent log file; most recent would be the one being currently used
 

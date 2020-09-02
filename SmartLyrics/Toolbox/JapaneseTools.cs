@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 
 using WanaKanaNet;
 using Microsoft.AppCenter.Analytics;
-using Java.Util;
 using System.Collections.Generic;
 
 namespace SmartLyrics.Toolbox
@@ -48,7 +47,8 @@ namespace SmartLyrics.Toolbox
                 { "Input", logString },
                 { "TargetSyllabary", to.ToString("G") }
             });
-            
+
+            // ReSharper disable InconsistentNaming
             //Maybe there's a better way of doing this? This is a tad long
             string _to = "";
             switch (to)
@@ -94,11 +94,12 @@ namespace SmartLyrics.Toolbox
                     _system = "hepburn";
                     break;
             }
+            // ReSharper restore InconsistentNaming
 
             string queryParams = $"?to={_to}&mode={_mode}&romajiSystem={_system}&useHTML={useHtml.ToString().ToLowerInvariant()}";
-            string translitrated = await HTTPRequests.PostRequest(Globals.romanizeConvertURL + queryParams, text);
+            string transliterated = await HttpRequests.PostRequest(Globals.RomanizeConvertUrl + queryParams, text);
 
-            return translitrated;
+            return transliterated;
         }
         
         public static async Task<string> StripJapanese(this string input)
@@ -110,7 +111,7 @@ namespace SmartLyrics.Toolbox
 
             if (WanaKana.IsJapanese(input))
             {
-                string converted = await GetTransliteration(input, false, TargetSyllabary.Romaji);
+                string converted = await GetTransliteration(input, false);
 
                 input = converted;
             }

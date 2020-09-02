@@ -1,14 +1,14 @@
-﻿using Android.App;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using Android.App;
 using Android.Views;
 using Android.Widget;
-
 using FFImageLoading;
 using FFImageLoading.Transformations;
 using static SmartLyrics.Globals;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Object = Java.Lang.Object;
 
 namespace SmartLyrics.Common
 {
@@ -40,7 +40,7 @@ namespace SmartLyrics.Common
         public string FeaturedArtist { get; set; } = String.Empty;
         public string Cover { get; set; } = String.Empty;
         public string Header { get; set; } = String.Empty;
-        public string APIPath { get; set; } = String.Empty;
+        public string ApiPath { get; set; } = String.Empty;
         public string Path { get; set; } = String.Empty;
         public string Lyrics { get; set; } = String.Empty;
         public bool Romanized { get; set; } //used when saving to a file
@@ -112,6 +112,7 @@ namespace SmartLyrics.Common
     #endregion
 
     #region Adapters
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class ExpandableListAdapter : BaseExpandableListAdapter
     {
         private readonly Activity context;
@@ -122,27 +123,25 @@ namespace SmartLyrics.Common
 
         public ExpandableListAdapter(Activity context, List<Artist> listDataHeader, Dictionary<Artist, List<SongBundle>> listChildData)
         {
-            this.listDataChild = listChildData;
+            listDataChild = listChildData;
             this.listDataHeader = listDataHeader;
             this.context = context;
         }
         //for child item view
-        public override Java.Lang.Object GetGroup(int groupPosition)
+        public override Object GetGroup(int groupPosition)
         {
             return null;
         }
-        public override Java.Lang.Object GetChild(int groupPosition, int childPosition)
+        public override Object GetChild(int groupPosition, int childPosition)
         {
             SongBundle song = listDataChild[listDataHeader[groupPosition]][childPosition];
 
-            if (prefs.GetBoolean("auto_romanize_details", true) && song.Romanized != null)
+            if (Prefs.GetBoolean("auto_romanize_details", true) && song.Romanized != null)
             {
                 return song.Romanized.Title;
             }
-            else
-            {
-                return song.Normal.Title;
-            }
+
+            return song.Normal.Title;
         }
         public override long GetChildId(int groupPosition, int childPosition)
         {
@@ -177,7 +176,7 @@ namespace SmartLyrics.Common
         public override View GetGroupView(int groupPosition, bool isExpanded, View convertView, ViewGroup parent)
         {
             Artist artist = listDataHeader[groupPosition];
-            string headerTitle = prefs.GetBoolean("auto_romanize_details", false) && !string.IsNullOrEmpty(artist.RomanizedName)
+            string headerTitle = Prefs.GetBoolean("auto_romanize_details", false) && !string.IsNullOrEmpty(artist.RomanizedName)
                 ? artist.RomanizedName
                 : artist.Name;
 
@@ -221,6 +220,7 @@ namespace SmartLyrics.Common
             return position;
         }
 
+        [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
         public override View GetView(int position, View convertView, ViewGroup parent)
         {
             View view = convertView ?? activity.LayoutInflater.Inflate(Resource.Layout.list_non_grouped, parent, false);
@@ -229,7 +229,7 @@ namespace SmartLyrics.Common
 
             SongBundle song = allSongs.ElementAt(position);
 
-            if (prefs.GetBoolean("auto_romanize_details", true) && song.Romanized != null)
+            if (Prefs.GetBoolean("auto_romanize_details", true) && song.Romanized != null)
             {
                 artistTxt.Text = song.Romanized.Artist;
                 titleTxt.Text = song.Romanized.Title;
@@ -244,14 +244,14 @@ namespace SmartLyrics.Common
         }
     }
 
-    public class SearchResultAdapter : BaseAdapter<Common.Song>
+    public class SearchResultAdapter : BaseAdapter<Song>
     {
         private readonly Activity activity;
         private readonly List<Song> songs;
 
         public override Song this[int position] => throw new NotImplementedException();
 
-        public SearchResultAdapter(Activity activity, List<Common.Song> songs)
+        public SearchResultAdapter(Activity activity, List<Song> songs)
         {
             this.activity = activity;
             this.songs = songs;
@@ -266,6 +266,7 @@ namespace SmartLyrics.Common
             return songs[position].Id;
         }
 
+        [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
         public override View GetView(int position, View convertView, ViewGroup parent)
         {
             View view = convertView ?? activity.LayoutInflater.Inflate(Resource.Layout.list_item, parent, false);

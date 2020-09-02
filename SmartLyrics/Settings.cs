@@ -1,13 +1,13 @@
-﻿using Android.App;
+﻿using System.Diagnostics.CodeAnalysis;
+using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.V4.Widget;
 using Android.Widget;
 using AndroidX.Preference;
-using Java.Util;
+
 using Microsoft.AppCenter.Analytics;
-using System.Collections.Generic;
 using static SmartLyrics.Common.Logging;
 
 namespace SmartLyrics
@@ -21,6 +21,7 @@ namespace SmartLyrics
     }
 
     [Activity(Label = "SettingsActivity", ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenSize | Android.Content.PM.ConfigChanges.Orientation, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class SettingsActivity : AndroidX.AppCompat.App.AppCompatActivity, ISharedPreferencesOnSharedPreferenceChangeListener
     {
         protected override async void OnCreate(Bundle savedInstanceState)
@@ -94,7 +95,7 @@ namespace SmartLyrics
             {
                 await Analytics.SetEnabledAsync(sharedPreferences.GetBoolean("sendAnalytics", true));
                 bool currentSetting = await Analytics.IsEnabledAsync();
-                Log(Type.Action, "Changed send analytics to " + currentSetting.ToString());
+                Log(Type.Action, "Changed send analytics to " + currentSetting);
             }
         }
     }
