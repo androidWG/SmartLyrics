@@ -115,8 +115,8 @@ namespace SmartLyrics.Toolbox
             _ntfTitle = Regex.Replace(_ntfTitle, @"\[.*?\]", "").Trim();
             string _ntfArtist = notification.Artist.ToLowerInvariant();
 
-            _title = await JapaneseTools.StripJapanese(_title);
-            _artist = await JapaneseTools.StripJapanese(_artist);
+            _title = await _title.StripJapanese();
+            _artist = await _artist.StripJapanese();
 
             int _titleDist = Text.Distance(_title, _ntfTitle);
             int _artistDist = Text.Distance(_artist, _ntfArtist);

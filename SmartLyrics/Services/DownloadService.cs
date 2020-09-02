@@ -295,11 +295,11 @@ namespace SmartLyrics.Services
             callsMade++;
 
             Log(Type.Info, "Starting getDetails operation");
-            string results = await HttpRequests.GetRequest(GeniusApiurl + apiPath, GeniusAuthHeader);
+            string results = await HttpRequests.GetRequest(GeniusApiUrl + apiPath, GeniusAuthHeader);
             if (results == null)
             {
                 Log(Type.Processing, "Returned null, calling API again...");
-                results = await HttpRequests.GetRequest(GeniusApiurl + apiPath, GeniusAuthHeader);
+                results = await HttpRequests.GetRequest(GeniusApiUrl + apiPath, GeniusAuthHeader);
             }
             JObject parsed = JObject.Parse(results);
 

@@ -113,13 +113,6 @@ namespace SmartLyrics
 
 
         #region Button Actions
-        private async Task OpenInMainActivity(SongBundle song)
-        {
-            Intent intent = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
-            intent.PutExtra("SavedSong", JsonConvert.SerializeObject(song));
-            StartActivityForResult(intent, 1);
-        }
-
         private void NavigationView_NavigationViewSelected(object sender, NavigationView.NavigationItemSelectedEventArgs e)
         {
             DrawerLayout drawer = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);
@@ -150,7 +143,13 @@ namespace SmartLyrics
             drawer.CloseDrawers();
         }
         #endregion
-
+        
+        private async Task OpenInMainActivity(SongBundle song)
+        {
+            Intent intent = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
+            intent.PutExtra("SavedSong", JsonConvert.SerializeObject(song));
+            StartActivityForResult(intent, 1);
+        }
 
         private async Task ShowSavedSongs()
         {
@@ -185,7 +184,7 @@ namespace SmartLyrics
                     }
                 }
 
-                Log(Type.Processing, "Setted up adapter data");
+                Log(Type.Processing, "Set up adapter data");
 
                 if (nonGrouped)
                 {
