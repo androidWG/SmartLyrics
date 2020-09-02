@@ -1,12 +1,12 @@
 ﻿using Android.Views.Animations;
 
-namespace SmartLyrics
+namespace SmartLyrics.Animation
 {
     internal class Animations
     {
-        public static Animation BlinkingAnimation(int duration, int repeatCount)
+        public static Android.Views.Animations.Animation BlinkingAnimation(int duration, int repeatCount)
         {
-            Animation anim = new AlphaAnimation(0.2f, 1.0f)
+            Android.Views.Animations.Animation anim = new AlphaAnimation(0.2f, 1.0f)
             {
                 Duration = duration, //You can manage the blinking time with this parameter
                 RepeatMode = RepeatMode.Reverse,
@@ -16,9 +16,9 @@ namespace SmartLyrics
             return anim;
         }
 
-        public static Animation BlinkingImageAnimation(int duration, int repeatCount)
+        public static Android.Views.Animations.Animation BlinkingImageAnimation(int duration, int repeatCount)
         {
-            Animation anim = new AlphaAnimation(1f, 0.2f)
+            Android.Views.Animations.Animation anim = new AlphaAnimation(1f, 0.2f)
             {
                 Duration = duration, //You can manage the blinking time with this parameter
                 RepeatMode = RepeatMode.Reverse,

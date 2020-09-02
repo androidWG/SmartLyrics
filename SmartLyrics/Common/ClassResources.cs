@@ -1,14 +1,14 @@
-﻿using Android.App;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using Android.App;
 using Android.Views;
 using Android.Widget;
-
 using FFImageLoading;
 using FFImageLoading.Transformations;
 using static SmartLyrics.Globals;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Object = Java.Lang.Object;
 
 namespace SmartLyrics.Common
 {
@@ -23,19 +23,26 @@ namespace SmartLyrics.Common
             Normal = song;
             Romanized = romanized;
         }
+
+        public SongBundle()
+        {
+            Normal = new Song();
+            Romanized = new RomanizedSong();
+        }
     }
 
+    //TODO: Split into different classes used when displaying, saving, and comparing to notification song
     public class Song
     {
-        public string Title { get; set; } = String.Empty;
-        public string Artist { get; set; } = String.Empty; //TODO: Change Song class "artist" property to the Artist class
-        public string Album { get; set; } = String.Empty;
-        public string FeaturedArtist { get; set; } = String.Empty;
-        public string Cover { get; set; } = String.Empty;
-        public string Header { get; set; } = String.Empty;
-        public string APIPath { get; set; } = String.Empty;
-        public string Path { get; set; } = String.Empty;
-        public string Lyrics { get; set; } = String.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Artist { get; set; } = string.Empty; //TODO: Change Song class "artist" property to the Artist class
+        public string Album { get; set; } = string.Empty;
+        public string FeaturedArtist { get; set; } = string.Empty;
+        public string Cover { get; set; } = string.Empty;
+        public string Header { get; set; } = string.Empty;
+        public string ApiPath { get; set; } = string.Empty;
+        public string Path { get; set; } = string.Empty;
+        public string Lyrics { get; set; } = string.Empty;
         public bool Romanized { get; set; } //used when saving to a file
         public int Likeness { get; set; } //used by the NLService
         public int Id { get; set; }
@@ -65,11 +72,11 @@ namespace SmartLyrics.Common
 
     public class RomanizedSong
     {
-        public string Title { get; set; } = String.Empty;
-        public string Artist { get; set; } = String.Empty;
-        public string Album { get; set; } = String.Empty;
-        public string FeaturedArtist { get; set; } = String.Empty;
-        public string Lyrics { get; set; } = String.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Artist { get; set; } = string.Empty;
+        public string Album { get; set; } = string.Empty;
+        public string FeaturedArtist { get; set; } = string.Empty;
+        public string Lyrics { get; set; } = string.Empty;
         public int Id { get; set; }
 
         private static Song ToSong(RomanizedSong song)
@@ -97,20 +104,14 @@ namespace SmartLyrics.Common
 
     public class Artist
     {
-        public int Id { get; set; }
         public string Name { get; set; }
         public string RomanizedName { get; set; }
         public List<SongBundle> Songs { get; set; }
     }
-
-    public class Lyrics
-    {
-        public int Id { get; set; }
-        public string Lyric { get; set; }
-    }
     #endregion
 
     #region Adapters
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class ExpandableListAdapter : BaseExpandableListAdapter
     {
         private readonly Activity context;
@@ -121,27 +122,25 @@ namespace SmartLyrics.Common
 
         public ExpandableListAdapter(Activity context, List<Artist> listDataHeader, Dictionary<Artist, List<SongBundle>> listChildData)
         {
-            this.listDataChild = listChildData;
+            listDataChild = listChildData;
             this.listDataHeader = listDataHeader;
             this.context = context;
         }
         //for child item view
-        public override Java.Lang.Object GetGroup(int groupPosition)
+        public override Object GetGroup(int groupPosition)
         {
             return null;
         }
-        public override Java.Lang.Object GetChild(int groupPosition, int childPosition)
+        public override Object GetChild(int groupPosition, int childPosition)
         {
             SongBundle song = listDataChild[listDataHeader[groupPosition]][childPosition];
 
-            if (prefs.GetBoolean("auto_romanize_details", true) && song.Romanized != null)
+            if (Prefs.GetBoolean("auto_romanize_details", true) && song.Romanized != null)
             {
                 return song.Romanized.Title;
             }
-            else
-            {
-                return song.Normal.Title;
-            }
+
+            return song.Normal.Title;
         }
         public override long GetChildId(int groupPosition, int childPosition)
         {
@@ -151,10 +150,8 @@ namespace SmartLyrics.Common
         public override View GetChildView(int groupPosition, int childPosition, bool isLastChild, View convertView, ViewGroup parent)
         {
             string childText = (string)GetChild(groupPosition, childPosition);
-            if (convertView == null)
-            {
-                convertView = context.LayoutInflater.Inflate(Resource.Layout.list_child, null);
-            }
+            convertView ??= context.LayoutInflater.Inflate(Resource.Layout.list_child, null);
+            
             TextView txtListChild = (TextView)convertView.FindViewById(Resource.Id.listChild);
             txtListChild.Text = childText;
             return convertView;
@@ -164,11 +161,8 @@ namespace SmartLyrics.Common
             return listDataChild[listDataHeader[groupPosition]].Count;
         }
         //For header view
-        public override int GroupCount {
-            get {
-                return listDataHeader.Count;
-            }
-        }
+        public override int GroupCount => listDataHeader.Count;
+
         public override long GetGroupId(int groupPosition)
         {
             return groupPosition;
@@ -176,7 +170,7 @@ namespace SmartLyrics.Common
         public override View GetGroupView(int groupPosition, bool isExpanded, View convertView, ViewGroup parent)
         {
             Artist artist = listDataHeader[groupPosition];
-            string headerTitle = prefs.GetBoolean("auto_romanize_details", false) && !string.IsNullOrEmpty(artist.RomanizedName)
+            string headerTitle = Prefs.GetBoolean("auto_romanize_details", false) && !string.IsNullOrEmpty(artist.RomanizedName)
                 ? artist.RomanizedName
                 : artist.Name;
 
@@ -186,11 +180,7 @@ namespace SmartLyrics.Common
 
             return convertView;
         }
-        public override bool HasStableIds {
-            get {
-                return false;
-            }
-        }
+        public override bool HasStableIds => false;
 
         public override bool IsChildSelectable(int groupPosition, int childPosition)
         {
@@ -211,15 +201,14 @@ namespace SmartLyrics.Common
             this.allSongs = allSongs;
         }
 
-        public override int Count {
-            get { return allSongs.Count; }
-        }
+        public override int Count => allSongs.Count;
 
         public override long GetItemId(int position)
         {
             return position;
         }
 
+        [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
         public override View GetView(int position, View convertView, ViewGroup parent)
         {
             View view = convertView ?? activity.LayoutInflater.Inflate(Resource.Layout.list_non_grouped, parent, false);
@@ -228,7 +217,7 @@ namespace SmartLyrics.Common
 
             SongBundle song = allSongs.ElementAt(position);
 
-            if (prefs.GetBoolean("auto_romanize_details", true) && song.Romanized != null)
+            if (Prefs.GetBoolean("auto_romanize_details", true) && song.Romanized != null)
             {
                 artistTxt.Text = song.Romanized.Artist;
                 titleTxt.Text = song.Romanized.Title;
@@ -243,28 +232,27 @@ namespace SmartLyrics.Common
         }
     }
 
-    public class SearchResultAdapter : BaseAdapter<Common.Song>
+    public class SearchResultAdapter : BaseAdapter<Song>
     {
         private readonly Activity activity;
-        private readonly List<Song> songs;
+        private readonly List<SongBundle> songs;
 
         public override Song this[int position] => throw new NotImplementedException();
 
-        public SearchResultAdapter(Activity activity, List<Common.Song> songs)
+        public SearchResultAdapter(Activity activity, List<SongBundle> songs)
         {
             this.activity = activity;
             this.songs = songs;
         }
 
-        public override int Count {
-            get { return songs.Count; }
-        }
+        public override int Count => songs.Count;
 
         public override long GetItemId(int position)
         {
-            return songs[position].Id;
+            return songs[position].Normal.Id;
         }
 
+        [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
         public override View GetView(int position, View convertView, ViewGroup parent)
         {
             View view = convertView ?? activity.LayoutInflater.Inflate(Resource.Layout.list_item, parent, false);
@@ -272,9 +260,19 @@ namespace SmartLyrics.Common
             TextView artistTxt = view.FindViewById<TextView>(Resource.Id.songArtist);
             ImageView coverImg = view.FindViewById<ImageView>(Resource.Id.cover);
 
-            titleTxt.Text = songs[position].Title;
-            artistTxt.Text = songs[position].Artist;
-            ImageService.Instance.LoadUrl(songs[position].Cover).Transform(new RoundedTransformation(20)).Into(coverImg);
+            SongBundle song = songs[position];
+            
+            if (Prefs.GetBoolean("auto_romanize_details", true) && song.Romanized != null)
+            {
+                artistTxt.Text = song.Romanized.Artist;
+                titleTxt.Text = song.Romanized.Title;
+            }
+            else
+            {
+                artistTxt.Text = song.Normal.Artist;
+                titleTxt.Text = song.Normal.Title;
+            }
+            ImageService.Instance.LoadUrl(song.Normal.Cover).Transform(new RoundedTransformation(20)).Into(coverImg);
 
             return view;
         }

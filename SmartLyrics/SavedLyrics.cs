@@ -1,43 +1,39 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Runtime;
 using Android.Support.Design.Widget;
-using Android.Support.V4.App;
 using Android.Support.V4.Widget;
 using Android.Support.V7.App;
-using Android.Util;
 using Android.Views;
 using Android.Widget;
+
+using Newtonsoft.Json;
 using Plugin.CurrentActivity;
+
 using SmartLyrics.Common;
 using SmartLyrics.Toolbox;
-using System;
+using static SmartLyrics.Globals;
+using static SmartLyrics.Common.Logging;
+
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using static SmartLyrics.Globals;
+using Microsoft.AppCenter.Analytics;
+using SmartLyrics.IO;
 
 namespace SmartLyrics
 {
     [Activity(Label = "SavedLyrics", ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenSize | Android.Content.PM.ConfigChanges.Orientation, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class SavedLyrics : AppCompatActivity, ActivityCompat.IOnRequestPermissionsResultCallback
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
+    public class SavedLyrics : AppCompatActivity
     {
         private List<Artist> artistList = new List<Artist>();
         private List<SongBundle> allSongs = new List<SongBundle>();
         private Dictionary<Artist, List<SongBundle>> artistSongs = new Dictionary<Artist, List<SongBundle>>();
 
-        private bool nonGrouped = false;
-
-        //! used to alert a method that called PermissionChecking.CheckAndSetPermissions
-        //! that the user made their decision
-        //----------------------------
-        //! index 0 is the status of the permission (true = arrived, false = didn't arrive)
-        //! index 1 is the result (true = granted, false = denied)
-        //same on any activity that asks for permissions
-        private readonly bool[] permissionGranted = new bool[2] { false, false };
-
+        private bool nonGrouped; //TODO: Add persistency to grouping option
 
         #region Standard Activity Shit
         protected override async void OnCreate(Bundle savedInstanceState)
@@ -46,16 +42,18 @@ namespace SmartLyrics
             SetContentView(Resource.Layout.main_saved);
             CrossCurrentActivity.Current.Activity = this; //don't remove this, permission stuff needs it
 
+            #region UI Variables
             DrawerLayout drawer = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);
             ImageButton drawerBtn = FindViewById<ImageButton>(Resource.Id.drawerBtn);
 
             NavigationView navigationView = FindViewById<NavigationView>(Resource.Id.nav_view);
-            navigationView.NavigationItemSelected += NavigationView_NavigationViewSelected;
 
             ExpandableListView savedList = FindViewById<ExpandableListView>(Resource.Id.savedList);
             ImageButton selectGroupingBtn = FindViewById<ImageButton>(Resource.Id.selectGroupingBtn);
             ListView savedListNonGrouped = FindViewById<ListView>(Resource.Id.savedListNonGrouped);
+            #endregion
 
+            navigationView.NavigationItemSelected += NavigationView_NavigationViewSelected;
             drawerBtn.Click += delegate
             {
                 drawer.OpenDrawer(navigationView);
@@ -81,34 +79,28 @@ namespace SmartLyrics
                 }
             };
 
-            savedList.ChildClick += delegate (object sender, ExpandableListView.ChildClickEventArgs e)
+            savedList.ChildClick += async delegate (object sender, ExpandableListView.ChildClickEventArgs e)
             {
-                Log.WriteLine(LogPriority.Info, "SavedLyrics", "OnCreate: Clicked on item from grouped list");
-                Intent intent = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
+                SongBundle selection = artistSongs.ElementAt(e.GroupPosition).Value[e.ChildPosition];
 
-                Song toSend = artistSongs.ElementAt(e.GroupPosition).Value[e.ChildPosition].Normal;
-                RomanizedSong romanizedToSend = artistSongs.ElementAt(e.GroupPosition).Value[e.ChildPosition].Romanized;
+                Log(Type.Action, "Clicked on item from grouped list");
+                Analytics.TrackEvent("Clicked on item from non-grouped list", new Dictionary<string, string> {
+                    { "SongID", selection.Normal.Id.ToString() }
+                });
 
-                MainActivity.songInfo = toSend;
-                MainActivity.romanized = romanizedToSend;
-                MainActivity.fromFile = true;
-
-                StartActivityForResult(intent, 1);
+                await OpenInMainActivity(selection);
             };
 
-            savedListNonGrouped.ItemClick += delegate (object sender, AdapterView.ItemClickEventArgs e)
+            savedListNonGrouped.ItemClick += async delegate (object sender, AdapterView.ItemClickEventArgs e)
             {
-                Log.WriteLine(LogPriority.Info, "SavedLyrics", "OnCreate: Clicked on item from non-grouped list");
-                Intent intent = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
+                SongBundle selection = allSongs[e.Position];
 
-                Song toSend = allSongs[e.Position].Normal;
-                RomanizedSong romanizedToSend = allSongs[e.Position].Romanized;
+                Log(Type.Action, "Clicked on item from non-grouped list");
+                Analytics.TrackEvent("Clicked on item from non-grouped list", new Dictionary<string, string> {
+                    { "SongID", selection.Normal.Id.ToString() }
+                });
 
-                MainActivity.songInfo = toSend;
-                MainActivity.romanized = romanizedToSend;
-                MainActivity.fromFile = true;
-
-                StartActivityForResult(intent, 1);
+                await OpenInMainActivity(selection);
             };
         }
 
@@ -118,7 +110,6 @@ namespace SmartLyrics
             await ShowSavedSongs();
         }
         #endregion
-
 
         #region Button Actions
         private void NavigationView_NavigationViewSelected(object sender, NavigationView.NavigationItemSelectedEventArgs e)
@@ -151,7 +142,13 @@ namespace SmartLyrics
             drawer.CloseDrawers();
         }
         #endregion
-
+        
+        private async Task OpenInMainActivity(SongBundle song)
+        {
+            Intent intent = new Intent(this, typeof(MainActivity)).SetFlags(ActivityFlags.ReorderToFront);
+            intent.PutExtra("SavedSong", JsonConvert.SerializeObject(song));
+            StartActivityForResult(intent, 1);
+        }
 
         private async Task ShowSavedSongs()
         {
@@ -163,12 +160,12 @@ namespace SmartLyrics
 
             progressBar.Visibility = ViewStates.Visible;
 
-            string path = Path.Combine(applicationPath, savedLyricsLocation);
+            string path = Path.Combine(ApplicationPath, SavedLyricsLocation);
 
             await MiscTools.CheckAndCreateAppFolders();
-            Log.WriteLine(LogPriority.Verbose, "SavedLyrics", $"ShowSavedSongs: Path is \"{path}\"");
+            Log(Type.Info, $"Saved lyrics location is '{path}'");
 
-            List<SongBundle> songList = await DatabaseHandling.GetSongList();
+            List<SongBundle> songList = await Database.GetSongList();
             if (songList != null)
             {
                 await GetSavedList(songList);
@@ -186,24 +183,24 @@ namespace SmartLyrics
                     }
                 }
 
-                Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "ShowSavedSongs: Setted up adapter data");
+                Log(Type.Processing, "Set up adapter data");
 
                 if (nonGrouped)
                 {
                     savedListNonGrouped.Adapter = new SavedLyricsAdapter(this, allSongs);
-                    Log.WriteLine(LogPriority.Info, "SavedLyrics", "ShowSavedSongs: Showing adapter for non grouped view");
+                    Log(Type.Info, "Showing adapter for non grouped view");
                     progressBar.Visibility = ViewStates.Gone;
                 }
                 else
                 {
                     savedList.SetAdapter(new ExpandableListAdapter(this, artistList, artistSongs));
-                    Log.WriteLine(LogPriority.Info, "SavedLyrics", "ShowSavedSongs: Showing adapter for grouped view");
+                    Log(Type.Info, "Showing adapter for grouped view");
                     progressBar.Visibility = ViewStates.Gone;
                 }
             }
             else
             {
-                Log.WriteLine(LogPriority.Info, "SavedLyrics", "ShowSavedSongs: No files found!");
+                Log(Type.Info, "No files found!");
                 progressBar.Visibility = ViewStates.Gone;
             }
         }
@@ -211,13 +208,9 @@ namespace SmartLyrics
         //makes a list with all artists and songs saved
         private async Task GetSavedList(List<SongBundle> songList)
         {
-            //initializing UI variables
-            ExpandableListView savedList = FindViewById<ExpandableListView>(Resource.Id.savedList);
-            //--UI--
-
             artistList = new List<Artist>();
 
-            Log.WriteLine(LogPriority.Verbose, "SavedLyrics", "GetSavedList: Starting foreach loop");
+            Log(Type.Processing, "Starting foreach loop");
             foreach (SongBundle s in songList)
             {
                 //finds the first Artist that matches the artist name from the song

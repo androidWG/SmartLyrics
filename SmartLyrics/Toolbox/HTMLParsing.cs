@@ -1,23 +1,23 @@
-﻿using Android.Util;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
+using static SmartLyrics.Common.Logging;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SmartLyrics.Toolbox
 {
-    internal class HTMLParsing
+    internal class HtmlParsing
     {
         //takes a Genius song page (old and 2020 design) and returns a HTML formatted
         //string containing lyrics
-        public static async Task<string> ParseHTML(HtmlDocument doc)
+        public static async Task<string> ParseHtml(HtmlDocument doc)
         {
             if (doc.Text.Contains("<div class=\"lyrics\">"))
             {
-                //TODO: handle NullReferenceException from error pages and such
-                Log.WriteLine(LogPriority.Warn, "HTMLParsing", "ParseHTML: Song page uses old design");
+                //TODO: Handle NullReferenceException from error pages and such
+                Log(Type.Event, "Song page uses old design");
                 HtmlNode node = doc.DocumentNode.SelectSingleNode("//div[@class='lyrics']");
-                string output = await CleanHTML(node.InnerHtml);
+                string output = await CleanHtml(node.InnerHtml);
                 return output;
             }
             else
@@ -29,12 +29,12 @@ namespace SmartLyrics.Toolbox
                     finalLyrics += System.Net.WebUtility.HtmlDecode(n.InnerHtml);
                 }
 
-                string output = await CleanHTML(finalLyrics);
+                string output = await CleanHtml(finalLyrics);
                 return output;
             }
         }
 
-        private static async Task<string> CleanHTML(string input)
+        private static async Task<string> CleanHtml(string input)
         {
             //replace <, > and </ in HTML italic and bold tags into |\, ||, |/ respectivly to prevent
             //their deletion when using the regex.
@@ -56,7 +56,7 @@ namespace SmartLyrics.Toolbox
 
             _ = _.Replace("<br><br><br>", "<br><br>");
 
-            Log.WriteLine(LogPriority.Verbose, "HTMLParsing", "CleanHTML: Cleaned HTML");
+            Log(Type.Info, "Cleaned HTML");
 
             string output = _;
             return output;

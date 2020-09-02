@@ -80,7 +80,8 @@
                 android:id="@+id/toolbar"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:background="@color/colorBackground"
+                android:background="?android:attr/windowBackground"
+                android:elevation="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -91,7 +92,7 @@
                     android:layout_height="0dp"
                     android:contentDescription="@string/descHeader"
                     android:scaleType="centerCrop"
-                    android:tint="#80000000"
+                    android:tint="?android:attr/colorForeground"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
@@ -130,7 +131,7 @@
                     android:contentDescription="@string/descSeacrhBtn"
                     android:foregroundGravity="center"
                     android:scaleType="fitCenter"
-                    android:tint="#FFFFFF"
+                    android:tint="?android:attr/textColor"
                     app:layout_constraintBottom_toTopOf="@+id/npTxt"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -147,7 +148,7 @@
                     android:contentDescription="@string/descDrawerBtn"
                     android:foregroundGravity="center"
                     android:scaleType="fitCenter"
-                    android:tint="#FFFFFF"
+                    android:tint="?android:attr/textColor"
                     app:layout_constraintBottom_toTopOf="@+id/npTxt"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -187,6 +188,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
     <com.google.android.material.navigation.NavigationView
             android:id="@+id/nav_view"
             android:layout_width="240dp"
@@ -194,7 +196,7 @@
             android:layout_gravity="start"
             android:fitsSystemWindows="true"
             app:headerLayout="@layout/nav_header_main"
-            app:menu="@menu/activity_main_drawer"
-            app:itemTextAppearance="@style/textDrawer">
-    </com.google.android.material.navigation.NavigationView>
+            app:itemIconTint="?android:attr/textColor"
+            app:itemTextAppearance="@style/textDrawer"
+            app:menu="@menu/activity_main_drawer"></com.google.android.material.navigation.NavigationView>
 </androidx.drawerlayout.widget.DrawerLayout>

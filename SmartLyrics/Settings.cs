@@ -1,12 +1,14 @@
-﻿
+﻿using System.Diagnostics.CodeAnalysis;
 using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.V4.Widget;
-using Android.Util;
 using Android.Widget;
 using AndroidX.Preference;
+
+using Microsoft.AppCenter.Analytics;
+using static SmartLyrics.Common.Logging;
 
 namespace SmartLyrics
 {
@@ -19,7 +21,8 @@ namespace SmartLyrics
     }
 
     [Activity(Label = "SettingsActivity", ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenSize | Android.Content.PM.ConfigChanges.Orientation, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class SettingsActivity : AndroidX.AppCompat.App.AppCompatActivity
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
+    public class SettingsActivity : AndroidX.AppCompat.App.AppCompatActivity, ISharedPreferencesOnSharedPreferenceChangeListener
     {
         protected override async void OnCreate(Bundle savedInstanceState)
         {
@@ -41,7 +44,19 @@ namespace SmartLyrics
                 drawer.OpenDrawer(navigationView);
             };
 
-            Log.WriteLine(LogPriority.Info, "Settings", "OnCreate: Finished OnCreate");
+            Log(Type.Info, "Finished OnCreate");
+        }
+
+        protected override void OnResume()
+        {
+            base.OnResume();
+            PreferenceManager.GetDefaultSharedPreferences(this).RegisterOnSharedPreferenceChangeListener(this);
+        }
+
+        protected override void OnPause()
+        {
+            base.OnPause();
+            PreferenceManager.GetDefaultSharedPreferences(this).UnregisterOnSharedPreferenceChangeListener(this);
         }
 
         private void NavigationView_NavigationViewSelected(object sender, NavigationView.NavigationItemSelectedEventArgs e)
@@ -72,6 +87,16 @@ namespace SmartLyrics
 
             e.MenuItem.SetCheckable(false);
             drawer.CloseDrawers();
+        }
+
+        public async void OnSharedPreferenceChanged(ISharedPreferences sharedPreferences, string key)
+        {
+            if (key == "sendAnalytics")
+            {
+                await Analytics.SetEnabledAsync(sharedPreferences.GetBoolean("sendAnalytics", true));
+                bool currentSetting = await Analytics.IsEnabledAsync();
+                Log(Type.Action, "Changed send analytics to " + currentSetting);
+            }
         }
     }
 }

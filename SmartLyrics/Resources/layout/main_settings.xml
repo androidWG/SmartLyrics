@@ -14,8 +14,8 @@
                 android:id="@+id/toolbar"
                 android:layout_width="0dp"
                 android:layout_height="60dp"
-                android:background="@color/colorBackground"
-                android:elevation="6dp"
+                android:background="?android:attr/windowBackground"
+                android:elevation="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -27,10 +27,6 @@
                     android:layout_centerHorizontal="true"
                     android:gravity="center"
                     android:includeFontPadding="false"
-                    android:shadowColor="#000000"
-                    android:shadowDx="0"
-                    android:shadowDy="1"
-                    android:shadowRadius="4"
                     android:text="@string/drawerSettings"
                     android:textAppearance="@style/textHeader"
                     android:visibility="visible"
@@ -50,7 +46,7 @@
                     android:contentDescription="@string/descDrawerBtn"
                     android:foregroundGravity="center"
                     android:scaleType="fitCenter"
-                    android:tint="#FFFFFF"
+                    android:tint="?android:attr/textColor"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/round_menu_24" />
@@ -76,6 +72,7 @@
             android:fitsSystemWindows="true"
             app:headerLayout="@layout/nav_header_main"
             app:menu="@menu/activity_main_drawer"
-            app:itemTextAppearance="@style/textDrawer">
+            app:itemTextAppearance="@style/textDrawer"
+            app:itemIconTint="?android:attr/textColor">
     </com.google.android.material.navigation.NavigationView>
 </androidx.drawerlayout.widget.DrawerLayout>

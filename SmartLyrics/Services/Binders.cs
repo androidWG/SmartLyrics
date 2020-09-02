@@ -1,6 +1,6 @@
 ﻿using Android.Content;
 using Android.OS;
-using Android.Util;
+using static SmartLyrics.Common.Logging;
 
 namespace SmartLyrics.Services
 {
@@ -24,35 +24,32 @@ namespace SmartLyrics.Services
         public bool IsConnected { get; private set; }
         public ProgressBinder Binder { get; private set; }
 
-        private readonly SpotifyDownload mainActivity;
-
         public DownloadServiceConnection(SpotifyDownload activity)
         {
             IsConnected = false;
             Binder = null;
-            mainActivity = activity;
         }
 
         public void OnServiceConnected(ComponentName name, IBinder service)
         {
-            Log.WriteLine(LogPriority.Warn, "SmartLyrics", "ProgressBinder: Service connected");
+            Log(Type.Event, "Service connected");
 
             Binder = service as ProgressBinder;
             IsConnected = this.Binder != null;
 
             if (IsConnected)
             {
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "ProgressBinder: Bound to " + name.ClassName);
+                Log(Type.Info, "Bound to " + name.ClassName);
             }
             else
             {
-                Log.WriteLine(LogPriority.Info, "SmartLyrics", "ProgressBinder: Unbound to " + name.ClassName);
+                Log(Type.Info, "Unbound to " + name.ClassName);
             }
         }
 
         public void OnServiceDisconnected(ComponentName name)
         {
-            Log.WriteLine(LogPriority.Warn, "SmartLyrics", "ProgressBinder: Service disconnected");
+            Log(Type.Event, "Service disconnected");
 
             IsConnected = false;
             Binder = null;

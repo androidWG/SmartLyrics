@@ -17,15 +17,20 @@
 			android:layout_height="wrap_content"
 			android:id="@+id/linearLayout2"
 			android:layout_marginStart="14dp">
+
 		<TextView
-				android:textAppearance="@style/textSearchTitle"
+				android:id="@+id/songTitle"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:id="@+id/songTitle"/>
+				android:textAppearance="@style/textSearchTitle"
+				android:textColor="?android:attr/textColor" />
+
 		<TextView
-				android:textAppearance="@style/textSearchArtist"
+				android:id="@+id/songArtist"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
-				android:id="@+id/songArtist" android:layout_marginTop="4dp"/>
+				android:layout_marginTop="4dp"
+				android:textAppearance="@style/textSearchArtist"
+				android:textColor="?android:attr/textColor" />
 	</LinearLayout>
 </LinearLayout>

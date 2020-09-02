@@ -1,19 +1,33 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat">
-      <item name="windowNoTitle">true</item>
-      <item name="windowActionBar">false</item>
-      <item name="colorPrimary">@color/colorPrimary</item>
-      <item name="colorAccent">@color/colorAccent</item>
-      <item name="android:windowBackground">@color/colorBackground</item>
-      <item name="android:navigationBarColor">@color/colorBackground</item>
-      <item name="android:statusBarColor">@color/colorStatusBar</item>
-      <item name="android:colorButtonNormal">@color/colorButtonBackground</item>
+    <style name="DarkTheme" parent="Theme.AppCompat">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:colorForeground">@color/headerTint</item>
+        <item name="android:textColor">@color/lessWhite</item>
+        <item name="android:textColorSecondary">@color/lightGray</item>
+        <item name="android:textColorHint">@color/gray</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:navigationBarColor">@color/colorBackground</item>
+        <item name="android:statusBarColor">@color/colorStatusBar</item>
+        <item name="android:colorButtonNormal">@color/colorButtonBackground</item>
     </style>
 
-    <style name="AppTheme.NoActionBar">
-      <item name="windowActionBar">false</item>
-      <item name="windowNoTitle">true</item>
+    <style name="LightTheme" parent="Theme.AppCompat">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:colorForeground">@color/headerTintLight</item>
+        <item name="android:textColor">@color/lessBlack</item>
+        <item name="android:textColorSecondary">@color/darkGray</item>
+        <item name="android:textColorHint">@color/darkGray</item>
+        <item name="android:windowBackground">@color/colorBackgroundLight</item>
+        <item name="android:navigationBarColor">@color/gray</item>
+        <item name="android:statusBarColor">@color/colorStatusBarLight</item>
+        <item name="android:colorButtonNormal">@color/colorButtonBackgroundLight</item>
     </style>
 
     <style name="textHeader">
@@ -29,19 +43,19 @@
     </style>
 
     <style name="textTitle">
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">18sp</item>
         <item name="android:fontFamily">@font/open_sans_bold</item>
         <item name="android:textColor">@color/veryWhite</item>
     </style>
 
     <style name="textArtist">
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:fontFamily">@font/open_sans_semibold</item>
         <item name="android:textColor">@color/veryWhite</item>
     </style>
 
     <style name="textFeat">
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:fontFamily">@font/open_sans</item>
         <item name="android:textColor">@color/lightGray</item>
     </style>
@@ -53,7 +67,7 @@
     </style>
 
     <style name="textLyrics">
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:fontFamily">@font/open_sans</item>
         <item name="android:textColor">@color/lessWhite</item>
     </style>
@@ -85,7 +99,7 @@
     <style name="textDrawer">
         <item name="android:textSize">16sp</item>
         <item name="android:fontFamily">@font/open_sans</item>
-        <item name="android:textColor">@color/veryWhite</item>
+        <item name="android:textColor">?android:attr/textColor</item>
     </style>
 
     <style name="textNGArtist">
@@ -103,29 +117,29 @@
     <style name="textSavedArtist">
         <item name="android:textSize">16sp</item>
         <item name="android:fontFamily">@font/open_sans_semibold</item>
-        <item name="android:textColor">@color/veryWhite</item>
+        <item name="android:textColor">?android:attr/textColor</item>
     </style>
 
     <style name="textSavedTitles">
         <item name="android:textSize">14sp</item>
         <item name="android:fontFamily">@font/open_sans</item>
-        <item name="android:textColor">@color/veryWhite</item>
+        <item name="android:textColor">?android:attr/textColor</item>
     </style>
 
     <style name="textFooterInfo">
-      <item name="android:textSize">10sp</item>
-      <item name="android:fontFamily">@font/open_sans</item>
-      <item name="android:textColor">@color/gray</item>
-      <item name="android:textAlignment">center</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:fontFamily">@font/open_sans</item>
+        <item name="android:textColor">@color/gray</item>
+        <item name="android:textAlignment">center</item>
     </style>
 
     <style name="textNoResults">
-      <item name="android:textSize">33sp</item>
-      <item name="android:fontFamily">@font/lato_black</item>
-      <item name="android:textColor">@color/gray</item>
-      <item name="android:textAlignment">center</item>
+        <item name="android:textSize">33sp</item>
+        <item name="android:fontFamily">@font/lato_black</item>
+        <item name="android:textColor">@color/gray</item>
+        <item name="android:textAlignment">center</item>
     </style>
-  
+
     <style name="imageButtonNoBackground" parent="@style/Widget.AppCompat.ImageButton">
         <item name="android:background">#00ffffff</item>
     </style>
@@ -134,7 +148,7 @@
         <item name="android:background">@drawable/bg_button</item>
         <item name="android:textSize">22sp</item>
         <item name="android:fontFamily">@font/open_sans_bold</item>
-        <item name="android:textColor">@color/lessWhite</item>
+        <item name="android:textColor">?android:attr/textColor</item>
         <item name="android:gravity">center</item>
         <item name="android:padding">8dp</item>
         <item name="android:paddingStart">9dp</item>
@@ -169,6 +183,7 @@
         <item name="android:paddingBottom">4dp</item>
         <item name="android:fontFamily">@font/lato</item>
         <item name="android:textSize">18sp</item>
+        <item name="android:textColor">?android:attr/textColor</item>
     </style>
 
     <style name="editText_filter" parent="@style/Widget.AppCompat.EditText">

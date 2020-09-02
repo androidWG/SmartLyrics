@@ -3,8 +3,16 @@
   <color name="colorPrimary">#5b38b5</color>
   <color name="colorAccent">#7067cf</color>
   <color name="colorBackground">#17191E</color>
+  <color name="colorBackgroundLight">#f0f0f0</color>
   <color name="colorStatusBar">#111214</color>
+  <color name="colorStatusBarLight">#cccccc</color>
   <color name="colorButtonBackground">#3d3d3d</color>
+  <color name="colorButtonBackgroundLight">#D5D5D5</color>
+  <color name="headerTint">#80000000</color>
+  <color name="headerTintLight">#80FFFFFF</color>
+  <color name="veryBlack">#000000</color>
+  <color name="lessBlack">#141414</color>
+  <color name="darkGray">#333333</color>
   <color name="veryWhite">#ffffff</color>
   <color name="lessWhite">#F2F2F2</color>
   <color name="lightGray">#C8C8C8</color>

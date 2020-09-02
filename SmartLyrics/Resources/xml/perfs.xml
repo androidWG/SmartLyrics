@@ -4,7 +4,6 @@
         xmlns:android="http://schemas.android.com/apk/res/android">
     <SwitchPreference
             android:defaultValue="true"
-            android:fontFamily="@font/open_sans"
             android:key="detect_song"
             android:summary="@string/prefDetectSummary"
             android:title="@string/prefDetect" />
@@ -23,6 +22,24 @@
             android:key="sync"
             android:summary="@string/prefSyncSummary"
             android:title="@string/prefSync" />
+    <PreferenceCategory android:title="@string/prefAnalyticsAndData">
+
+        <Preference
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:key="learnMoreData"
+                android:summary="@string/prefLearnMoreData" />
+        <Preference
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:key="backup"
+                android:title="@string/prefLearnMoreButton" />
+        <SwitchPreference
+                android:defaultValue="true"
+                android:key="sendAnalytics"
+                android:summary="@string/prefSendAnalyticsSummary"
+                android:title="@string/prefSendAnalytics" />
+    </PreferenceCategory>
     <PreferenceCategory android:title="@string/prefBackupRestore">
         <Preference
                 android:key="backup"
@@ -55,10 +72,15 @@
                 android:title="@string/prefRomanizeSearch" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/prefAdvanced">
+        <Preference
+                android:key="headerInfo"
+                android:summary="@string/prefHeaderDescription" />
         <SwitchPreference
                 android:defaultValue="true"
                 android:key="save_header"
                 android:summary="@string/prefHeaderSummary"
+                android:summaryOff="@string/prefHeaderSummaryOff"
+                android:summaryOn="@string/prefHeaderSummary"
                 android:title="@string/prefHeader" />
         <Preference
                 android:key="delete_header_imgs"

@@ -14,6 +14,8 @@
                 android:id="@+id/toolbar"
                 android:layout_width="0dp"
                 android:layout_height="60dp"
+                android:background="?android:attr/windowBackground"
+                android:elevation="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -24,10 +26,6 @@
                     android:layout_centerHorizontal="true"
                     android:gravity="center"
                     android:includeFontPadding="false"
-                    android:shadowColor="#000000"
-                    android:shadowDx="0"
-                    android:shadowDy="1"
-                    android:shadowRadius="4"
                     android:text="@string/drawerSaved"
                     android:textAppearance="@style/textHeader"
                     android:visibility="visible"
@@ -48,23 +46,29 @@
                     android:elevation="4dp"
                     android:foregroundGravity="center"
                     android:scaleType="fitCenter"
-                    android:tint="#FFFFFF"
+                    android:tint="?android:attr/textColor"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/round_menu_24" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
         <EditText
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:ems="10"
                 android:id="@+id/editText"
                 style="@style/editText_filter"
-                android:layout_marginTop="16dp" app:layout_constraintTop_toBottomOf="@+id/toolbar"
-                app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="16dp"
-                android:hint="@string/filterHint" android:enabled="false" android:layout_marginEnd="16dp"
-                app:layout_constraintEnd_toStartOf="@+id/selectGroupingBtn"/>
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:ems="10"
+                android:enabled="false"
+                android:hint="@string/filterHint"
+                android:inputType="textShortMessage|text"
+                android:textColor="?android:attr/textColor"
+                app:layout_constraintEnd_toStartOf="@+id/selectGroupingBtn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/toolbar" />
         <ProgressBar
                 style="?android:attr/progressBarStyle"
                 android:layout_width="wrap_content"
@@ -108,7 +112,7 @@
                 android:adjustViewBounds="true"
                 android:cropToPadding="true"
                 android:scaleType="center"
-                android:tint="#FFFFFF"
+                android:tint="?android:attr/textColor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/toolbar"
                 app:srcCompat="@drawable/round_format_align_right_24" />
@@ -121,5 +125,6 @@
             android:fitsSystemWindows="true"
             app:headerLayout="@layout/nav_header_main"
             app:menu="@menu/activity_main_drawer"
+            app:itemIconTint="?android:attr/textColor"
             app:itemTextAppearance="@style/textDrawer"/>
 </androidx.drawerlayout.widget.DrawerLayout>

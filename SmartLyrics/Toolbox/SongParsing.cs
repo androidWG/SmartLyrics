@@ -1,11 +1,11 @@
-﻿using Android.Util;
-
-using SmartLyrics.Common;
+﻿using SmartLyrics.Common;
+using static SmartLyrics.Common.Logging;
 
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+// ReSharper disable All
 
 namespace SmartLyrics.Toolbox
 {
@@ -27,9 +27,9 @@ namespace SmartLyrics.Toolbox
 
             string _artist = Regex.Match(extras, @"(?<=android\.text=)(.*?)(?=, android\.)").ToString();
 
-            Song output = new Song() { Title = _title, Artist = _artist };
+            Song _output = new Song() { Title = _title, Artist = _artist };
 
-            return output;
+            return _output;
         }
 
         public static Song StripSongForSearch(Song input)
@@ -49,42 +49,41 @@ namespace SmartLyrics.Toolbox
              * never used in Genius, so we should always remove those.
              */
 
-            string strippedTitle = input.Title;
-            string strippedArtist = input.Artist;
+            string _strippedTitle = input.Title;
+            string _strippedArtist = input.Artist;
 
             //removes any Remix, Edit, or Featuring info encapsulated
             //in parenthesis or brackets
             if (input.Title.Contains("(") || input.Title.Contains("["))
             {
-                List<Match> inside = Regex.Matches(input.Title, @"\(.*?\)").ToList();
-                List<Match> insideBrk = Regex.Matches(input.Title, @"\[.*?\]").ToList();
-                inside = inside.Concat(insideBrk).ToList();
+                List<Match> _inside = Regex.Matches(input.Title, @"\(.*?\)").ToList();
+                List<Match> _insideBrk = Regex.Matches(input.Title, @"\[.*?\]").ToList();
+                _inside = _inside.Concat(_insideBrk).ToList();
 
-                Log.WriteLine(LogPriority.Error, "SongParsing", $"StripSongForSearch: 'inside' list length: {inside.Count()}");
+                Log(Type.Error, $"{_inside.Count()}");
 
-                foreach (Match s in inside)
+                foreach (Match _s in _inside)
                 {
-                    if (s.Value.ToLowerInvariant().ContainsAny("feat", "ft", "featuring", "edit", "mix"))
+                    if (_s.Value.ToLowerInvariant().ContainsAny("feat", "ft", "featuring", "edit", "mix"))
                     {
-                        Log.WriteLine(LogPriority.Info, "SongParsing", $"StripSongForSearch: s.Value - {s.Value}");
-                        strippedTitle = input.Title.Replace(s.Value, "");
+                        _strippedTitle = input.Title.Replace(_s.Value, "");
                     }
                 }
             }
 
-            strippedTitle.Replace("🅴", ""); //remove "🅴" used by Apple Music for explicit songs
+            _strippedTitle.Replace("🅴", ""); //remove "🅴" used by Apple Music for explicit songs
 
             if (input.Artist.Contains(" & "))
             {
-                strippedArtist = Regex.Replace(input.Artist, @" & .*$", "");
+                _strippedArtist = Regex.Replace(input.Artist, @" & .*$", "");
             }
 
-            strippedTitle.Trim();
-            strippedArtist.Trim();
+            _strippedTitle.Trim();
+            _strippedArtist.Trim();
 
-            Log.WriteLine(LogPriority.Verbose, "SongParsing", "StripSongForSearch: Stripped title");
-            Song output = new Song() { Title = strippedTitle, Artist = strippedArtist };
-            return output;
+            Song _output = new Song() { Title = _strippedTitle, Artist = _strippedArtist };
+            Log(Type.Processing, $"Stripped title from {input} to {_output.Title}");
+            return _output;
         }
 
         public static async Task<int> CalculateLikeness(Song result, Song notification, int index)
@@ -106,33 +105,33 @@ namespace SmartLyrics.Toolbox
              * song, "Daddy Like", since Genius doesn't have the remixed version.
             */
 
-            string title = result.Title.ToLowerInvariant();
-            string artist = result.Artist.ToLowerInvariant();
+            string _title = result.Title.ToLowerInvariant();
+            string _artist = result.Artist.ToLowerInvariant();
 
-            string ntfTitle = notification.Title.ToLowerInvariant();
-            ntfTitle.Replace("🅴", ""); //remove "🅴" used by Apple Music for explicit songs
+            string _ntfTitle = notification.Title.ToLowerInvariant();
+            _ntfTitle.Replace("🅴", ""); //remove "🅴" used by Apple Music for explicit songs
             //remove anything inside brackets since almost everytime
             //it's not relevant info
-            ntfTitle = Regex.Replace(ntfTitle, @"\[.*?\]", "").Trim();
-            string ntfArtist = notification.Artist.ToLowerInvariant();
+            _ntfTitle = Regex.Replace(_ntfTitle, @"\[.*?\]", "").Trim();
+            string _ntfArtist = notification.Artist.ToLowerInvariant();
 
-            title = await JapaneseTools.StripJapanese(title);
-            artist = await JapaneseTools.StripJapanese(artist);
+            _title = await _title.StripJapanese();
+            _artist = await _artist.StripJapanese();
 
-            int titleDist = Text.Distance(title, ntfTitle);
-            int artistDist = Text.Distance(artist, ntfArtist);
+            int _titleDist = Text.Distance(_title, _ntfTitle);
+            int _artistDist = Text.Distance(_artist, _ntfArtist);
 
             //add likeness points if title or artist is incomplete.
             //more points are given to the artist since it's more common to have
             //something like "pewdiepie" vs. "pewdiepie & boyinaband"
-            if (ntfTitle.Contains(title)) { titleDist -= 3; }
-            if (ntfArtist.Contains(artist)) { artistDist -= 4; }
+            if (_ntfTitle.Contains(_title)) { _titleDist -= 3; }
+            if (_ntfArtist.Contains(_artist)) { _artistDist -= 4; }
 
-            int likeness = titleDist + artistDist + index;
-            if (likeness < 0) { likeness = 0; }
+            int _likeness = _titleDist + _artistDist + index;
+            if (_likeness < 0) { _likeness = 0; }
 
-            Log.WriteLine(LogPriority.Verbose, $"SmartLyrics", $"Title - {title} vs {ntfTitle}\nArtist - {artist} vs {ntfArtist}\nLikeness - {likeness}");
-            return likeness;
+            Log(Type.Info, $"SmartLyrics", $"Title - {_title} vs {_ntfTitle}\nArtist - {_artist} vs {_ntfArtist}\nLikeness - {_likeness}");
+            return _likeness;
         }
     }
 }
