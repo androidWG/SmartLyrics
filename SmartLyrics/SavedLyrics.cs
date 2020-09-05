@@ -206,7 +206,7 @@ namespace SmartLyrics
         }
 
         //makes a list with all artists and songs saved
-        private async Task GetSavedList(List<SongBundle> songList)
+        private async Task GetSavedList(IEnumerable<SongBundle> songList)
         {
             artistList = new List<Artist>();
 

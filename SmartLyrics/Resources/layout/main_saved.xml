@@ -13,7 +13,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/toolbar"
                 android:layout_width="0dp"
-                android:layout_height="60dp"
+                android:layout_height="@dimen/toolbarHeight"
                 android:background="?android:attr/windowBackground"
                 android:elevation="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -117,14 +117,15 @@
                 app:layout_constraintTop_toBottomOf="@+id/toolbar"
                 app:srcCompat="@drawable/round_format_align_right_24" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
     <com.google.android.material.navigation.NavigationView
             android:id="@+id/nav_view"
-            android:layout_width="240dp"
+            android:layout_width="@dimen/drawerWidth"
             android:layout_height="match_parent"
             android:layout_gravity="start"
             android:fitsSystemWindows="true"
             app:headerLayout="@layout/nav_header_main"
-            app:menu="@menu/activity_main_drawer"
             app:itemIconTint="?android:attr/textColor"
-            app:itemTextAppearance="@style/textDrawer"/>
+            app:itemTextAppearance="@style/textDrawer"
+            app:menu="@menu/activity_main_drawer" />
 </androidx.drawerlayout.widget.DrawerLayout>

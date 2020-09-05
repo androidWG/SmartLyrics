@@ -30,7 +30,7 @@ namespace SmartLyrics.Services
         private int callsMade;
         public static int Progress;
         private bool isWorking;
-        private static readonly int NotificationId = 177013;
+        private static readonly int NotificationId = 6942069;
         private static readonly string ChannelId = "download_lyrics_bg_sl";
         private readonly string savedLyricsLocation = "SmartLyrics/Saved Lyrics/Spotify/";
         private readonly string savedImagesLocation = "SmartLyrics/Saved Lyrics/Spotify/Image Cache/";

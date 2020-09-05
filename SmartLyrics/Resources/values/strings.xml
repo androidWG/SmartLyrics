@@ -12,7 +12,7 @@
     <string name="savedSuccessfully">Lyrics saved successfully</string>
     <string name="nowPlaying">NOW PLAYING</string>
     <string name="drawerSearch">Search</string>
-    <string name="drawerSaved">Saved Lyrics</string>
+    <string name="drawerSaved">Saved</string>
     <string name="drawerSettings">Settings</string>
     <string name="drawerAbout">About</string>
     <string name="descDecorationBG">Decoration background image</string>
@@ -22,7 +22,7 @@
     <string name="descSeacrhBtn">Show search bar</string>
     <string name="descDrawerBtn">Open drawer</string>
     <string name="filterHint">Filter coming soon</string>
-    <string name="drawerSpotify">Connect to Spotify</string>
+    <string name="drawerSpotify">Sync</string>
     <string name="mainSpotifyHeader">ALMOST THERE</string>
     <string name="mainSpotify">Press the big green button below to start downloading lyrics to all your songs</string>
     <string name="downloadLyrics">DOWNLOAD LYRICS</string>
