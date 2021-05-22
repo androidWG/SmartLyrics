@@ -1,3 +1,8 @@
+# PROJECT IS CURRENTLY ON HOLD
+
+Code here will probably be used in a future project but for now I'm not working on this at all.
+
+-----
 # Smart Lyrics
 
 #### Master/Release Build Status
